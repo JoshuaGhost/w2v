@@ -1,0 +1,3 @@
+embedding dimension, vocabulary threshold, relative recall, intersection
+200, 40, 1, 8
+50, 30, 1, 7

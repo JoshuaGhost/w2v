@@ -1,0 +1,15 @@
+embedding dimension, vocabulary threshold, data source, category, average ERR, occurence
+250, 5, wordnet, past-tense, 0.460765266177, 98
+200, 40, wordnet, past-tense, 0.490969757995, 52
+250, 25, wordnet, past-tense, 0.45628033043, 68
+50, 30, wordnet, past-tense, 0.539250310621, 62
+250, 30, wordnet, past-tense, 0.428471288538, 62
+150, 15, wordnet, past-tense, 0.497444804216, 81
+50, 50, wordnet, past-tense, 0.569516707782, 49
+200, 30, wordnet, past-tense, 0.494250424276, 62
+200, 25, wordnet, past-tense, 0.472592868733, 68
+150, 25, wordnet, past-tense, 0.478295325998, 68
+200, 50, wordnet, past-tense, 0.530543775952, 49
+250, 10, wordnet, past-tense, 0.445217703836, 90
+300, 25, wordnet, past-tense, 0.465781386012, 68
+300, 20, wordnet, past-tense, 0.451421417372, 72
