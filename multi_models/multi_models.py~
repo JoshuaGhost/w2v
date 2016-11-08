@@ -2,7 +2,7 @@ from __future__ import print_function, division
 import logging
 import pickle
 import time
-logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level = logging.INFO)
+logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level = logging.WARN)
 logger = logging.getLogger(__name__)
 
 from utils import *
@@ -22,25 +22,31 @@ for file_num, filename in numbered_files:
 		if ((file_num % NUM_DOCS_PER_MODEL_TEST_MODE == 0) and TEST_MODE) or\
 			(file_num % NUM_DOCS_PER_MODEL == 0):
 			pickle.dump(sentences, open(RAW_DATA_DUMP_FOLDER + raw_data_dump_file, 'w'))
+			print(raw_data_dump_file)
 			sentences = []
 	
 	if (TEST_MODE and file_num > NUM_ALL_DOCS_TEST_MODE) or (file_num > NUM_ALL_DOCS):
 		if len(sentences)>0:
 			pickle.dump(sentences, open(RAW_DATA_DUMP_FOLDER + raw_data_dump_file, 'w'))
+			print (raw_data_dump_file)
 			sentences = []
 		break
-
-	if file_num % 2000 == 0:
-		logger.info(str(file_num) + " docs have been gathered")
 	
 	model_num = str(file_num // (NUM_DOCS_PER_MODEL_TEST_MODE if TEST_MODE else NUM_DOCS_PER_MODEL))
 	raw_data_dump_file = 'raw_data_multi_models_no_' + str(model_num) + '.txt'
+
 	
+	if file_num % 2000 == 0:
+		logger.info(str(file_num) + " docs have been gathered")
+		
 	if os.path.exists(RAW_DATA_DUMP_FOLDER + raw_data_dump_file) and not TEST_MODE:
 		continue
 	
 	with open(filename) as f:
 		sentences += read_sentences_from(f, prune_list = STOPLIST)
+
+	
+
 
 logger.info("doc gathering complete")
 

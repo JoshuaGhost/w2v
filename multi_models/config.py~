@@ -7,7 +7,7 @@ RAW_DATA_DUMP_FOLDER = RES_FOLDER
 
 STOPLIST = set('for a of the and to in \x00'.split())
 
-TEST_MODE = False
+TEST_MODE = True
 NUM_ALL_DOCS_TEST_MODE = 100
 NUM_DOCS_PER_MODEL_TEST_MODE = 20
 
