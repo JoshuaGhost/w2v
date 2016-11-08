@@ -19,26 +19,30 @@ raw_data_dump_file = 'raw_data_for_model_'
 numbered_files = enumerate(walk_all_files(DATA_FOLDER))
 for file_num, filename in numbered_files:
 	
-	if (TEST_MODE and file_num > NUM_ALL_DOCS_TEST_MODE) or (file_num > NUM_ALL_DOCS):
-		break
-	
-	model_num = str(file_num // (NUM_DOCS_PER_MODEL_TEST_MODE if TEST_MODE else NUM_DOCS_PER_MODEL_TEST_MODE))
+	model_num = str(file_num // (NUM_DOCS_PER_MODEL_TEST_MODE if TEST_MODE else NUM_DOCS_PER_MODEL) - 1)
 	raw_data_dump_file = 'raw_data_multi_models_no_' + str(model_num) + '.txt'
 
+	if (TEST_MODE and file_num > NUM_ALL_DOCS_TEST_MODE) or (file_num > NUM_ALL_DOCS):
+		if len(sentences)>0:
+			pickle.dump(sentences, open(RAW_DATA_DUMP_FOLDER + raw_data_dump_file, 'w'))
+			sentences = []
+		break
+	
+	if file_num % 2000 == 0:
+		logger.info(str(file_num) + " docs have been gathered")
+		
 	if os.path.exists(RAW_DATA_DUMP_FOLDER + raw_data_dump_file) and not TEST_MODE:
 		continue
 	
 	with open(filename) as f:
 		sentences += read_sentences_from(f, prune_list = STOPLIST)
 
-	if file_num % 2000 == 0:
-		logger.info(str(file_num) + " docs have been gathered")
-
 	if file_num > 0:
 		if ((file_num % NUM_DOCS_PER_MODEL_TEST_MODE == 0) and TEST_MODE) or\
 			(file_num % NUM_DOCS_PER_MODEL == 0):
 			pickle.dump(sentences, open(RAW_DATA_DUMP_FOLDER + raw_data_dump_file, 'w'))
 			sentences = []
+
 
 logger.info("doc gathering complete")
 
