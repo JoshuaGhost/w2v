@@ -129,7 +129,7 @@ for model_file in model_files:
 
                 to_print = (ebd,
                             vvth, 
-                            ('wikipedia-dict' if c in wikipedia_dict else 'wordnet'),
+                            ('wikipedia-dict' if c in wikipedia_categories else 'wordnet'),
                             c, 
                             str(sim[c]/occurence[c]), 
                             str(occurence[c]))
