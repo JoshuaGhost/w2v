@@ -7,7 +7,7 @@ raw_dump_file = 'raw_diff_order.txt'
 
 stoplist = set('for a of the and to in \x00'.split())
 
-test_mode = True
+test_mode = False
 numdocs_test_batch = 100
 len_sentc_test = 10000
 
