@@ -13,7 +13,7 @@ from gensim.models import Word2Vec
 
 docs_gathered = 0
 sentences = []
-if not os.path.exists(raw_dump_folder+raw_dump_file) or test_mode:
+if not os.path.exists(raw_dump_folder+raw_dump_file):
     time_gather_docs = -time.time()
     for filename in walk_all_files(data_folder):
         docs_gathered += 1
@@ -25,7 +25,7 @@ if not os.path.exists(raw_dump_folder+raw_dump_file) or test_mode:
 	    
             if (test_mode and docs_gathered >= numdocs_test_batch) or (docs_gathered >= num_all_docs):
                 time_gather_docs += time.time()
-                pickle.dump(sentences, open(raw_dump_folder+raw_dump_file+('.test' if test_mode else ''), 'w'))
+                pickle.dump(sentences, open(raw_dump_folder+raw_dump_file, 'w'))
                 break
 
     logger.info("doc gathering complete")
