@@ -104,7 +104,14 @@ def rank_similarity (model, x, y, topn = 20):
 
 
 from combine_sort import combine_models
+from time import time
+
+combination_timeX2 = -time()
 models = [combine_models(abs_sort = True), combine_models(abs_sort = False)]
+combination_timeX2 += time()
+with open('combination_time.txt', 'w+') as f:
+	f.write(str(combination_timeX2))
+
 for model in models:
 	print('evaluating ', model)
 	occurence = {} 
