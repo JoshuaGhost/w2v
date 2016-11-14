@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 import logging
 import pickle
-import time
+from time import time
 logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level = logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -10,24 +10,28 @@ from config import *
 
 from gensim.models import Word2Vec
 
-
+docs_gathering_times = []
 docs_gathered = 0
 sentences = []
 
 raw_data_dump_file = 'raw_data_for_model_'
 
 numbered_files = enumerate(walk_all_files(DATA_FOLDER))
+docs_gathering_times.append(-time())
 for file_num, filename in numbered_files:
 	if (file_num > 0) and (len(sentences) > 0):
 		if ((file_num % NUM_DOCS_PER_MODEL_TEST_MODE == 0) and TEST_MODE) or\
 			(file_num % NUM_DOCS_PER_MODEL == 0):
 			pickle.dump(sentences, open(RAW_DATA_DUMP_FOLDER + raw_data_dump_file, 'w'))
 			sentences = []
+			docs_gathering_times[-1]+=time()
+			docs_gathering_times.append(-time())
 	
 	if (TEST_MODE and file_num > NUM_ALL_DOCS_TEST_MODE) or (file_num > NUM_ALL_DOCS):
 		if len(sentences)>0:
 			pickle.dump(sentences, open(RAW_DATA_DUMP_FOLDER + raw_data_dump_file, 'w'))
 			sentences = []
+		docs_gathering_times[-1]+=time()
 		break
 
 	if file_num % 2000 == 0:
@@ -43,14 +47,19 @@ for file_num, filename in numbered_files:
 		sentences += read_sentences_from(f, prune_list = STOPLIST)
 
 logger.info("doc gathering complete")
+with open("times.csv", "w+") as f:
+	f.write('documentations gathering time:\n')
+	f.write('\n'.join(map(str, docs_gathering_times))+'\n')
 
 
+training_times = []
 num_models = (NUM_ALL_DOCS_TEST_MODE // NUM_DOCS_PER_MODEL_TEST_MODE)\
 				if TEST_MODE\
 				else (NUM_ALL_DOCS // NUM_DOCS_PER_MODEL)
 
 for num_model in range(num_models):
 	
+	training_times.append(-time())
 	model_file_name = 'multi_models_ebd_' + str(EBD_DIM) + '_vvth_' + str(VOCAB_FREQ_THRES) + '_no_' + str(num_model)+'.w2v'
 	
 	if os.path.exists(RES_FOLDER + model_file_name) and not TEST_MODE:
@@ -78,3 +87,8 @@ for num_model in range(num_models):
 
 	else:
 		model.save(RES_FOLDER + model_file_name)
+	training_times[-1] += time()
+
+with open("times.csv", "a+") as f:
+	f.write('models training time:\n')
+	f.write('\n'.join(map(str, training_times))+'\n')
