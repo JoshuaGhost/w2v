@@ -52,7 +52,7 @@ def sort_combine(embeddings, abs_sort = False):
 
 def combine_models(abs_sort):
 	from copy import deepcopy
-	models = get_models(MODEL_FOLDER+'multi_models_ebd_100_vvth_50_no_', 5)
+	models = get_models(MODEL_FOLDER+'multi_models_ebd_100_vvth_3_no_', 5)
 	word_intersect = list(reduce(lambda x,y:x&y,[set(md.vocab.keys()) for md in models]))
 	num_word = len(word_intersect)
 
