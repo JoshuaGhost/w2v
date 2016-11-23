@@ -11,6 +11,6 @@ CORPORA_DIR = '/home/zijian/workspace/data/'
 DICT_PATH = '/usr/share/dict/words'
 
 
-TEST_MODE = True
-NUM_DOCS_TEST = 100
+TEST_MODE = False
+NUM_DOCS_TEST = 10
 NUM_DOCS = 100000

@@ -73,11 +73,14 @@ def gen_sentence(data_folder, num_docs, stoplist, dictionary, test_mode = False,
 	for file_num, filename in enum_files:
 		with open(filename) as f:
 			sentences = f.readlines()
+			if len(sentences) == 0:
+				yield []
+				continue
 			sentences = reduce(lambda x, y: x+y, sentences)
 			for sentence in sentences.split('.'):
 				yield [word for word in sentences.lower().split() if word not in stoplist and word in dictionary]
 		if (file_num == num_docs-1) or (test_mode and file_num == num_docs_test-1):
-			return	
+			return
 
 
 def tr_rule(word, count, min_count):

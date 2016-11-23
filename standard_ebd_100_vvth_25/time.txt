@@ -1,2 +1,4 @@
 sentences collection time:
- 1.148885
+ 0.463508
+training and saving time:
+ 9.515951

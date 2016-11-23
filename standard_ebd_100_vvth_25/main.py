@@ -22,7 +22,7 @@ for sen in gen_sentence(CORPORA_DIR, NUM_DOCS, stoplist, dictionary, test_mode =
 	sentences += sen
 timestamp += time()
 with open('time.txt', 'w+') as f:
-	f.write('sentences collection time:\n %0.6f' % timestamp)
+	f.write('sentences collection time:\n %0.6f\n' % timestamp)
 
 
 timestamp = -time()
@@ -36,4 +36,4 @@ if TEST_MODE:
 model.save(MODELS_DIR + model_filename)
 timestamp += time()
 with open('time.txt', 'a+') as f:
-	f.write("training and saving time:\n %0.6f" % timestamp)
+	f.write("training and saving time:\n %0.6f\n" % timestamp)
