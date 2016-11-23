@@ -4,7 +4,7 @@ MIN_COUNT = 25
 
 MODEL_FOLDER = '/tmp/w2v/custom_vocab/'
 DICT_FOLDER = '/usr/share/dict/words'
-CORPORA_FOLDER = '/home/assassin/workspace/master_thesis/data/sample_data'
+CORPORA_FOLDER = '/home/zijian/workspace/data'
 
 STOPLIST = set('for a of the and to in \x00'.split())
 
@@ -28,14 +28,6 @@ from utils import *
 import logging
 logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level = logging.INFO)
 logger = logging.getLogger(__name__)
-
-def gen_sentences_from(data_folder):
-	enum_files = enumerate(walk_all_files(data_folder))
-	for file_num, filename in enum_files:
-		with open(filename) as f:
-			yield read_sentences_from(f, STOPLIST)
-		if (file_num == NUM_ALL_DOCS-1) or (TEST_MODE and file_num == NUM_ALL_DOCS_TEST-1):
-			return	
 
 
 model = None

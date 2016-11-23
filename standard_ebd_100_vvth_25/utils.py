@@ -9,15 +9,15 @@ from gensim.utils import RULE_DEFAULT
 
 prog = re.compile("[a-zA-Z]+[a-zA-Z0-9'_-]*")
 
+
 def vocab_set_from_dict(path_to_dict):
 	vocab_list = []
 	with open(path_to_dict) as f:
 		for word in f.readlines():
-			vocab_list.append(word)
+			vocab_list.append(word.lower())
 	if len(vocab_list) == 0:
 		return set()
 
-	vocab_list = [word.lower() for word in vocab_list]
 	if vocab_list[0][-1] not in lowercase:
 		vocab_list = [word[:-1] for word in vocab_list]
 
@@ -26,7 +26,6 @@ def vocab_set_from_dict(path_to_dict):
 
 def scan_vocab_custom(model, sentences, dictionary, logger,
 			progress_per=10000, trim_rule=None, update=False):
-	#logger.info("collecting all words and their counts")
 	sentence_no = -1
 	total_words = 0
 	min_reduce = 1
@@ -69,21 +68,15 @@ def walk_all_files(data_folder, ext_name = '.html'):
                 yield fullpath
 
 
-def read_sentences_from(f, stop_list):
-	sentences = f.readlines()
-	if len(sentences) == 0:
-		return [[]]
-	sentences = reduce(lambda x, y: x+y, sentences)
-	sentences = [[word for word in sentence.lower().split() if word not in stop_list] for sentence in sentences.split('.')]
-	return sentences
-
-
-def gen_sentences_from(data_folder):
+def gen_sentence(data_folder, num_docs, stoplist, dictionary, test_mode = False, num_docs_test = 100):
 	enum_files = enumerate(walk_all_files(data_folder))
 	for file_num, filename in enum_files:
 		with open(filename) as f:
-			yield read_sentences_from(f, STOPLIST)
-		if (file_num == NUM_ALL_DOCS-1) or (TEST_MODE and file_num == NUM_ALL_DOCS_TEST-1):
+			sentences = f.readlines()
+			sentences = reduce(lambda x, y: x+y, sentences)
+			for sentence in sentences.split('.'):
+				yield [word for word in sentences.lower().split() if word not in stoplist and word in dictionary]
+		if (file_num == num_docs-1) or (test_mode and file_num == num_docs_test-1):
 			return	
 
 
