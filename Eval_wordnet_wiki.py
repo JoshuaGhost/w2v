@@ -41,17 +41,18 @@ wikipedia_categories = {'adjective-to-adverb',
 
 class Eval_wordnet_wiki(object):
 	def __init__(self, ce_dir, exp_type, 
-		ben_form, num_total_docs, num_sub_model, 
-		test):
-		super(Eval_ext_wordnet_wiki, self).__init__()
+		benchmark_dir, ben_form, num_total_docs,
+		num_sub_model, test):
+		super(Eval_wordnet_wiki, self).__init__()
 		self.ce_dir = ce_dir
 		self.exp_type = exp_type
 		self.ben_form = ben_form
+		self.data_dir = benchmark_dir
 		self.num_total_docs = num_total_docs
 		self.num_sub_model = num_sub_model
 		self.test = test
-		self.wikipedia_dict = glob.glob(os.path.join(data_dir, "Pairs_from_Wikipedia_and_Dictionary/*.txt"))
-		self.wordnet = glob.glob(os.path.join(data_dir, "Pairs_from_WordNet/*.txt"))
+		wikipedia_dict = glob.glob(os.path.join(self.data_dir, "Pairs_from_Wikipedia_and_Dictionary/*.txt"))
+		wordnet = glob.glob(os.path.join(self.data_dir, "Pairs_from_WordNet/*.txt"))
 
 		word_pairs = []
 		category = []

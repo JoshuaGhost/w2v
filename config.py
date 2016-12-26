@@ -32,5 +32,6 @@ stoplist = set('for a of the and to in \x00'.split())
 MAX_VOCAB_SIZE = 10000000
 NUM_WORKERS = 16
 NUM_ITER = 15
+BATCH_WORDS = 500
 
 NUM_SUB_MODEL_DEFAULT = 5
