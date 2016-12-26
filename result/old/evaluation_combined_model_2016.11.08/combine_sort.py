@@ -9,11 +9,11 @@ def get_models(basename, num_models):
 	return [Word2Vec.load(basename + str(idx) + '.w2v') for idx in range(num_models)]
 
 
-def get_embeddings(models, word_intersect):
+def get_embeddings(models, wordlist):
 	ebds = []
 	for model in models:
 		ebd = []
-		for word in word_intersect:
+		for word in wordlist:
 			ebd.append(model.syn0[model.vocab[word].index])
 		ebds.append(ebd)
 	ebds = array(ebds)

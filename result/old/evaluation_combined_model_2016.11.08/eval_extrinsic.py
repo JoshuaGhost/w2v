@@ -120,9 +120,6 @@ for model in models:
 
 	with open("extrinsic.csv", "a+") as f:
 		for c in (wordnet_categories | wikipedia_categories) & set(sim.keys()) & set(occurence.keys()):
-			print (c)
-
 			to_print = (('wikipedia-dict' if c in wikipedia_categories else 'wordnet'), c, str(sim[c]/occurence[c]), str(occurence[c]))
 			f.write(', '.join(to_print)+'\n')
-
 		f.write('\n')
