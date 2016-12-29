@@ -1,6 +1,5 @@
 PYTHON_INTERPRETER=python
 MAIN_ENTRY=main.py
-DIM_START=
 MODELS_FOLDER=/tmp/w2v/default_models/
 USERNAME=`whoami`
 CORPORA_FOLDER=/home/$(USERNAME)/workspace/master_thesis/data/
@@ -21,6 +20,7 @@ help :
 	@echo "		make eval       don't train any models, just evaluate"
 	@echo '		make sort_comb  train dedicated models and combine them using sort alignment method'
 	@echo '		make lsr_comb   train dedicated models and combine them using LSR'
+	@echo '     make spec       train single model with specified configuration, default size=100 min_count=24'
 	@echo ''
 
 
@@ -28,7 +28,16 @@ dirs :
 	mkdir -p MODELS_FOLDER
 	mkdir -p CE_FOLDER
 	
-iter : dirs
-	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 1 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) -f 0 $(TEST_OPT)
+eval : dirs
+	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 0 -f 0 -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
 
-.PHONY : help dirs iter
+iter : dirs
+	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 1 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
+
+spec : dirs
+	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 2 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
+
+sort_comb : dirs
+	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 3 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
+
+.PHONY : help dirs iter spec sort_comb

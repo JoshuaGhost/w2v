@@ -21,7 +21,7 @@ def collect_sentences(corpora_folder, num_all_docs, ce_folder, valid_vocab):
 		sentences += s
 	timestamp += time()
 	with open(ce_folder+'/time.txt', 'a+') as f:
-		f.write('%d docs in total, sentences collection time:\n %0.6f\n'% (num_all_docs, timestamp))
+		f.write('%d docs in total, sentences collection time: %0.6f\n\n'% (num_all_docs, timestamp))
 	return sentences
 
 
@@ -31,31 +31,33 @@ def w2v_timing(sentences, ebd_dim, min_count, model_suffix, test_mode, ce_folder
 					max_vocab_size = MAX_VOCAB_SIZE, sample = 1e-4, workers = NUM_WORKERS, 
 					sg = 1, negative = 25, iter = NUM_ITER, null_word = 1,
 					trim_rule = tr_rule, batch_words = BATCH_WORDS)
-	model_filename = 'dim_%d_mc_%d_'+model_suffix+'.w2v' % ebd_dim, min_count
+	model_filename = 'dim_%d_mc_%d_%s.w2v'% (ebd_dim, min_count, model_suffix)
 	model_filename += '.test' if test_mode else ''
 
 	timestamp += time()
 	with open(ce_folder+'time.txt', 'a+') as f:
-		f.write("ebd_dim %d min_count %d training time:\n %0.6f\n" % ebd_dim, min_count, timestamp)
+		f.write("ebd_dim %d min_count %d training time:\n %0.6f\n"% (ebd_dim, min_count, timestamp))
 	return model, model_filename
 			
 
-def build_model_vocab_only(dictionary, ebd_dim, min_count, models_folder):
+def build_model_vocab_only(corpora_folder, num_all_docs, ce_folder, dictionary,
+						   ebd_dim, min_count, models_folder):
 	model = word2vec.Word2Vec( size=ebd_dim, window=10, max_vocab_size=100000,
-							   sample=1e-4, workers=16, sg=1, negative=25,
+							   sample=1e-4, workers=NUM_WORKERS, sg=1, negative=25,
 							   iter=15, null_word=1, batch_words = 500)
 	model.raw_vocab = {}
 	model.corpus_count = 0
 
 	sentences = []
-	sent_gen = gen_sentences_from(CORPORA_FOLDER)
+	sent_gen = collect_sentences(corpora_folder, num_all_docs, ce_folder, dictionary)
 	for sent_idx, sentences in enumerate(sent_gen):
 		scan_vocab_custom(model, sentences, dictionary, logger)
 		if (sent_idx+1)%2000 == 0:
 			logger.info('collected '+str(sent_idx+1)+' sentences with '+str(len(model.raw_vocab))+' raw_vocab')
 	model.scale_vocab(min_count=min_count, trim_rule=tr_rule)
 	model.finalize_vocab()
-	model.save(models_folder + 'model_vocab_only.w2v')
+	model.save(models_folder + 'model_vocab_only_ebd_%d_mc_%d.w2v'% (ebd_dim, min_count))
+	return model
 
 
 exp_discription = {0: "don't generate models, evaluate only",
@@ -87,40 +89,48 @@ parser.add_argument('--test_mode', action='store_const', const=True, help='if se
 
 args = vars(parser.parse_args())
 
-corpora_folder		= folderfy(args['c'] if args.has_key('c') else CORPORA_FOLDER)
+exp_type		= args['t'] if args.has_key('t') else 0
+benchmark_form	= args['f'] if args.has_key('f') else 0
+
+if not exp_type==0:
+	corpora_folder		= folderfy(args['c'] if args.has_key('c') else CORPORA_FOLDER)
 models_folder 		= folderfy(args['m'] if args.has_key('m') else MODELS_FOLDER)
 benchmark_folder 	= folderfy(args['b'] if args.has_key('b') else BENCHMARK_FOLDER)
 ce_folder			= folderfy(args['r'] if args.has_key('r') else CE_FOLDER)
 
 dict_path			= args['d'] if args.has_key('d') else DICT_PATH
 
-exp_type		= args['t'] if args.has_key('t') else 0
-benchmark_form	= args['f'] if args.has_key('f') else 0
-
 test_mode 		= args['test_mode'] if args.has_key('test_mode') else TEST_MODE
 
-ebd_dim 		= args['ebd_dim'] if args.has_key('ebd_dim') else EBD_DIM_DEFAULT
-min_count 		= args['min_count'] if args.has_key('min_count') else MIN_COUNT_DEFAULT
+ebd_dim 		= args['ebd_dim'] if args.has_key('ebd_dim') and args['ebd_dim'] is not None else EBD_DIM_DEFAULT
+min_count 		= args['min_count'] if args.has_key('min_count') and args['min_count'] is not None else MIN_COUNT_DEFAULT
 
 num_all_docs 	= NUM_ALL_DOCS_TEST if test_mode else NUM_ALL_DOCS
-num_sub_models 	= args['num_sub_models'] if args.has_key('num_sub_models') else NUM_SUB_MODEL_DEFAULT
+num_sub_models 	= args['num_sub_models'] if args.has_key('num_sub_models') and args['num_sub_models'] is not None else NUM_SUB_MODEL_DEFAULT
 
 
 evaluator = Evaluator.eval_factory(benchmark_form, ce_folder, benchmark_folder,\
 			exp_type, benchmark_form, num_all_docs,\
 			num_sub_models, test_mode)
 
+if test_mode:
+	file_suffix='.test'
+else:
+	file_suffix=''
 
 with open(ce_folder+'/time.txt', 'a+') as f:
-	f.write('='*24+'\nexperiment type %d\n'%exp_type)
+	f.write('='*24+'\nexperiment type: %d\n'%exp_type)
 	f.write('configuration:\n')
-	f.write('is test mode: %d\n'% test_mode)
-	f.write('num of all docs: %d\n'% num_all_docs)
+	f.write('\tis test mode: %d\n'% test_mode)
+	f.write('\tnum of all docs: %d\n'% num_all_docs)
 
 
 if exp_type==0:
-	for model_file_name in filter_walk(model_folder, '.w2v'):
-		model = word2vec.Word2Vec.load(model_file_name)
+	for model_filename in filter_walk(models_folder, ('.test' if test_mode else '.w2v')):
+		print( model_filename)
+		model = word2vec.Word2Vec.load(model_filename)
+		ebd_dim = int(model_filename.split('_')[-4])
+		min_count = int(model_filename.split('_')[-2])
 		evaluator.eval_ext(model, ebd_dim, min_count)
 
 
@@ -132,52 +142,52 @@ elif exp_type==1:
 		for min_count in range(MIN_COUNT_MIN, MIN_COUNT_MAX, MIN_COUNT_STEP):
 			model, model_filename = w2v_timing(sentences, ebd_dim, min_count, 'iter', test_mode, ce_folder)
 			evaluator.eval_ext(model, ebd_dim, min_count)
-			model.save(modles_folder+model_filename)
+			model.save(models_folder+model_filename+file_suffix)
 
 
 elif exp_type==2:
 	dictionary = dict_from_file(dict_path)
 	sentences = collect_sentences(corpora_folder, num_all_docs, ce_folder, dictionary)
-
-	min_count 	= args['min_count'] if args.has_key('min_count') else MIN_COUNT_DEFAULT
-	ebd_dim 	= args['ebd_dim'] if args.has_key('ebd_dim') else EBD_DIM_DEFAULT
 	model, model_filename = w2v_timing(sentences, ebd_dim, min_count, 'spec', test_mode, ce_folder)
 	
 	evaluator.eval_ext(model, ebd_dim, min_count)
-	model.save(models_folder+model_filename)
+	model.save(models_folder+model_filename+file_suffix)
 
 
 elif exp_type==3:
 	dictionary = dict_from_file(dict_path)
 	timestamp = -time()
-	model_vocab_only = build_model_vocab_only(dictionary, ebd_dim, min_count, models_folder)
+	model_vocab_only = build_model_vocab_only(corpora_folder, num_all_docs, ce_folder, dictionary, ebd_dim, min_count, models_folder)
 	timestamp += time()
 	with open(ce_folder+'time.txt', 'a+') as f:
-		f.write("ebd_dim %d min_count %d base model for vocab sharing:\n %0.6f\n" % ebd_dim, min_count, timestamp)	
+		f.write("ebd_dim %d min_count %d base model for vocab sharing:\n %0.6f\n"% (ebd_dim, min_count, timestamp))	
 			
-	sent_gen = gen_sentences_from(CORPORA_FOLDER)
+	sent_gen = collect_sentences(corpora_folder, num_all_docs, ce_folder, dictionary)
 	sentences = []
 	for doc_idx, sentences_cur in enumerate(sent_gen):
 		sentences += sentences_cur
 		num_docs_per_model = num_all_docs//num_sub_models
 		if ((doc_idx+1)%num_docs_per_model==0 or doc_idx+1==num_all_docs):
 			model_num = doc_idx//num_docs_per_model
-			model_tmp = deepcopy(model)
+			model_tmp = deepcopy(model_vocab_only)
 			print (len(sentences))
 			timestamp = -time()
 			model_tmp.train(sentences, total_examples=len(sentences))
-			model_tmp.save(MODEL_FOLDER + 'sub_model_ebd_%d_mc_%d_%d.w2v'% ebd_dim, min_count, model_num)
+			model_tmp.save(models_folder + 'sub_model_ebd_%d_mc_%d_%d.w2v%s'% (ebd_dim, min_count, model_num, file_suffix))
 			timestamp += time()
 			with open(ce_folder+'time.txt', 'a+') as f:
-				f.write("ebd_dim %d min_count %d training time:\n %0.6f\n" % ebd_dim, min_count, timestamp)	
+				f.write("ebd_dim %d min_count %d training time:\n %0.6f\n" % (ebd_dim, min_count, timestamp))	
 			model_tmp = None
 			sentences = []
 
-	combiner = Combiner.cbn_factory(0, cbn_sample_words, True, test_mode)
-	models = retrieve_models('sub_model_ebd_%d_mc_%d_'% (ebd_dim, min_count), num_sub_models)
+	num_cbn_sample_words = NUM_CBN_SAMPLE_WORDS
+	combiner = Combiner.cbn_factory(0, num_cbn_sample_words, True, test_mode)
+	models = retrieve_models(models_folder, 'sub_model_ebd_%d_mc_%d_'% (ebd_dim, min_count), file_suffix, num_sub_models)
 	model_combined = combiner.combine(models)
 	evaluator.eval_ext(model_combined, ebd_dim, min_count)
+	model_filename=("combined_model_ebd_%d_mc_%d.w2v"% (ebd_dim, min_count))+file_suffix
+	model_combined.save(models_folder+model_filename+file_suffix)
 
 
 elif exp_type==4:
-	print("not implemented yet")
+	print("not implesmented yet")

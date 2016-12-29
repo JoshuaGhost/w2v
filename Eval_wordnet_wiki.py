@@ -48,8 +48,8 @@ class Eval_wordnet_wiki(object):
 		self.exp_type = exp_type
 		self.ben_form = ben_form
 		self.data_dir = benchmark_dir
-		self.num_total_docs = num_total_docs
-		self.num_sub_model = num_sub_model
+		self.num_total_docs = -1 if num_total_docs is None else num_total_docs
+		self.num_sub_model = -1 if exp_type==0 else (1 if num_sub_model is None else num_sub_model)
 		self.test = test
 		wikipedia_dict = glob.glob(os.path.join(self.data_dir, "Pairs_from_Wikipedia_and_Dictionary/*.txt"))
 		wordnet = glob.glob(os.path.join(self.data_dir, "Pairs_from_WordNet/*.txt"))
@@ -72,24 +72,26 @@ class Eval_wordnet_wiki(object):
 
 
 	def eval_ext(self, model, ebd_dim, min_count):
-		with open('extrinsic.csv', 'a+') as f:
+		with open(self.ce_dir+'extrinsic.csv', 'a+') as f:
 			f.write('\n'+'='*22+'\n\n')
-			f.write('type=%d,form=%s,num total docs=%d,num sub model=%d,dimension=%d,min_count=%d,test=%d\n'%
-					exp_type, ben_form, num_total_docs, num_sub_model, ebd_dim, min_count, test)
+			f.write('type=%d,form=%d,num total docs=%d,num sub model=%d,dimension=%d,min_count=%d,test=%s\n'%
+					(self.exp_type, self.ben_form, self.num_total_docs, self.num_sub_model, ebd_dim, min_count, self.test))
 			f.write('data source, category, average ERR, occurence\n')
 			occurence = {} 
 			sim = {}
-			gen = ((index, word_pair) for index, word_pair in enumerate(word_pairs) if set(word_pair).issubset(set(model.vocab)))
+			gen = ((index, word_pair) for index, word_pair in enumerate(self.word_pairs) if set(word_pair).issubset(set(model.vocab)))
 
 			for index, word_pair in gen:
-				occurence[category[index]] = (occurence[category[index]] + 1) if occurence.has_key(category[index]) else 1
+				occurence[self.category[index]] = (occurence[self.category[index]] + 1) if occurence.has_key(self.category[index]) else 1
 				avg_err_per_pair = (err(model, word_pair[0], word_pair[1]) + 
 									err(model, word_pair[1], word_pair[0])) / 2.0
-				sim[category[index]] = (sim[category[index]]+avg_err_per_pair) if sim.has_key(category[index]) else avg_err_per_pair
+				sim[self.category[index]] = (sim[self.category[index]]+avg_err_per_pair) if sim.has_key(self.category[index]) else avg_err_per_pair
 				if (index+1) % 100 == 0:
 					print ('valuation of word pair num ', index+1, ' finished')
+					if self.test:
+						break
 
 			for c in (wordnet_categories | wikipedia_categories) & set(sim.keys()) & set(occurence.keys()):
 				to_print = (('wikipedia-dict' if c in wikipedia_categories else 'wordnet'), c, str(sim[c]/occurence[c]), str(occurence[c]))
 				f.write(', '.join(to_print)+'\n')
-				f.write('\n')
+			f.write('\n')

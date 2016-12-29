@@ -9,6 +9,7 @@ from os import path, walk, makedirs
 from gensim.utils import RULE_DISCARD
 from gensim.utils import RULE_KEEP
 from gensim.utils import RULE_DEFAULT
+from gensim.models import word2vec
 
 from config import *
 
@@ -149,8 +150,8 @@ def folderfy(folder_name):
     return folder_name
 
 
-def retrieve_models(basename, num_models=1):
+def retrieve_models(models_folder, basename, file_suffix, num_models=1):
     if num_models==1:
-        return Word2Vec.load(basename + '.w2v')
+        return word2vec.Word2Vec.load(models_folder+basename + '.w2v' + file_suffix)
     else:
-        return [Word2Vec.load(basename + str(idx) + '.w2v') for idx in range(1, num_models+1)]
+        return [word2vec.Word2Vec.load(models_folder+basename + str(idx) + '.w2v' + file_suffix) for idx in range(1, num_models+1)]

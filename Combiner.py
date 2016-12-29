@@ -1,3 +1,4 @@
+from Cbn_sort import Cbn_sort
 class Combiner(object):
 	@classmethod
 	def cbn_factory(self, combiner_type, num_sample_words, abs_sort, test_mode):

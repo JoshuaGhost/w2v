@@ -3,14 +3,14 @@ from numpy.random import rand, random_integers
 from gensim.models import Word2Vec
 from pdb import set_trace as bp
 from config import *
-
+from copy import deepcopy
 
 def get_inter_embd(models):
 	ebds = []
 	vocab_share = models[0].vocab.keys()
 	for model in models:
 		ebd = []
-		for word in word_intersect:
+		for word in vocab_share:
 			ebd.append(model.syn0[model.vocab[word].index])
 		ebds.append(ebd)
 	ebds = array(ebds)
@@ -19,7 +19,7 @@ def get_inter_embd(models):
 
 def sort_align(embeddings, num_sample_words, abs_sort = False):
 	num_word = embeddings.shape[1]
-	dim = embeddings.shape[0]
+	dim = embeddings.shape[2]
 	syn0_out = ndarray((5, num_word, dim))
 	
 	for ebd_idx, ebd in enumerate(embeddings):
@@ -29,7 +29,6 @@ def sort_align(embeddings, num_sample_words, abs_sort = False):
 		for word_idx in sample_word_idx:
 			vec = ebd[word_idx]
 			abselement2orgidx = dict(zip(abs(vec) if abs_sort else vec, [i for i in range(dim)]))
-			
 			for idx, sorted_abselement in enumerate(sorted(abs(vec) if abs_sort else vec, reverse = True)):
 				if vec[abselement2orgidx[sorted_abselement]] == sorted_abselement:
 					rank_weight[abselement2orgidx[sorted_abselement]] += idx
@@ -49,13 +48,12 @@ def sort_align(embeddings, num_sample_words, abs_sort = False):
 class Cbn_sort(object):
 	"""docstring for Sort_combiner"""
 	def __init__(self, num_sample_words, abs_sort, test_mode):
-		super(Sort_combiner, self).__init__()
 		self.num_sample_words = num_sample_words
 		self.abs_sort = abs_sort
 		self.test_mode = test_mode
 
 
-	def combine(models):
+	def combine(self, models):
 
 		embeddings = get_inter_embd(models)
 
@@ -65,7 +63,8 @@ class Cbn_sort(object):
 	
 		temp_vocab = deepcopy(model_out.vocab)
 		model_out.vocab = {}
-		for word_idx, word in enumerate(word_intersect):
+		vocab_share = models[0].vocab.keys()
+		for word_idx, word in enumerate(vocab_share):
 			model_out.vocab[word] = deepcopy(temp_vocab[word])
 			model_out.vocab[word].index = word_idx
 			model_out.index2word[word_idx] = word
