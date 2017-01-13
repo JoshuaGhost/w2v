@@ -89,7 +89,6 @@ parser.add_argument('--test_mode', action='store_const', const=True, help='if se
 
 args = vars(parser.parse_args())
 
-print (args['test_mode'] is not None)
 
 exp_type		= args['t'] if args['t'] is not None else 0
 benchmark_form	= args['f'] if args['f'] is not None else 0
@@ -202,7 +201,8 @@ elif exp_type==5:
     with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:
         for line in f:
             for s in standardize_string(line).split('.'):
-                sentences.append(s.split())
+                if len(s)>0:
+                    sentences.append(s.split())
             if test_mode and len(sentences)>100:
                 break
     model, model_filename = w2v_timing(sentences, 500, 100, 'wiki', test_mode, ce_folder)

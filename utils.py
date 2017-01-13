@@ -47,7 +47,7 @@ def standardize_string(s, clean_words=True, lower=True, language="english"):
     assert isinstance(s, string_types)
 
     if not isinstance(s, text_type):
-        s = text_type(s, "ascii")
+        s = text_type(s, "utf-8")
     if language == "english":
         s = re.sub('<[^>]*>', '', s) #eleminate all xml tags
         s = (s.lower() if lower else s)
