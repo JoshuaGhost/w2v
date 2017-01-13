@@ -100,7 +100,7 @@ ce_folder			= folderfy(args['r'] if args.has_key('r') else CE_FOLDER)
 
 dict_path			= args['d'] if args.has_key('d') else DICT_PATH
 
-test_mode 		= args['test_mode'] if args.has_key('test_mode') else TEST_MODE
+test_mode 		= args['test_mode'] if args.has_key('test_mode') and args['test_mode'] is not None else TEST_MODE
 
 ebd_dim 		= args['ebd_dim'] if args.has_key('ebd_dim') and args['ebd_dim'] is not None else EBD_DIM_DEFAULT
 min_count 		= args['min_count'] if args.has_key('min_count') and args['min_count'] is not None else MIN_COUNT_DEFAULT
