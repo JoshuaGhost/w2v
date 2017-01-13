@@ -1,3 +1,4 @@
+#encoding:utf-8
 from __future__ import print_function
 import re
 from string import lowercase, lower
@@ -10,12 +11,50 @@ from gensim.utils import RULE_DISCARD
 from gensim.utils import RULE_KEEP
 from gensim.utils import RULE_DEFAULT
 from gensim.models import word2vec
-
 from config import *
 
 import logging
 logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level = logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+_delchars = [chr(c) for c in range(256)]
+_delchars = [x for x in _delchars if not x.isalnum()]
+_delchars.remove('\t')
+_delchars.remove(' ')
+_delchars.remove('-')
+_delchars.remove('_')  # for instance phrases are joined in word2vec used this char
+_delchars = ''.join(_delchars)
+_delchars_table = dict((ord(char), None) for char in _delchars)
+
+def standardize_string(s, clean_words=True, lower=True, language="english"):
+    """
+    Ensures common convention across code. Converts to utf-8 and removes non-alphanumeric characters
+
+    Parameters
+    ----------
+    language: only "english" is now supported. If "english" will remove non-alphanumeric characters
+
+    lower: if True will lower string.
+
+    clean_words: if True will remove non alphanumeric characters (for instance '$', '#' or 'ł')
+
+    Returns
+    -------
+    string: processed string
+    """
+
+    assert isinstance(s, string_types)
+
+    if not isinstance(s, text_type):
+        s = text_type(s, "ascii")
+    if language == "english":
+        s = re.sub('<[^>]*>', '', s) #eleminate all xml tags
+        s = (s.lower() if lower else s)
+        s = (s.translate(_delchars_table) if clean_words else s)
+        return s
+    else:
+        raise NotImplementedError("Not implemented standarization for other languages")
 
 
 pass_rule = re.compile("[a-zA-Z]+[a-zA-Z0-9'_-]*")
@@ -106,30 +145,6 @@ def scan_vocab_custom(model, sentences, dictionary,
             
         if not model.raw_vocab:
             model.raw_vocab = vocab
-
-
-_delchars = [chr(c) for c in range(256)]
-_delchars = [x for x in _delchars if not x.isalnum()]
-_delchars.remove('\t')
-_delchars.remove(' ')
-_delchars.remove('-')
-_delchars.remove('_')
-_delchars = ''.join(_delchars)
-_delchars_table = dict((ord(char), None) for char in _delchars)
-        
-
-def standardize_string(s, clean_words=True, lower=True, language="english"):
-    assert isinstance(s, string_types)
-
-    if not isinstance(s, text_type):
-        s = text_type(s, "utf-8")
-
-    if language == "english":
-        s = (s.lower() if lower else s)
-        s = (s.translate(_delchars_table) if clean_words else s)
-        return s
-    else:
-        raise NotImplementedError("Not implemented standarization for other languages")
 
 
 def err (model, x, y, topn = 20):

@@ -29,7 +29,7 @@ def w2v_timing(sentences, ebd_dim, min_count, model_suffix, test_mode, ce_folder
 	timestamp = -time()
 	model = word2vec.Word2Vec(sentences = sentences, size = ebd_dim, window = 10, min_count = min_count,
 					max_vocab_size = MAX_VOCAB_SIZE, sample = 1e-4, workers = NUM_WORKERS, 
-					sg = 1, negative = 25, iter = NUM_ITER, null_word = 1,
+					sg = 1, negative = 5, iter = NUM_ITER, null_word = 1,
 					trim_rule = tr_rule, batch_words = BATCH_WORDS)
 	model_filename = 'dim_%d_mc_%d_%s.w2v'% (ebd_dim, min_count, model_suffix)
 	model_filename += '.test' if test_mode else ''
@@ -89,24 +89,26 @@ parser.add_argument('--test_mode', action='store_const', const=True, help='if se
 
 args = vars(parser.parse_args())
 
-exp_type		= args['t'] if args.has_key('t') else 0
-benchmark_form	= args['f'] if args.has_key('f') else 0
+print (args['test_mode'] is not None)
+
+exp_type		= args['t'] if args['t'] is not None else 0
+benchmark_form	= args['f'] if args['f'] is not None else 0
 
 if not exp_type==0:
-	corpora_folder		= folderfy(args['c'] if args.has_key('c') else CORPORA_FOLDER)
-models_folder 		= folderfy(args['m'] if args.has_key('m') else MODELS_FOLDER)
-benchmark_folder 	= folderfy(args['b'] if args.has_key('b') else BENCHMARK_FOLDER)
-ce_folder			= folderfy(args['r'] if args.has_key('r') else CE_FOLDER)
+	corpora_folder		= folderfy(args['c'] if args['c'] is not None else CORPORA_FOLDER)
+models_folder 		= folderfy(args['m'] if args['m'] is not None else MODELS_FOLDER)
+benchmark_folder 	= folderfy(args['b'] if args['b'] is not None else BENCHMARK_FOLDER)
+ce_folder			= folderfy(args['r'] if args['r'] is not None else CE_FOLDER)
 
-dict_path			= args['d'] if args.has_key('d') else DICT_PATH
+dict_path			= args['d'] if args['d'] is not None else DICT_PATH
 
-test_mode 		= args['test_mode'] if args.has_key('test_mode') and args['test_mode'] is not None else TEST_MODE
+test_mode 		= args['test_mode'] if args['test_mode'] is not None else TEST_MODE
 
-ebd_dim 		= args['ebd_dim'] if args.has_key('ebd_dim') and args['ebd_dim'] is not None else EBD_DIM_DEFAULT
-min_count 		= args['min_count'] if args.has_key('min_count') and args['min_count'] is not None else MIN_COUNT_DEFAULT
+ebd_dim 		= args['ebd_dim'] if args['ebd_dim'] is not None and args['ebd_dim'] is not None else EBD_DIM_DEFAULT
+min_count 		= args['min_count'] if args['min_count'] is not None and args['min_count'] is not None else MIN_COUNT_DEFAULT
 
 num_all_docs 	= NUM_ALL_DOCS_TEST if test_mode else NUM_ALL_DOCS
-num_sub_models 	= args['num_sub_models'] if args.has_key('num_sub_models') and args['num_sub_models'] is not None else NUM_SUB_MODEL_DEFAULT
+num_sub_models 	= args['num_sub_models'] if args['num_sub_models'] is not None and args['num_sub_models'] is not None else NUM_SUB_MODEL_DEFAULT
 
 
 evaluator = Evaluator.eval_factory(benchmark_form, ce_folder, benchmark_folder,\
@@ -148,6 +150,7 @@ elif exp_type==1:
 elif exp_type==2:
 	dictionary = dict_from_file(dict_path)
 	sentences = collect_sentences(corpora_folder, num_all_docs, ce_folder, dictionary)
+        print (sentences)
 	model, model_filename = w2v_timing(sentences, ebd_dim, min_count, 'spec', test_mode, ce_folder)
 	
 	evaluator.eval_ext(model, ebd_dim, min_count)
@@ -191,3 +194,17 @@ elif exp_type==3:
 
 elif exp_type==4:
 	print("not implesmented yet")
+
+elif exp_type==5:
+    timestamp = -time()
+    sentences = []
+    import gzip as gz
+    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:
+        for line in f:
+            for s in standardize_string(line).split('.'):
+                sentences.append(s.split())
+            if test_mode and len(sentences)>100:
+                break
+    model, model_filename = w2v_timing(sentences, 500, 100, 'wiki', test_mode, ce_folder)
+    model.save(models_folder+model_filename)
+
