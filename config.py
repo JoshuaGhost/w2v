@@ -13,6 +13,8 @@ TEST_MODE = False
 NUM_ALL_DOCS = 100000
 NUM_ALL_DOCS_TEST = 100
 
+NUM_TOTAL_SENTS = 77500000
+
 MIN_COUNT = 24
 MIN_COUNT_MIN = 0
 MIN_COUNT_MAX = 50
@@ -29,9 +31,9 @@ raw_sentences = 'raw_sentences.txt'
 
 stoplist = set('for a of the and to in \x00'.split())
 
-MAX_VOCAB_SIZE = 10000000
-NUM_WORKERS = 16
-NUM_ITER = 15
+MAX_VOCAB_SIZE = 1000000
+NUM_WORKERS = 18
+NUM_ITER = 50
 BATCH_WORDS = 500
 
 NUM_SUB_MODEL_DEFAULT = 5
