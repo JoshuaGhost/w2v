@@ -194,11 +194,30 @@ elif exp_type==3:
 elif exp_type==4:
 	print("not implesmented yet")
 
-elif exp_type==5:
-    timestamp = -time()
+elif exp_type==5:#based on the paper Iproving distributional similarity with lessons learned from word embeddings from Omen Levy
     sentences = []
     import gzip as gz
-    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:
+    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:#first scan for building vocab
+        for line in f:
+            for s in standardize_string(line).split('.'):
+                if len(s)>0:
+                    sentences.append(s.split())
+            if test_mode and len(sentences)>100:
+                break
+            if len(sentences) > 999999:#collect 1000000 sentences for vocabulary building
+                break
+    model_filename = 'dim_%d_mc_%d_%s.w2v'% (ebd_dim, min_count, 'wiki')
+    model_filename += '.test' if test_mode else ''
+    timestamp = -time()
+    model = word2vec.Word2Vec(sentences = None, size = 500, window = 10, min_count = 100,
+                              max_vocab_size = MAX_VOCAB_SIZE, sample = 1e-4, workers = NUM_WORKERS,
+                              sg = 1, negative = 5, iter = NUM_ITER, null_word = 1,
+                              trim_rule = tr_rule, batch_words = BATCH_WORDS)
+    model.build_vocab(sentences)
+    timestamp += time()
+
+    sentences_count = 0L
+    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:#second scan for training
         for line in f:
             for s in standardize_string(line).split('.'):
                 if len(s)>0:
@@ -207,6 +226,21 @@ elif exp_type==5:
                         print(len(sentences))
             if test_mode and len(sentences)>100:
                 break
-    model, model_filename = w2v_timing(sentences, 500, 100, 'wiki', test_mode, ce_folder)
+            if len(sentences)>0 and (len(sentences)+1) % 1000000 == 0:#train every 1000000 sentences
+                timestamp -= time()
+                model.train(sentences)
+                timestamp += time()
+                sentences = []
+                sentences_count += 1L
+    if len(sentences) > 0:
+        timestamp -= time()
+        model.train(sentences)
+        timestamp += time()
+        sentences_count = sentences_count * 1000000L + len(sentences)
+        sentences = []
+
+    with open(ce_folder+'time.txt', 'a+') as f:
+	f.write("ebd_dim %d min_count %d training time:\n %0.6f\n"% (ebd_dim, min_count, timestamp))
+        f.write("intotal %d sentences are used for training\n\n"% sentences_count)
     model.save(models_folder+model_filename)
 

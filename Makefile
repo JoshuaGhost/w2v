@@ -45,4 +45,7 @@ sort_comb : dirs
 wiki : dirs
 	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 5 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
 
-.PHONY : help dirs iter spec sort_comb
+clean : 
+	rm *.pyc *.py~
+
+.PHONY : help dirs iter spec sort_comb wiki clean
