@@ -203,6 +203,8 @@ elif exp_type==5:
             for s in standardize_string(line).split('.'):
                 if len(s)>0:
                     sentences.append(s.split())
+                    if len(sentences) % 100000 ==0:
+                        print(len(sentences))
             if test_mode and len(sentences)>100:
                 break
     model, model_filename = w2v_timing(sentences, 500, 100, 'wiki', test_mode, ce_folder)
