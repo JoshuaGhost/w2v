@@ -121,6 +121,7 @@ def scan_vocab_custom(model, sentences, dictionary,
         vocab = model.raw_vocab
     else:
         vocab = defaultdict(int)
+
     checked_string_types = 0
     for sentence_no, sentence in enumerate(sentences):
         if not checked_string_types:
@@ -129,8 +130,12 @@ def scan_vocab_custom(model, sentences, dictionary,
                     "First item here is instead plain %s.", type(sentence))
                 checked_string_types += 1
         
-        for word in (lower(word) for word in sentence if word in dictionary):
-            vocab[word] += 1
+        if dictionary is not None:
+            for word in (lower(word) for word in sentence if word in dictionary):
+                vocab[word] += 1
+        else:
+            for word in (word for word in sentence):
+                vocab[word] += 1
 
         if model.max_vocab_size and len(vocab) > model.max_vocab_size:
             total_words += prune_vocab(vocab, min_reduce, trim_rule=trim_rule)

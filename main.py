@@ -41,23 +41,41 @@ def w2v_timing(sentences, ebd_dim, min_count, model_suffix, test_mode, ce_folder
 			
 
 def build_model_vocab_only(corpora_folder, num_all_docs, ce_folder, dictionary,
-						   ebd_dim, min_count, models_folder):
-	model = word2vec.Word2Vec( size=ebd_dim, window=10, max_vocab_size=100000,
-							   sample=1e-4, workers=NUM_WORKERS, sg=1, negative=25,
-							   iter=15, null_word=1, batch_words = 500)
-	model.raw_vocab = {}
-	model.corpus_count = 0
+			   ebd_dim, min_count, models_folder, corpora_file = None):
+    
+    model = word2vec.Word2Vec(size=ebd_dim, window=10, max_vocab_size=MAX_VOCAB_SIZE,\
+                              sample=1e-4, workers=NUM_WORKERS, sg=1, negative=5, trim_rule = tr_rule,\
+                              iter=NUM_ITER, null_word=1, batch_words = BATCH_WORDS)
+    
+    model.raw_vocab = {}
+    model.corpus_count = 0
 
-	sentences = []
-	sent_gen = collect_sentences(corpora_folder, num_all_docs, ce_folder, dictionary)
-	for sent_idx, sentences in enumerate(sent_gen):
-		scan_vocab_custom(model, sentences, dictionary, logger)
-		if (sent_idx+1)%2000 == 0:
-			logger.info('collected '+str(sent_idx+1)+' sentences with '+str(len(model.raw_vocab))+' raw_vocab')
-	model.scale_vocab(min_count=min_count, trim_rule=tr_rule)
-	model.finalize_vocab()
-	model.save(models_folder + 'model_vocab_only_ebd_%d_mc_%d.w2v'% (ebd_dim, min_count))
-	return model
+    sentences = []
+    if corpora_file is not None:
+        for idx, line in enumerate(corpora_file):
+            for s in standardize_string(line).split('.'):
+                if len(s)>0:
+                    sentences.append(s.split())
+            if test_mode and len(sentences)>100:
+                scan_vocab_custom(model, sentences, None, logger)
+                sentences = []
+                break
+            if len(sentences) >= 1000000:#collect 1000000 sentences for vocabulary building
+                scan_vocab_custom(model, sentences, None, logger)
+                sentences = []
+        if (idx+1)%1000000 == 0:
+            logger.info('collected %d sentences with %d raw_vocab'%(sent_idx+1, len(model.raw_vocab)))
+    else:
+        sent_gen = collect_sentences(corpora_folder, num_all_docs, ce_folder, dictionary)
+        for sent_idx, sentences in enumerate(sent_gen):
+            scan_vocab_custom(model, sentences, dictionary, logger)
+            if (sent_idx+1)%2000 == 0:
+                logger.info('collected '+str(sent_idx+1)+' sentences with '+str(len(model.raw_vocab))+' raw_vocab')
+
+    model.scale_vocab(min_count=min_count, trim_rule=tr_rule)
+    model.finalize_vocab()
+    model.save(models_folder + 'model_vocab_only_ebd_%d_mc_%d.w2v'% (ebd_dim, min_count))
+    return model
 
 
 exp_discription = {0: "don't generate models, evaluate only",
@@ -196,47 +214,46 @@ elif exp_type==4:
 
 elif exp_type==5:#based on the paper Iproving distributional similarity with lessons learned from word embeddings from Omen Levy
     sentences = []
+    ebd_dim = 500
+    min_count = 100
     import gzip as gz
     with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:#first scan for building vocab
-        for line in f:
-            for s in standardize_string(line).split('.'):
-                if len(s)>0:
-                    sentences.append(s.split())
-            if test_mode and len(sentences)>100:
-                break
-            if len(sentences) > 999999:#collect 1000000 sentences for vocabulary building
-                break
+        timestamp = -time()
+	model = build_model_vocab_only(corpora_folder, 1, ce_folder,\
+                                       None, ebd_dim, min_count, models_folder,\
+                                       corpora_file = f)
+	timestamp += time()
+    
+    with open(ce_folder+'time.txt', 'a+') as f:
+        f.write('building vocab with min_count %d within time:\n %0.6f\n'% (min_count, timestamp))
+
     model_filename = 'dim_%d_mc_%d_%s.w2v'% (ebd_dim, min_count, 'wiki')
     model_filename += '.test' if test_mode else ''
-    timestamp = -time()
-    model = word2vec.Word2Vec(sentences = None, size = 500, window = 10, min_count = 100,
-                              max_vocab_size = MAX_VOCAB_SIZE, sample = 1e-4, workers = NUM_WORKERS,
-                              sg = 1, negative = 5, iter = NUM_ITER, null_word = 1,
-                              trim_rule = tr_rule, batch_words = BATCH_WORDS)
-    model.build_vocab(sentences)
-    timestamp += time()
-
+   
     sentences_count = 0L
-    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:#second scan for training
+    train_per = 1000000000
+    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:
         for line in f:
             for s in standardize_string(line).split('.'):
                 if len(s)>0:
                     sentences.append(s.split())
-                    if len(sentences) % 100000 ==0:
-                        print(len(sentences))
+                    if (len(sentences)+1) % (train_per//100) ==0:
+                        logger.info('{}% centences of a training batch has been collected'.format((len(sentences)+1)//(train_per//100)))
             if test_mode and len(sentences)>100:
                 break
-            if len(sentences)>0 and (len(sentences)+1) % 1000000 == 0:#train every 1000000 sentences
+            if len(sentences)>0 and (len(sentences)+1) % train_per == 0:#train every train_per sentences
+                logger.info('training...')
                 timestamp -= time()
-                model.train(sentences)
+                model.train(sentences, total_examples = len(sentences))
                 timestamp += time()
                 sentences = []
+                logger.info('training complete')
                 sentences_count += 1L
     if len(sentences) > 0:
         timestamp -= time()
-        model.train(sentences)
+        model.train(sentences, total_examples = len(sentences))
         timestamp += time()
-        sentences_count = sentences_count * 1000000L + len(sentences)
+        sentences_count = sentences_count * train_per + len(sentences)
         sentences = []
 
     with open(ce_folder+'time.txt', 'a+') as f:
