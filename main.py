@@ -225,6 +225,8 @@ elif exp_type==5:#based on the paper Iproving distributional similarity with les
                                        corpora_file = f)
 	timestamp += time()
     
+    from pdb import set_trace as bp
+    bp()
     with open(ce_folder+'time.txt', 'a+') as f:
         f.write('building vocab with min_count %d within time:\n %0.6f\n'% (min_count, timestamp))
 
