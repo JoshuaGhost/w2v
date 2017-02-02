@@ -217,10 +217,11 @@ elif exp_type==5:#based on the paper Iproving distributional similarity with les
     ebd_dim = 500
     min_count = 100
     import gzip as gz
-    with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:#first scan for building vocab
+    vocab_folder = 'vocab/'
+    with open(vocab_folder+'vocab.txt', 'r') as f:
         timestamp = -time()
 	model = build_model_vocab_only(corpora_folder, 1, ce_folder,\
-                                       None, ebd_dim, min_count, models_folder,\
+                                       None, ebd_dim, 1, models_folder,\
                                        corpora_file = f)
 	timestamp += time()
     

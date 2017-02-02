@@ -137,9 +137,9 @@ def scan_vocab_custom(model, sentences, dictionary,
             for word in (word for word in sentence):
                 vocab[word] += 1
 
-        if model.max_vocab_size and len(vocab) > model.max_vocab_size:
-            total_words += prune_vocab(vocab, min_reduce, trim_rule=trim_rule)
-            min_reduce += 1
+        #if model.max_vocab_size and len(vocab) > model.max_vocab_size:
+        #    total_words += prune_vocab(vocab, min_reduce, trim_rule=trim_rule)
+        #    min_reduce += 1
 
         total_words += sum(itervalues(vocab))
         
