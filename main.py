@@ -232,7 +232,7 @@ elif exp_type==5:#based on the paper Iproving distributional similarity with les
     model_filename += '.test' if test_mode else ''
    
     sentences_count = 0L
-    train_per = 1000000000
+    train_per = 1000000
     with gz.open(corpora_folder+'wiki_clean_2014.csv.gz', 'rb') as f:
         for line in f:
             for s in standardize_string(line).split('.'):
