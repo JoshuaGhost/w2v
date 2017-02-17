@@ -1,11 +1,11 @@
 PYTHON_INTERPRETER=python
 MAIN_ENTRY=main.py
-MODELS_FOLDER=/tmp/w2v/default_models/
+MODELS_FOLDER=./result/default_models/
 USERNAME=`whoami`
 CORPORA_FOLDER=/home/$(USERNAME)/workspace/master_thesis/data/
 #CORPORA_FOLDER=/data1/alexandria/
 BENCHMARK_FOLDER=/home/$(USERNAME)/workspace/master_thesis/benchmark/EN-WORDREP
-CE_FOLDER=/tmp/w2v/default_results/
+CE_FOLDER=./result/default_results/
 DICT_PATH=/usr/share/dict/words
 
 TEST ?= 0
@@ -43,7 +43,7 @@ sort_comb : dirs
 	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 3 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
 
 wiki : dirs
-	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 5 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
+	OMP_NUM_THREADS=4 $(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 5 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
 
 clean : 
 	rm *.pyc *.py~
