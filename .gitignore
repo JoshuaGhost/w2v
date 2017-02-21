@@ -1,0 +1,14 @@
+*.py~
+*.pyc
+*.txt
+*.swp
+result/*
+CE_FOLDER/*
+MODELS_FOLDER/*
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.pdf
+*.log
+
