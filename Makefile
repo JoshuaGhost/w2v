@@ -1,13 +1,17 @@
 PYTHON_INTERPRETER=python
 MAIN_ENTRY=main.py
-MODELS_FOLDER=./result/default_models/
-USERNAME=`whoami`
+DUMP_PWD=$(shell pwd)
+MODELS_FOLDER=$(DUMP_PWD)/result/default_models/
+USERNAME=$(shell whoami)
 CORPORA_FOLDER=/home/$(USERNAME)/workspace/master_thesis/data/
 #CORPORA_FOLDER=/data1/alexandria/
 BENCHMARK_FOLDER=/home/$(USERNAME)/workspace/master_thesis/benchmark/EN-WORDREP
-CE_FOLDER=./result/default_results/
+CE_FOLDER=$(DUMP_PWD)/result/default_results/
 DICT_PATH=/usr/share/dict/words
-
+BENCHMARKS_WORD_EMBEDDING=./benchmarks
+WIKI_STANDARD_MODEL=$(MODELS_FOLDER)wiki_standard/dim_500_wiki.w2v
+#WIKI_STANDARD_MODEL=$(DUMP_PWD)/../models/new/dim_25_mc_0_iter.w2v
+	
 TEST ?= 0
 ifeq ($(TEST), 1)
 	TEST_OPT=--test_mode
@@ -32,6 +36,10 @@ dirs :
 	
 eval : dirs
 	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 0 -f 0 -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
+
+eval_all : dirs
+	cd $(BENCHMARKS_WORD_EMBEDDING); \
+	$(PYTHON_INTERPRETER) evaluate_on_all.py -f $(WIKI_STANDARD_MODEL) -p gensim -o $(CE_FOLDER)/eval_wiki_standard.csv
 
 iter : dirs
 	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 1 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
