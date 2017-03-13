@@ -46,6 +46,9 @@ def load_embedding(fname, format="word2vec_bin", normalize=True,
     elif format == "gensim":
         model = w2v.Word2Vec.load(fname)
         w = Embedding.from_gensim(model)
+    elif format == "gensim_bin":
+        model = w2v.Word2Vec.load_word2vec_format(fname)
+        w = Embedding.from_gensim(model)
     if normalize:
         w.normalize_words(inplace=True)
     if lower or clean_words:

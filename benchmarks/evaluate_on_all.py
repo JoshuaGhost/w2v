@@ -68,15 +68,15 @@ if __name__ == "__main__":
             elif ext == ".pkl":
                 format = "dict"
 
-        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim'], "Unrecognized format"
+        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin'], "Unrecognized format"
 
         load_kwargs = {}
         if format == "glove":
             vocab_size = sum(1 for line in open(fname))
             dim = len(next(open(fname)).split()) - 1
 
-        #w = load_embedding(fname, format=format, normalize=True, lower=True, clean_words=options.clean_words, load_kwargs=load_kwargs)
-        w = load_embedding(fname, format=format, normalize=False, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
+        w = load_embedding(fname, format=format, normalize=True, lower=True, clean_words=options.clean_words, load_kwargs=load_kwargs)
+        #w = load_embedding(fname, format=format, normalize=False, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
 
     out_fname = options.output if options.output else "results.csv"
 
