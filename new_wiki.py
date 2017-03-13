@@ -2,10 +2,11 @@ import logging
 
 from gensim.models.word2vec import Word2Vec
 from gensim.models.word2vec import LineSentence
-from gensim.corpura import WikiCorpus
+from gensim.corpora import WikiCorpus
+import os, sys
 
 if __name__ == '__main__':
-    program = os.path.bashname(sys.argv[0])
+    program = os.path.basename(sys.argv[0])
     logger = logging.getLogger(program)
 
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
@@ -20,6 +21,7 @@ if __name__ == '__main__':
     space = " "
     i = 0
 
+    output = open(article_name, 'w')
     wiki = WikiCorpus(wiki_dump_name, lemmatize = False, dictionary = {})
     for text in wiki.get_texts():
         output.write(space.join(text) + '\n')
