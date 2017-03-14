@@ -1,0 +1,11 @@
+========================
+experiment type: wiki 
+configuration:
+	is test mode: 0
+	num of all docs: - 
+building vocab with min_count 100 within time:
+ 37374.550121 sec
+ebd_dim 500 min_count 100 training time:
+ 1202232.715762 sec
+intotal 81673455 sentences are used for training
+

@@ -1,8 +1,7 @@
 *.py~
 *.pyc
-*.txt
 *.swp
-result/*
+result/default_models/*
 CE_FOLDER/*
 MODELS_FOLDER/*
 *.aux
