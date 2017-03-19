@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    This script build a vector representation from wiki dump copora 
-    and saves in w2v model file
+    This script builds the base_line for the whole experiment from a 
+    dumped wiki corpora and saves in w2v model file
 
     Usage:
-    python new_wiki.py ../corpus/enwiki-latest-pages-articles.xml.bz2 ./temp_article/article.txt ./temp_article/new_wiki.w2v
+    python base_line.py <dir/to/temp_document> <dir/to/model_file>
 """
 
 import logging
@@ -24,26 +24,12 @@ if __name__ == '__main__':
     logging.root.setLevel(level = logging.INFO)
     logger.info("running %s %" ' '.join(sys.argv))
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 3:
         print globals()['__doc__'] % locals()
         sys.exit(1)
 
-    wiki_dump_name, article_name, model_name = sys.argv[1:4]
+    article_name, model_name = sys.argv[1:3]
     space = " "
-
-    if os.path.isfile(article_name):
-        logger.info('Article file exists, using existing article file')
-    else:
-        i = 0
-        output = open(article_name, 'w')
-        wiki = WikiCorpus(wiki_dump_name, lemmatize = False, dictionary = {})
-        for text in wiki.get_texts():
-            output.write(space.join(text) + '\n')
-            i += 1
-            if (i % 1000 == 0):
-                logger.info("Saved " + str(i) + " articles")
-        output.close()
-        logger.info("Finished Saved " + str(i) + " articles")
 
     timed = -ctime()
     model = Word2Vec(LineSentence(article_name),
@@ -57,12 +43,12 @@ if __name__ == '__main__':
                      sample = 1e-4)
     timed += ctime()
     if os.path.isfile(model_name):
-        logger.info('model file exists, will not cover it')
+        logger.info('model file exists, will not overwrite it')
     else:
-        model.save_word2vec_format(model_name, binary = False)
+        model.save(model_name)
 
     from time import localtime, strftime
     times = strftime("%Y-%m-%d %H:%M:%S", localtime())
 
     with open('result/default_results/new_wiki_time.txt', 'a+') as f:
-        f.write("\nfinished at %s, training time of new_wiki: %f sec\n" % (times, timed))
+        f.write("finished at %s, training time of new_wiki: %f sec\n\n" % (times, timed))

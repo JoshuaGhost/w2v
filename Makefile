@@ -1,10 +1,19 @@
-PYTHON_INTERPRETER=python
+CLEANED_DOC=./temp_article/aricle.txt
+PYTHON_INTEPRETER=python
 MAIN_ENTRY=main.py
 DUMP_PWD=$(shell pwd)
-MODELS_FOLDER=$(DUMP_PWD)/result/default_models/
 USERNAME=$(shell whoami)
-CORPORA_FOLDER=/home/$(USERNAME)/workspace/master_thesis/data/
-#CORPORA_FOLDER=/data1/alexandria/
+
+MODELS_FOLDER=$(DUMP_PWD)/models/
+CE_FOLDER=$(DUMP_PWD)/results/
+TEMP_FOLDER=$(DUMP_PWD)/temp/
+CORPORA_FOLDER=$(DUMP_PWD)/corpora/
+
+CORPUS_FILE=enwiki-latest-pages-articles.xml.bz2
+TEMP_DOC=temp_doc.txt
+
+USERNAME=$(shell whoami)
+#CORPORA_FOLDER=/home/$(USERNAME)/workspace/master_thesis/data/
 BENCHMARK_FOLDER=/home/$(USERNAME)/workspace/master_thesis/benchmark/EN-WORDREP
 CE_FOLDER=$(DUMP_PWD)/result/default_results/
 DICT_PATH=/usr/share/dict/words
@@ -33,25 +42,32 @@ help :
 dirs :
 	mkdir -p MODELS_FOLDER
 	mkdir -p CE_FOLDER
+	mkdir -p TEMP_FOLDER
 	
 eval : dirs
-	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 0 -f 0 -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
+	$(PYTHON_INTEPRETER) $(MAIN_ENTRY) -t 0 -f 0 -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
 
 eval_all : dirs
 	cd $(BENCHMARKS_WORD_EMBEDDING); \
-	$(PYTHON_INTERPRETER) evaluate_on_all.py -f $(WIKI_STANDARD_MODEL) -p gensim -o $(CE_FOLDER)/eval_wiki_standard.csv
+	$(PYTHON_INTEPRETER) evaluate_on_all.py -f $(WIKI_STANDARD_MODEL) -p gensim -o $(CE_FOLDER)/eval_wiki_standard.csv
 
 iter : dirs
-	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 1 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
+	$(PYTHON_INTEPRETER) $(MAIN_ENTRY) -t 1 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
 
 spec : dirs
-	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 2 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
+	$(PYTHON_INTEPRETER) $(MAIN_ENTRY) -t 2 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
 
 sort_comb : dirs
-	$(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 3 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
+	$(PYTHON_INTEPRETER) $(MAIN_ENTRY) -t 3 -f 0 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) -d $(DICT_PATH) $(TEST_OPT)
 
 wiki : dirs
-	OMP_NUM_THREADS=4 $(PYTHON_INTERPRETER) $(MAIN_ENTRY) -t 5 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
+	OMP_NUM_THREADS=4 $(PYTHON_INTEPRETER) $(MAIN_ENTRY) -t 5 -c $(CORPORA_FOLDER) -m $(MODELS_FOLDER) -b $(BENCHMARK_FOLDER) -r $(CE_FOLDER) $(TEST_OPT)
+
+base_line: clean_wiki
+	OPM_NUM_THREAD=4 $(PYTHON_INTEPRETER) base_line.py $(TEMP_FOLDER)$(TEMP_DOC) $(MODELS_FOLDER)base_line.w2v
+
+clean_wiki: dirs
+	$(PYTHON_INTEPRETER) clean_wiki.py $(CORPORA_FOLDER)$(CORPUS_FILE) $(TEMP_FOLDER)$(TEMP_DOC)
 
 clean : 
 	rm *.pyc *.py~
