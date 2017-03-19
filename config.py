@@ -3,6 +3,7 @@ MIN_COUNT_DEFAULT = 25
 
 MODELS_FOLDER 		= '/tmp/w2v/default_models/'
 CORPORA_FOLDER 		= '/home/zijian/workspace/data/'
+CORPUS_FILE          = '../corpus/enwiki-latest-pages-articles.xml.bz2'
 BENCHMARK_FOLDER 	= ''
 CE_FOLDER			= '/tmp/w2v/default_results/'
 DICT_PATH	 		= '/usr/share/dict/words'
