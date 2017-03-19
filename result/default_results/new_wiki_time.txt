@@ -1,0 +1,2 @@
+
+finished at 2017-03-16 06:45:47, training time of new_wiki: 123372.872986 sec
