@@ -50,5 +50,5 @@ if __name__ == '__main__':
     from time import localtime, strftime
     times = strftime("%Y-%m-%d %H:%M:%S", localtime())
 
-    with open('result/default_results/new_wiki_time.txt', 'a+') as f:
+    with open('result/default_models/new_wiki_time.txt', 'a+') as f:
         f.write("finished at %s, training time of new_wiki: %f sec\n\n" % (times, timed))
