@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
     logging.root.setLevel(level = logging.INFO)
-    logger.info("running %s %" ' '.join(sys.argv))
+    logger.info("running %s" % ' '.join(sys.argv))
 
     if len(sys.argv) < 5:
         print globals()['__doc__'] % locals()
@@ -67,7 +67,6 @@ if __name__ == '__main__':
     order, strategy, sub_models_dir, model_name = sys.argv[1:5]
 
     ftime = open('result/default_results/time_alignment_combine.txt', 'a+')
-    ftime.write('=======================================\n')
     ftime.write('time of alignment and combination with order: %s and strategy: %s\n'% (order, strategy))
     ftime.write('sub-models under %s\n'%sub_models_dir)
     ftime.write('combined models saved as %s\n\n'%model_name)
@@ -91,4 +90,9 @@ if __name__ == '__main__':
                 Z = combine_avg(X, Y, Cxy, i)
     etime += ctime()
     ftime.write('combination time: %f sec\n\n' % etime)
+    
+    from time import localtime, strftime
+    times = strftime("%Y-%m-%d %H:%M:%S", localtime())
+
+    ftime.write("full-stack of experiment finished at %s\n\n" % times)
     ftime.close()

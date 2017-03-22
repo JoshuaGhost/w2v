@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
     logging.root.setLevel(level = logging.INFO)
-    logger.info("running %s %" ' '.join(sys.argv))
+    logger.info("running %s" % ' '.join(sys.argv))
 
     if len(sys.argv) < 3:
         print globals()['__doc__'] % locals()

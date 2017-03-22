@@ -12,8 +12,11 @@ from gensim.models.word2vec import Word2Vec
 from gensim.models.word2vec import LineSentence
 
 import os, sys
-from time import time as ctime
 import os.path
+
+from os import listdir
+from os.path import isfile, join
+from time import time as ctime
 
 if __name__ == '__main__':
     program = os.path.basename(sys.argv[0])
@@ -21,7 +24,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
     logging.root.setLevel(level = logging.INFO)
-    logger.info("running %s %" ' '.join(sys.argv))
+    logger.info("running %s" % ' '.join(sys.argv))
 
     if len(sys.argv) < 3:
         print globals()['__doc__'] % locals()
@@ -29,19 +32,18 @@ if __name__ == '__main__':
 
     articles_dir, sub_models_dir = sys.argv[1:3]
 
-    num_sub_models =  len([name for name in os.listdir('.') if os.path.isfile(name)])
+    num_sub_models =  len([name for name in listdir(sub_models_dir) if isfile(join(sub_models_dir, name))])
     new_min_count = 100/num_sub_models
 
-    ftime = open('result/default_results/time_train_all.txt', 'a+')
-    ftime.write('=======================================\n')
-    ftime.write('time of training with corpora from %s\n'% articles_dir)
-    ftime.write('trained models saved under %s\n\n'% sub_models_dir)
+    ftime = open('result/default_results/time_alignment_combine.txt', 'a+')
+    ftime.write('following are times of training with corpora from %s\n'% articles_dir)
+    ftime.write('trained sub-models are saved under %s\n\n'% sub_models_dir)
 
     for dirpath, dnames, fnames in os.walk(articles_dir):
         for midx, article_name in enumerate(fnames):
             sub_model_name = os.path.basename(article_name)+'.w2v'
             if os.path.isfile(sub_models_dir+sub_model_name):
-                log.info('sub model %s existed, skip this one' % sub_model_name)
+                logger.info('sub model %s existed, skip this one' % sub_model_name)
                 continue
             else:
                 print article_name
@@ -64,4 +66,6 @@ if __name__ == '__main__':
                 ftime.write('  model name: %s\n'% sub_model_name)
                 ftime.write('time elapsed: %f sec\n\n'% timed)
 
+    ftime.write('training of individual sub-models finished, start to combine...\n')
+    ftime.write('---------------------------------------\n\n')
     ftime.close()

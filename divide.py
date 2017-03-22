@@ -17,6 +17,7 @@ import logging
 from gensim.models.word2vec import LineSentence
 import os,sys
 import os.path
+from time import time as ctime
 
 def divide_skip(source, npart):
     import itertools
@@ -38,15 +39,25 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
     logging.root.setLevel(level = logging.INFO)
-    logger.info("running %s %" ' '.join(sys.argv))
+    logger.info("running %s" % ' '.join(sys.argv))
 
     if len(sys.argv) < 5:
         print globals()['__doc__'] %locals()
         sys.exit(1)
-
+    
     strategy, npart, temp_doc, parts_dir = sys.argv[1:5]
     npart = int(npart)
     corpus_name = os.path.basename(temp_doc)
+
+    from time import localtime, strftime
+    times = strftime("%Y-%m-%d %H:%M:%S", localtime())
+
+    ftime = open('result/default_results/time_alignment_combine.txt', 'a+')
+    ftime.write('=======================================\n')
+    ftime.write("experiment started at %s\n" % times)
+    ftime.write('running %s\n' % ' '.join(sys.argv))
+    ftime.write('divide corpus file [%s] into [%d] part with strategy [%s]\n' % (temp_doc, npart, strategy))
+    ftime.write('divided corpus saved under [%s]\n' % parts_dir)
 
     if strategy=='skip':
         part_gen = divide_skip(temp_doc, npart)
@@ -57,6 +68,7 @@ if __name__ == '__main__':
 
     for i, part in enumerate(part_gen):
         filename = parts_dir+sub_folder+corpus_name+'.'+str(i)+'.txt'
+        etime = -ctime()
         if os.path.exists(filename):
             continue
         else:
@@ -66,5 +78,10 @@ if __name__ == '__main__':
                 if (j+1) % 1000 ==0:
                     logger.info('Saved '+str(j)+' articles')
             output.close()
+            etime += ctime()
+            ftime.write('part %d finished, time elapsed: %f sec\n' % (j, etime))
             logger.info('finished saved partial articles No. '+str(j))
 
+    ftime.write('division finished, start to train...\n')
+    ftime.write('---------------------------------------\n\n')
+    ftime.close()
