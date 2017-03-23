@@ -80,7 +80,7 @@ if __name__ == '__main__':
             output.close()
             etime += ctime()
             ftime.write('part %d finished, time elapsed: %f sec\n' % (j, etime))
-            logger.info('finished saved partial articles No. '+str(j))
+            logger.info('finished saved partial articles No. '+str(i))
 
     ftime.write('division finished, start to train...\n')
     ftime.write('---------------------------------------\n\n')

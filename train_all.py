@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     articles_dir, sub_models_dir = sys.argv[1:3]
 
-    num_sub_models =  len([name for name in listdir(sub_models_dir) if isfile(join(sub_models_dir, name))])
+    num_sub_models =  len([name for name in listdir(articles_dir) if isfile(join(articles_dir, name))])
     new_min_count = 100/num_sub_models
 
     ftime = open('result/default_results/time_alignment_combine.txt', 'a+')
