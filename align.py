@@ -36,8 +36,8 @@ def find_corr(my, m2):
     return Cxy
 
 
-def serial_model_pair(new_model_name, dirpath, sub_model_names):
-    mns = [dirpath+mname for mname in sub_model_names]
+def serial_model_pair(new_model_name, dirpath):
+    mns = [dirpath+'article.txt.'+str(i)+'.txt.w2v' for i in range(10)]
     mx = Word2Vec.load(mns[0])
     mx.init_sims(replace=True)
     my = Word2Vec.load(mns[1])
@@ -72,22 +72,22 @@ if __name__ == '__main__':
     ftime.write('combined models saved as %s\n\n'%model_name)
     
     etime = -ctime()
-    for dirpath, dnames, sub_model_names in os.walk(sub_models_dir):
-        if order == 'serial':
-            gen_model_pairs = serial_model_pair(model_name, dirpath, sub_model_names)
-        elif order == 'dicoto':
-            gen_model_pairs = dicoto_model_pair(model_name, dirpath, sub_model_names)
-        i = 0
-        Z = None
-        while True:
-            try:
-                X, Y, Cxy = gen_model_pairs.send(Z)
-            except StopIteration:
-                break
-            i+=1
-            X, Y = low_rank_align(X, Y, Cxy)
-            if strategy == 'avg':
-                Z = combine_avg(X, Y, Cxy, i)
+    if order == 'serial':
+        gen_model_pairs = serial_model_pair(model_name, sub_models_dir)
+    elif order == 'dicoto':
+        gen_model_pairs = dicoto_model_pair(model_name, sub_models_dir)
+
+    i = 0
+    Z = None
+    while True:
+        try:
+            X, Y, Cxy = gen_model_pairs.send(Z)
+        except StopIteration:
+            break
+        i+=1
+        X, Y = low_rank_align(X, Y, Cxy)
+        if strategy == 'avg':
+            Z = combine_avg(X, Y, Cxy, i)
     etime += ctime()
     ftime.write('combination time: %f sec\n\n' % etime)
     
