@@ -57,17 +57,23 @@ def serial_model_pair(mns, vocab, new_model_name):
     my.init_sims(replace=True)
     vocab_in_x = [word.lower()[:-1] for word in vocab.readlines() if word.lower()[:-1] in mx.wv.vocab]
     idx = []; X = []
+    logger.info('first two model loaded successfully')
+    logger.info('start to derive embedding matrix X, Y and correspondence matrix Cxy')
     for word in vocab_in_x:
         idx.append(mx.wv.vocab[word].index)
         X.append(mx.wv.syn0norm[idx[-1]])
     X = np.array(X)
     Y, Cxy = ebd_inters(X.shape[0], my, vocab_in_x)
+    logger.info('matrices derivation finished, start to align two matrices')
     Z = yield [X, Y, Cxy]
+    logger.info('alignment finished')
     for sub_model_name in mns[2:]:
         my = Word2Vec.load(sub_model_name)
         my.init_sims(replace=True)
         Y, Cxy = ebd_inters(X.shape[0], my, vocab_in_x)
+        logger.info('new embedding matrxi builded')
         Z = yield [X, Y, Cxy]
+        logger.info('alignment finished')
     for i, org_i in enumerate(idx):
         mx.wv.syn0norm[org_i] = Z[i]
     mx.save(new_model_name)
@@ -76,6 +82,7 @@ def serial_model_pair(mns, vocab, new_model_name):
 
 if __name__ == '__main__':
     program = os.path.basename(sys.argv[0])
+    global logger
     logger = logging.getLogger(program)
 
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
