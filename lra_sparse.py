@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from scipy.linalg import block_diag, eigh, svd
+from scipy.linalg import eigh, svd, block_diag
 from scipy.sparse.csgraph import laplacian
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+from scipy.sparse.linalg import eigs
+from scipy.sparse import coo_matrix, lil_matrix, hstack, vstack
+from scipy import sparse
+
 
 def low_rank_repr(X):
     U, S, V = svd(X.T, full_matrices=False)
@@ -14,28 +19,40 @@ def low_rank_repr(X):
     S = S[mask]
     R = (V.T * (1-S**-2)).dot(V)
     return R
-    
+
+
+def fliplr(x):
+    x = x.tocsr()
+    x.indices = -x.indices + x.shape[1] - 1
+    x = x.tolil()
+    return x
+
+
+def sub_block_diag(X, Y):
+    X = hstack((coo_matrix((X.shape[0], Y.shape[1])), X))
+    Y = hstack((Y, coo_matrix((Y.shape[0], X.shape[1]-Y.shape[1]))))
+    return vstack((X, Y))
+
 
 def low_rank_align(X, Y, Cxy, d=None, miu=0.8):
     nx, dy = X.shape
     ny, dx = Y.shape
     assert Cxy.shape==(nx, ny), \
             'Correspondence matrix must be shape num_samples_X X num_samples_Y.'
-    C = np.fliplr(block_diag(np.fliplr(Cxy), np.fliplr(Cxy.T)))
+    C = sub_block_diag(Cxy, Cxy.T)
     if d is None:
         d = min(dx, dy)
     Rx = low_rank_repr(X)
     Ry = low_rank_repr(Y)
     R = block_diag(Rx, Ry)
-    tmp = np.eye(R.shape[0])-R
+    tmp = sparse.eye(R.shape[0])-R
     M = tmp.T.dot(tmp)
     L = laplacian(C)
     eigen_prob = (1-miu)*M + 2*miu*L
-    _, F = eigh(eigen_prob, eigvals=(1,d), overwrite_a=True)
-    Xembed = F[:nx]
-    Yembed = F[nx:]
+    _, F = eigs(eigen_prob,  d)
+    Xembed = F[:nx, 1:]
+    Yembed = F[nx:, 1:]
     return Xembed, Yembed
-
 
 
 def demo():
@@ -54,13 +71,13 @@ def demo():
     fig = plt.figure()
     ax1 = fig.add_subplot(2,2,1,projection='3d')
     ax1.set_title('Noisy Dollar')
-    ax1.scatter(X[:n_sline,0],X[:n_sline,1],X[:n_sline,2],c='b',s=50)
-    ax1.scatter(X[n_sline:,0],X[n_sline:,1],X[n_sline:,2],c='b',marker='*',s=60)
+    ax1.scatter(Xembed[:n_sline,0],Xembed[:n_sline,1],Xembed[:n_sline,2],c='b',s=50)
+    ax1.scatter(Xembed[n_sline:,0],Xembed[n_sline:,1],Xembed[n_sline:,2],c='b',marker='*',s=60)
     
     ax2 = fig.add_subplot(2,2,2,projection='3d')
     ax2.set_title('Rotated Noisier Dollar')
-    ax2.scatter(Y[:n_sline,0],Y[:n_sline,1],Y[:n_sline,2],c='r',s=50)
-    ax2.scatter(Y[n_sline:,0],Y[n_sline:,1],Y[n_sline:,2],c='r',marker='*',s=60)
+    ax1.scatter(Yembed[:n_sline,0],Yembed[:n_sline,1],Yembed[:n_sline,2],c='r',s=50)
+    ax1.scatter(Yembed[n_sline:,0],Yembed[n_sline:,1],Yembed[n_sline:,2],c='r',marker='*',s=60)
     
     ax3 = fig.add_subplot(2,2,3)
     ax3.set_title('Aligned 2-D Dollars with eigv(1,d)')
