@@ -24,6 +24,8 @@ from scipy.sparse import lil_matrix
 
 from random import randint
 
+from config import LOG_FILE
+
 
 def sample_table(ntotal, nparts):
     num_per_part = ntotal/nparts
@@ -102,7 +104,16 @@ if __name__ == '__main__':
     corpus_name = os.path.basename(temp_doc)
 
     logger.info('start to divide corpus')
-    ftime = open('result/default_results/time_alignment_combine.txt', 'a+')
+    ftime = open(LOG_FILE, 'a+')
+    
+    from time import localtime, strftime
+    times = strftime("%Y-%m-%d %H:%M:%S", localtime())
+
+    ftime.write('=======================================\n')
+    ftime.write("experiment started at %s\n" % times)
+    ftime.write('running %s\n' % ' '.join(sys.argv))
+    ftime.write('divide corpus file [%s] into [%d] part with strategy [%s]\n' % (temp_doc, npart, strategy))
+    ftime.write('divided corpus saved under [%s]\n' % parts_dir)
 
     all_parts = DividedLineSentence(strategy, npart, temp_doc)
     for idx, part in enumerate(all_parts):
@@ -120,19 +131,8 @@ if __name__ == '__main__':
                     logger.info('Saved '+str(j)+' articles')
             output.close()
             etime += ctime()
-            ftime.write('part %d generated, time elapsed: %f sec\n' % (j, etime))
+            ftime.write('part %d generated, time elapsed: %f sec\n' % (idx, etime))
             logger.info('finished saving partial articles No. '+str(idx))
-
-    from time import localtime, strftime
-    times = strftime("%Y-%m-%d %H:%M:%S", localtime())
-
-    ftime.write('=======================================\n')
-    ftime.write("experiment started at %s\n" % times)
-    ftime.write('running %s\n' % ' '.join(sys.argv))
-    ftime.write('divide corpus file [%s] into [%d] part with strategy [%s]\n' % (temp_doc, npart, strategy))
-    ftime.write('divided corpus saved under [%s]\n' % parts_dir)
-
-    
 
     ftime.write('division finished, start to train...\n')
     ftime.write('---------------------------------------\n\n')

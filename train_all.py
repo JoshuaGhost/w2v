@@ -18,6 +18,8 @@ from os import listdir
 from os.path import isfile, join
 from time import time as ctime
 
+from config import LOG_FILE
+
 if __name__ == '__main__':
     program = os.path.basename(sys.argv[0])
     logger = logging.getLogger(program)
@@ -35,7 +37,7 @@ if __name__ == '__main__':
     num_sub_models =  len([name for name in listdir(articles_dir) if isfile(join(articles_dir, name))])
     new_min_count = 100/num_sub_models
 
-    ftime = open('result/default_results/time_alignment_combine.txt', 'a+')
+    ftime = open(LOG_FILE, 'a+')
     ftime.write('following are times of training with corpora from %s\n'% articles_dir)
     ftime.write('trained sub-models are saved under %s\n\n'% sub_models_dir)
 

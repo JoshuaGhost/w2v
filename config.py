@@ -1,3 +1,5 @@
+LOG_FILE =  'output/results/time_alignment_combine.txt'
+
 EBD_DIM_DEFAULT = 100
 MIN_COUNT_DEFAULT = 25
 
