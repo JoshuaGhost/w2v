@@ -193,10 +193,10 @@ class Embedding(object):
     def from_gensim(model):
         word_count = {}
         vectors = []
-        for word, vocab in sorted(iteritems(model.vocab), key=lambda item: -item[1].count):
+        for word, vocab in sorted(iteritems(model.wv.vocab), key=lambda item: -item[1].count):
             word = standardize_string(word)
             if word and not word in word_count.keys():
-                vectors.append(model.syn0[vocab.index])
+                vectors.append(model.wv.syn0[vocab.index])
                 word_count[word] = vocab.count
         vocab = CountedVocabulary(word_count=word_count)
         vectors = np.asarray(vectors)
