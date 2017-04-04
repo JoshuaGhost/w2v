@@ -14,24 +14,22 @@
         avg: merge using average through each dimension
 """
 
-from lra import low_rank_align
 
 import logging
+import os, sys
+import os.path
+import numpy as np
 
 from gensim.models.word2vec import Word2Vec
 from time import time as ctime
-
-import os, sys
-from time import time as ctime
-import os.path
-
-import numpy as np
-
 from scipy.sparse import lil_matrix
-
 from collections import deque
+from glob import glob
 
 from config import LOG_FILE
+from lra import low_rank_align
+
+
 def combine_avg(X, Y, Cxy, times):
     return (X*float(times)+Cxy.dot(Y))/float(times+1)
 
@@ -69,6 +67,18 @@ def extract_vectors_according_vocab(model, vocab):
     return X, idx
 
 
+def load_using_tag(tag, temp_models_dir, idx_model, limit):
+    name = temp_models_dir+'article.txt.'+tag+'.txt.w2v'
+    model = Word2Vec.load(name)
+    if idx_model < limit:
+        model.init_sims(replace = True)
+    else:
+        for filename in glob(name+'*'):
+            os.remove(filename)
+    return model
+
+
+
 class Pairs_generator():
     def __init__(self, mns, vocab, order, temp_models_dir):
         self.mns = mns
@@ -82,33 +92,40 @@ class Pairs_generator():
         if order == 'dichoto':
             self.gen = self.dichoto_pairs_gen(temp_models_dir)
 
+
     def dichoto_pairs_gen(self, temp_models_dir):
-        l = len(self.mns)
-        combine_queue = deque([str(i) for i in range(l)])
+        limit = len(self.mns)
+        combine_queue = deque([str(i) for i in range(limit)])
         idx_model = 0
         while True:
-            mx_idx = combine_queue.popleft()
-            mx = Word2Vec.load(temp_models_dir+'article.txt.'+mx_idx+'.txt.w2v')
+            mx_tag = combine_queue.popleft()
+            mx = load_using_tag(mx_tag,\
+                                temp_models_dir,\
+                                idx_model,\
+                                limit)
+            idx_model+=1
 
-            if idx_model < l:
-                mx.init_sims(replace = True)
-                idx_model+=1
-            try:
-                my_idx = combine_queue.popleft()
-                my = Word2Vec.load(temp_models_dir+'article.txt.'+my_idx+'.txt.w2v')
-                if idx_model < l:
-                    my.init_sims(replace = True)
-                    idx_model+=1
-                X, idx = extract_vectors_according_vocab(mx, self.vocab)
-                Y, Cxy = intersect_embedding_in_Y(X, my, self.vocab)
-                Z = yield [X, Y, Cxy]
-                for i, org_i in enumerate(idx):
-                    mx.wv.syn0norm[org_i] = Z[i]
-                combine_queue.append(mx_idx+my_idx)
-                mx.save(temp_models_dir+'article.txt.'+mx_idx+my_idx+'.txt.w2v', ignore = ['cum_table', 'table'])
-            except IndexError:
+            if len(combine_queue) == 0:
                 self.mx = mx
                 break
+
+            my_tag = combine_queue.popleft()
+            my = load_using_tag(my_tag,\
+                                temp_models_dir,\
+                                idx_model,\
+                                limit)
+            idx_model+=1
+            
+            X, idx = extract_vectors_according_vocab(mx, self.vocab)
+            Y, Cxy = intersect_embedding_in_Y(X, my, self.vocab)
+            Z = yield [X, Y, Cxy]
+            for i, org_i in enumerate(idx):
+                mx.wv.syn0norm[org_i] = Z[i]
+
+            combine_queue.append(mx_tag+my_tag)
+            combined_name = temp_models_dir+'article.txt.'+mx_tag+my_tag+'.txt.w2v'
+            mx.save(combined_name, ignore = ['cum_table', 'table'])
+
 
     def serial_pairs_gen(self):
         mx = Word2Vec.load(self.mns[0])
@@ -133,6 +150,7 @@ class Pairs_generator():
         for i, org_i in enumerate(idx):
             mx.wv.syn0norm[org_i] = Z[i]
         self.mx = mx
+
 
     def save_final(self, model_dir):
         self.mx.save(model_dir, ignore = ['table', 'cum_table'])
