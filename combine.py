@@ -19,6 +19,7 @@
     For combination strategy it can be:
         avg: merge using average through each dimension
         avgnorm: merge using average then normalization
+        hilbert: merge under hilbert space
 """
 
 
@@ -42,47 +43,55 @@ from lra import low_rank_align
 def combine_avg(X, Y, Cxy, times):
     return (X*float(times)+Cxy.dot(Y))/float(times+1)
 
+def combine_avg_norm(X, Y, times):
+    Z = combine(X, Y, times)
+    Z = [matutils.unitvec(v) for v in Z]
+    return Z
+
+def combine_hilbert(X, Y):
+    return X + Y
+
 class EmbeddingPairs(object):
+    def model_load(self, model_file_name):
+        model = Word2Vec.load(model_file_name)
+        if self.norm_init:
+            model.init_sims()
+        return model
+
     def get_base_vecs(self):
-        idx = []
         X = []
-        logger.info('first two model loaded successfully')
-        logger.info('start to derive embedding matrix X, Y '
-                    'and correspondence matrix Cxy')
-        for word in self.vocab:
-            idx.append(self.mx.wv.vocab[word].index)
-            X.append(self.mx.wv.syn0norm[idx[-1]])
+        logger.info('start to retrieve embedding matrix')
+        X = [self.mx.wv[word] for word in self.vocab]
         X = np.array(X)
-        return X, idx
+        return X
 
     def get_corresponders(self):
         n_xsamples = self.X.shape[0]
-        vocab_idx_in_y = [self.my.wv.vocab[word].index for word in self.vocab]
-        Y = [self.my.wv.syn0norm[i] for i in vocab_idx_in_y]
+        Y = [self.my.wv[word] for word in self.vocab]
         Y = np.array(Y)
-        Cxy = np.zeros((n_xsamples, Y.shape[0]))
-        i = 0
+        return Y
+
+    def update_model(self, Z):
+        assert Z.shape[0] == len(self.vocab)
         for idx, word in enumerate(self.vocab):
-            if word in self.my.wv.vocab:
-                Cxy[idx, i] = 1
-                i += 1
-        return Y, Cxy
+            idx_org = self.mx.wv.vocab[word].index
+            if self.norm_init:
+                self.mx.wv.syn0norm[idx_org] = Z[idx]
+            else:
+                self.mx.wv.syn0[idx_org] = Z[idx]
 
     def serial_pairs_gen(self):
-        self.mx = Word2Vec.load(self.mns[0])
-        self.mx.init_sims(replace=True)
+        self.mx = self.model_load(self.mns[0])
         logger.info('base model loaded')
         logger.info('start to combine...')
-        self.X, idx = self.get_base_vecs()
+        self.X = self.get_base_vecs()
         for sub_model_name in mns[1:]:
-            self.my = Word2Vec.load(sub_model_name)
-            self.my.init_sims(replace=True)
-            Y, Cxy = self.get_corresponders()
+            self.my = self.model_load(sub_model_name)
+            Y = self.get_corresponders()
             logger.info('matrix to merge loaded')
-            Z = yield [self.X, Y, Cxy]
+            Z = yield [self.X, Y]
             logger.info('merging finished')
-        for i, org_i in enumerate(idx):
-            self.mx.wv.syn0norm[org_i] = Z[i]
+        self.update_model(Z)
 
     def dichoto_pairs_gen(self):
         limit = len(self.mns)
@@ -92,11 +101,11 @@ class EmbeddingPairs(object):
         def load_using_tag(tag):
             name = (self.temp_models_dir +
                     'article.txt.' +
-                    tag +
-                    '.txt.w2v')
+                    tag + '.txt.w2v')
             model = Word2Vec.load(name)
             if idx_model < self.num_org_models:
-                model.init_sims(replace=True)
+                if self.norm_init:
+                    model.init_sims(replace=True)
             else:
                 for filename in glob(name+'*'):
                     os.remove(filename)
@@ -114,18 +123,17 @@ class EmbeddingPairs(object):
             self.my = load_using_tag(my_tag)
             idx_model += 1
 
-            self.X, idx = self.get_base_vecs()
-            Y, Cxy = self.get_corresponders()
-            Z = yield [self.X, Y, Cxy]
-            for i, org_i in enumerate(idx):
-                self.mx.wv.syn0norm[org_i] = Z[i]
+            self.X = self.get_base_vecs()
+            Y = self.get_corresponders()
+            Z = yield [self.X, Y]
+            self.update_model(Z)
 
             combine_queue.append(mx_tag+my_tag)
             combined_name = (self.temp_models_dir + 'article.txt.' +
                              mx_tag + my_tag + '.txt.w2v')
             self.mx.save(combined_name, ignore=['cum_table', 'table'])
 
-    def __init__(self, mns, vocab_file, order, temp_models_dir):
+    def __init__(self, mns, vocab_file, order, temp_models_dir, norm_init):
         self.mns = mns
         self.num_org_models = len(self.mns)
         self.temp_models_dir = temp_models_dir
@@ -141,6 +149,7 @@ class EmbeddingPairs(object):
             self.gen = self.serial_pairs_gen
         if order == 'dichoto':
             self.gen = self.dichoto_pairs_gen
+        self.norm_init = norm_init
 
     def save_final(self, model_dir):
         self.mx.save(model_dir, ignore=['table', 'cum_table'])
@@ -178,23 +187,27 @@ if __name__ == '__main__':
 
     mns = [sub_models_dir+'article.txt.'+str(i)+'.txt.w2v'
            for i in range(num_sub_models)]
-    ep = EmbeddingPairs(mns, 'vocab/vocab.txt', order, sub_models_dir)
+    ep = EmbeddingPairs(mns, 'vocab/vocab.txt', order, sub_models_dir, strategy!='hilbert')
     ep_gen = ep.gen()
 
     i = 0
     Z = None
     while True:
         try:
-            X, Y, Cxy = ep_gen.send(Z)
+            X, Y = ep_gen.send(Z)
         except StopIteration:
             break
         i += 1
         if use_lra:
-            X, Y = low_rank_align(X, Y, Cxy)
-        Z = combine_avg(X, Y, Cxy, i)
+            X, Y = low_rank_align(X, Y, np.eyes(X.shape[0]))
+        if strategy == 'avg':
+            Z = combine_avg(X, Y, i)
         if strategy == 'avgnorm':
-            Z = [matutils.unitvec(v) for v in Z]
-        ep.save_final(new_model_name)
+            Z = combine_avgnorm(X, Y, i)
+        if strategy == 'hilbert':
+            Z = combine_hilbert(X, Y)
+    
+    ep.save_final(new_model_name)
 
     etime += ctime()
     ftime.write('combination time: %f sec\n\n' % etime)
