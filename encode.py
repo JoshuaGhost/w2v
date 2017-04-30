@@ -10,7 +10,7 @@ dim = 500
 batch = 1000
 num_iter = 21
 
-(frag_folder, basename, num_models, suffix, non_linear) = sys.argv[1:]
+(frag_folder, basename, num_models, suffix, non_linear, output_folder) = sys.argv[1:]
 num_models = int(num_models)
 non_linear = True if non_linear == "True" else False
 
@@ -95,8 +95,8 @@ if __name__=='__main__':
     if non_linear:
         output = np.tanh(output)
 
-    with open('vocab.pickle', 'w+') as dfvocab:
+    with open(output_folder + '/vocab.pickle', 'w+') as dfvocab:
        pickle.dump(vocab, dfvocab)
-    with open('output.pickle', 'w+') as dfoutput:
+    with open(output_folder + 'output.pickle', 'w+') as dfoutput:
        pickle.dump(output, dfoutput)
 

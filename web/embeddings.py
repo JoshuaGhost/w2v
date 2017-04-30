@@ -33,7 +33,7 @@ def load_embedding(fname, format="word2vec_bin", normalize=True,
       Additional parameters passed to load function. Mostly useful for 'glove' format where you
       should pass vocab_size and dim.
     """
-    assert format in ['word2vec_bin', 'word2vec', 'glove', 'dict', 'gensim', 'gensim_bin'], "Unrecognized format"
+    assert format in ['word2vec_bin', 'word2vec', 'glove', 'dict', 'gensim', 'gensim_bin', 'combined_vectors'], "Unrecognized format"
     if format == "word2vec_bin":
         w = Embedding.from_word2vec(fname, binary=True)
     elif format == "word2vec":
@@ -49,6 +49,10 @@ def load_embedding(fname, format="word2vec_bin", normalize=True,
     elif format == "gensim_bin":
         model = w2v.Word2Vec.load_word2vec_format(fname)
         w = Embedding.from_gensim(model)
+    elif format == "combined_vectors":
+        fvocab = open(fname + '/vocab.pickle', 'r')
+        fvector = open(fname + '/output.pickle', 'r')
+        w = Embedding.from_combined_vectors(fvocab, fvector)
     if normalize:
         w.normalize_words(inplace=True)
     if lower or clean_words:

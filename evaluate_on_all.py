@@ -68,7 +68,7 @@ if __name__ == "__main__":
             elif ext == ".pkl":
                 format = "dict"
 
-        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin'], "Unrecognized format"
+        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin', 'combined_vectors'], "Unrecognized format"
 
         load_kwargs = {}
         if format == "glove":
