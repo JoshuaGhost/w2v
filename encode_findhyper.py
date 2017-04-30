@@ -8,15 +8,15 @@ from encode import load_vecs, encode, dim
 dump_vectors = False
 non_linear = True
 
-(frag_folder, basename, num_models, suffix) = sys.argv[1:]
-num_models = int(num_models)
-#frag_folder = "temp/models/dummy"
-#basename = "article.txt."
-#suffix = ".txt.w2v"
-#num_models = 5
+#(frag_folder, basename, num_models, suffix) = sys.argv[1:]
+#num_models = int(num_models)
+frag_folder = "temp/models/dummy"
+basename = "article.txt."
+suffix = ".txt.w2v"
+num_models = 5
 
 if __name__=='__main__':
-    vec = load_vecs(frag_folder, basename,
+    _, vec = load_vecs(frag_folder, basename,
                     suffix, num_models)
 
     bi = [(b, i) for b in range(10, 110, 10) for i in range(1, 23, 2)]
@@ -31,12 +31,4 @@ if __name__=='__main__':
 
     print ("optimized batch: %d, optimized iter: %d, minimum error: %f" %
            (batch_opt, iter_opt, err_min))
-
-    #output = vec.dot(we) + np.vstack(be for i in range(num_vocab))
-
-    #with open('vocab.pickle', 'w+') as dfvocab:
-    #   pickle.dump(vocab, dfvocab)
-    #with open('output.pickle', 'w+') as dfoutput:
-    #   pickle.dump(output, dfoutput)
-
 

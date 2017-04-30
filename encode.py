@@ -34,7 +34,7 @@ def load_vecs(frag_folder, basename,
     X = [[model.wv[v] for v in vocab] for model in models]
     X = [np.array(vecs) for vecs in X]
     X = reduce(lambda x,y: np.concatenate((x,y), axis=1), X)
-    return X
+    return vocab, X
 
 def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.000005):
     num_vocab, dim_total = vec.shape
@@ -77,9 +77,9 @@ def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.000005):
         X = vec[block*batch:block*batch+batch, :]
         for iter_round in range(num_iter):
             if non_linear:
-                we, be, wd, bd, err = non_linear_train(X, we, be, bd, wd)
+                we, be, wd, bd, err = non_linear_train(X, we, be, wd, bd)
             else:
-                we, be, wd, bd, err = linear_train(X, we, be, bd, wd)
+                we, be, wd, bd, err = linear_train(X, we, be, wd, bd)
 
             print('batch = %d, num_time = %d, block = %d, iter_round = %d, err = %f' %
                   (batch, num_iter, block, iter_round, (err**2).sum().sum()))
@@ -87,11 +87,11 @@ def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.000005):
 
 
 if __name__=='__main__':
-    vec = load_vecs(frag_folder, basename,
+    vocab, vec = load_vecs(frag_folder, basename,
                     suffix, num_models)
 
     we, be, err = encode(vec, dim, batch, num_iter)
-    output = vec.dot(we) + np.vstack(be for i in range(num_vocab))
+    output = vec.dot(we) + np.vstack(be for i in range(vec.shape[0]))
     if non_linear:
         output = np.tanh(output)
 
