@@ -31,6 +31,7 @@ def load_vecs(frag_folder, basename,
               for i in range(num_models)]
     vocab_sets = [set(model.wv.vocab) for model in models]
     vocab = reduce(lambda x,y: x.intersection(y), vocab_sets)
+    vocab = list(vocab)
     X = [[model.wv[v] for v in vocab] for model in models]
     X = [np.array(vecs) for vecs in X]
     X = reduce(lambda x,y: np.concatenate((x,y), axis=1), X)
