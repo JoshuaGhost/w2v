@@ -37,7 +37,7 @@ def load_vecs(frag_folder, basename,
     X = reduce(lambda x,y: np.concatenate((x,y), axis=1), X)
     return vocab, X
 
-def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.000005):
+def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.00001):
     num_vocab, dim_total = vec.shape
     num_models = dim_total/dim
 
