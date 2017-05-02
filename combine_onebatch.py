@@ -8,11 +8,8 @@ non_linear = True
 dim = 500
 
 batch = 1000
-num_iter = 21
+num_iter = 500
 
-(frag_folder, basename, num_models, suffix, non_linear, output_folder) = sys.argv[1:]
-num_models = int(num_models)
-non_linear = True if non_linear == "True" else False
 
 #frag_folder = "temp/models/dummy"
 #basename = "article.txt."
@@ -37,7 +34,7 @@ def load_vecs(frag_folder, basename,
     X = reduce(lambda x,y: np.concatenate((x,y), axis=1), X)
     return vocab, X
 
-def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.00001):
+def encode(vec, dim, linear, with_bias, batch=50, num_iter=500, learning_rate=0.00001):
     num_vocab, dim_total = vec.shape
     num_models = dim_total/dim
 
@@ -56,6 +53,15 @@ def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.00001):
         we -= learning_rate * X.T.dot(err).dot(wd.T)
         be -= learning_rate * err.dot(wd.T).sum(axis=0)
 
+        return we, be, wd, bd, err
+
+    def linear_train_no_offset(X, we, be, wd, bd):
+        Z = X.dot(we)
+        Y = Z.dot(wd)
+
+        err = (Y-X)/batch
+        wd -= learning_rate * Z.T.dot(err)
+        we -= learning_rate * X.T.dot(err).dot(wd.T)
         return we, be, wd, bd, err
 
     def non_linear_train(X, we, be, wd, bd):
@@ -77,27 +83,63 @@ def encode(vec, dim, batch=50, num_iter=500, learning_rate=0.00001):
     for block in range(num_vocab / batch):
         X = vec[block*batch:block*batch+batch, :]
         for iter_round in range(num_iter):
-            if non_linear:
+            if not linear:
                 we, be, wd, bd, err = non_linear_train(X, we, be, wd, bd)
-            else:
+            elif with_bias:
                 we, be, wd, bd, err = linear_train(X, we, be, wd, bd)
+            else:
+                we, be, wd, bd, err = linear_train_no_offset(X, we, be, wd, bd)
 
-            print('batch = %d, num_time = %d, block = %d, iter_round = %d, err = %f' %
+            print('batch = %d, num_iter = %d, block = %d, iter_round = %d, err = %f' %
                   (batch, num_iter, block, iter_round, (err**2).sum().sum()))
     return we, be, (err**2).sum().sum()
 
+def pca(vec, dim, bias_method):
+    if bias_method == 'with':
+        R = vec.T.dot(vec)
+    else:
+        bias = vec.mean(axis=0)
+        R = np.cov(vec, rowvar=False)
+    
+    assert R.shape == (vec.shape[1], vec.shape[1])
+    _, evecs = np.linalg.eigh(R)
+    evecs = evecs[:, -dim:]
+    output = vec.dot(evecs)
+
+    if bias_method == 'separate':
+        bias = bias.dot(evecs)
+        output += np.ones((vec.shape[0], 1)).dot(bias.reshape((1, dim)))
+    return output
+    
 
 if __name__=='__main__':
-    vocab, vec = load_vecs(frag_folder, basename,
-                    suffix, num_models)
+    (frag_folder, basename, num_models, suffix, method, output_folder) = sys.argv[1:]
+    num_models = int(num_models)
 
-    we, be, err = encode(vec, dim, batch, num_iter)
-    output = vec.dot(we) + np.vstack(be for i in range(vec.shape[0]))
-    if non_linear:
-        output = np.tanh(output)
+    method = method.split('-')
+    vocab, vec = load_vecs(frag_folder, basename,
+                           suffix, num_models)
+ 
+    if method[0] == 'autoencoder':
+        if method[1] == 'linear':
+            linear = True
+        elif method[1] == 'non_linear':
+            linear = False
+        if method[2] == 'with_bias':
+            with_bias = True
+        elif method[2] == 'without_bias':
+            with_bias = False
+        we, be, err = encode(vec, dim, linear, with_bias, batch, num_iter)
+        output = vec.dot(we) + np.vstack(be for i in range(vec.shape[0]))
+        if not linear:
+            output = np.tanh(output)
+
+    elif method[0] == 'pca':
+        bias_method = method[1].split('_')[0]#with_bias, ignore_bias, separate_bias
+        output = pca(vec, dim, bias_method)
 
     with open(output_folder + '/vocab.pickle', 'w+') as dfvocab:
        pickle.dump(vocab, dfvocab)
-    with open(output_folder + 'output.pickle', 'w+') as dfoutput:
+    with open(output_folder + '/output.pickle', 'w+') as dfoutput:
        pickle.dump(output, dfoutput)
 
