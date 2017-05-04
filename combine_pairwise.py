@@ -40,8 +40,8 @@ from config import LOG_FILE
 from lra import low_rank_align
 
 
-def combine_avg(X, Y, Cxy, times):
-    return (X*float(times)+Cxy.dot(Y))/float(times+1)
+def combine_avg(X, Y, times):
+    return (X*float(times)+Y)/float(times+1)
 
 def combine_avg_norm(X, Y, times):
     Z = combine(X, Y, times)
@@ -50,6 +50,13 @@ def combine_avg_norm(X, Y, times):
 
 def combine_hilbert(X, Y):
     return X + Y
+
+def linear_trans(X, Y):
+    s = Y.T.dot(X)
+    _, V = np.linalg.eig(s.T.dot(s))
+    _, W = np.linalg.eig(s.dot(s.T))
+    T = W.dot(V.T)
+    return Y.dot(T)
 
 class EmbeddingPairs(object):
     def model_load(self, model_file_name):
@@ -79,6 +86,20 @@ class EmbeddingPairs(object):
                 self.mx.wv.syn0norm[idx_org] = Z[idx]
             else:
                 self.mx.wv.syn0[idx_org] = Z[idx]
+    
+    def linear_trans(self):
+        self.mx = self.model_load(self.mns[0])
+        logger.info('Reference model loaded')
+        self.X = self.get_base_vecs()
+        Z = np.zeros(self.X.shape, dtype='f')
+        for sub_model_name in mns[1:]:
+            self.my = self.model_load(sub_model_name)
+            Y = self.get_corresponders()
+            logger.info('Marix to align loaded')
+            Xstar = linear_trans(self.X, Y)
+            Z += Xstar
+        Z += self.X
+        self.update_model(Z/len(mns))
 
     def serial_pairs_gen(self):
         self.mx = self.model_load(self.mns[0])
@@ -89,9 +110,9 @@ class EmbeddingPairs(object):
             self.my = self.model_load(sub_model_name)
             Y = self.get_corresponders()
             logger.info('matrix to merge loaded')
-            Z = yield [self.X, Y]
+            self.X = yield [self.X, Y]
             logger.info('merging finished')
-        self.update_model(Z)
+        self.update_model(self.X)
 
     def dichoto_pairs_gen(self):
         limit = len(self.mns)
@@ -187,25 +208,38 @@ if __name__ == '__main__':
 
     mns = [sub_models_dir+'article.txt.'+str(i)+'.txt.w2v'
            for i in range(num_sub_models)]
-    ep = EmbeddingPairs(mns, 'vocab/vocab.txt', order, sub_models_dir, strategy!='hilbert')
-    ep_gen = ep.gen()
+    ep = EmbeddingPairs(mns, 'vocab/vocab.txt', order, sub_models_dir, False)
+    if strategy == 'linear_trans':
+        ep.linear_trans()
+    else:
+        ep_gen = ep.gen()
+        
+        i = 0
+        Z = None
 
-    i = 0
-    Z = None
-    while True:
+    while True and not strategy == 'linear_trans':
         try:
             X, Y = ep_gen.send(Z)
         except StopIteration:
             break
+        dis0 = X-Y
+        dis0 = np.array([np.linalg.norm(dis0[j]) for j in range(len(dis0))])
         i += 1
+        dis1 = Y-Ystar
+        dis1 = np.array([np.linalg.norm(dis1[j]) for j in range(len(dis1))])#.sum()
         if use_lra:
-            X, Y = low_rank_align(X, Y, np.eyes(X.shape[0]))
+            X, Y = low_rank_align(X, Y, np.eye(X.shape[0]))
+        dis2 = Y-X
+        dis2 = np.array([np.linalg.norm(dis2[j]) for j in range(len(dis2))])#.sum()
+        print "origin diviation {}.\nsum of diviation using linear transformation is {}.\nsum of diviation using manifold alignment is {}.".format(dis0.sum(), dis1.sum(), dis2.sum())
         if strategy == 'avg':
             Z = combine_avg(X, Y, i)
         if strategy == 'avgnorm':
             Z = combine_avgnorm(X, Y, i)
         if strategy == 'hilbert':
             Z = combine_hilbert(X, Y)
+        if strategy == 'vadd':
+            Z = X + Y
     
     ep.save_final(new_model_name)
 
