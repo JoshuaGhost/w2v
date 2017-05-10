@@ -12,7 +12,9 @@ from web.evaluate import evaluate_on_all
 from web import embeddings
 from six import iteritems
 from multiprocessing import Pool
-from os import path
+from os import path, walk
+from copy import deepcopy
+import pickle
 import logging
 import optparse
 import multiprocessing
@@ -20,6 +22,7 @@ import multiprocessing
 parser = optparse.OptionParser()
 parser.add_option("-j", "--n_jobs", type="int", default=4)
 parser.add_option("-o", "--output_dir", type="str", default="")
+parser.add_option("-d", "--input_dir", type="str", default="output/models/all")
 (opts, args) = parser.parse_args()
 
 # Configure logging
@@ -28,16 +31,14 @@ logger = logging.getLogger(__name__)
 
 jobs = []
 
-for mc in range(0, 49, 2):
-    for dim in range(25, 201, 25):
-        model_dir = "/home/assassin/workspace/master_thesis/models/new/"
-        model_name = "dim_%d_mc_%d_iter.w2v"%(dim, mc)
-        model_path = model_dir + model_name
-        jobs.append(['from_gensim', {"fname": model_path, "dim": dim, "corpus":"wiki_news", "min_count": mc}])
+for root, subdirs, files in walk(opts.input_dir):
+    for fname in files:
+        file_path = path.join(root, fname)
+        jobs.append(['load_embedding', {'fname': file_path, 'format': 'dict'}, fname])
 
 def run_job(j):
-    fn, kwargs = j
-    outf = path.join(opts.output_dir, fn + "_" + "_".join(str(k) + "=" + str(v) for k,v in iteritems(kwargs) if not k == 'fname')) + ".csv"
+    fn, kwargs, model_name = j
+    outf = path.join(opts.output_dir, "eval_"+model_name[:-4]) + ".csv"
     print(outf)
     logger.info("Processing " + outf)
     if not path.exists(outf):

@@ -171,17 +171,26 @@ if __name__ == '__main__':
 
     (sub_models_dir, num_sub_models, order,
      strategy, lra, normed,
-     merged_file_name) = sys.argv[1:8]
+     output_folder) = sys.argv[1:8]
+    
+    config = [num_sub_models, order, strategy]
+
     num_sub_models = int(num_sub_models)
     lra = (lra == 'Y')
     normed = (normed == 'Y')
     log_file = LOG_FILE
     benchmark_vocab_dir = 'vocab/vocab.txt'
+
+    config += ['lra'] if lra else []
+    config += ['normed'] if normed else []
+    output_file = '-'.join(['merge'] + config)
+    output_file += '.pkl'
+
     ftime = open(log_file, 'a+')
     ftime.write('time of alignment and combination with order:'
                 ' %s and strategy: %s\n' % (order, strategy))
     ftime.write('sub-models under %s\n' % sub_models_dir)
-    ftime.write('combined models saved as %s\n\n' % merged_file_name)
+    ftime.write('combined models saved as %s\n\n' % os.path.join(output_folder, output_file))
 
     time_elapsed = -ctime()
 
@@ -197,7 +206,7 @@ if __name__ == '__main__':
     
     merged_embeddings = merge(embeddings, order=order, strategy=strategy, lra=lra)
    
-    with open(merged_file_name, 'w+') as ofile:
+    with open(os.path.join(output_folder, output_file), 'w+') as ofile:
         pickle.dump(dict(zip(common_vocab, merged_embeddings)), ofile)
 
     time_elapsed += ctime()
