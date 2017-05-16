@@ -14,7 +14,7 @@
 \usepackage[hyperref]{acl2017}
 \usepackage{times}
 \usepackage{latexsym}
-
+\usepackage{amsmath,amsfonts,amssymb}
 \usepackage{url}
 
 %\aclfinalcopy % Uncomment this line for the final submission
@@ -64,19 +64,20 @@ Thanks for the contribution by Zellig Harris, a basic hypothesis on distribution
 
 This word representation dates back to 1986 due to Rumelhart, Hinton and Williams \cite{williams1986learning}. Word embedding uses co-occurrence of words and a softmax functional with help of stochastic gradient descent(SGD) to train a model, where each word is represented by, saying \'embedded in\' a vector in a high-dimensional space. In which model metric of distance (e.g. L2-Norm) between a pair of synonyms, or other pairs of words representing similiar concept is smaller than other pairs. Also those representation vectors of words have also \'parallelicity\' in word pairs, such that vec("Beijing")-vec("China")+vec("Germany") is close to vec("Berlin") \cite{le2014distributed}, which means vector from "China" to "Beijing" is somehow has the same direction and norm as the vector from "Germany" to "Berlin". Popular applications of word embedding are for example machine translation \cite{cho2014learning}, image annotation \cite{weston2011wsabie} and so on. 
 
-Distributed word representation can be built through Point-wise Mutual Information (PMI) \cite{church1990word}. Moreover, it was later on researched that introduction of Positive PMI (PPMI) \cite{bullinaria2007extracting} and Shifted PMI (SPPMI, first presented in \cite{goldberg2014word2vec}) improves performance of models, considering the the fact that introduction of hyperparameter \verb|k| will shift the to optimise \verb|PMI(w, c)|, where \verb|k| is the number of negtive samples in Skip-gram with Negative Sampling and \verb|w| is the central word and \verb|c| is the nagtive sample or context word \cite{levy2014neural}. Methods such as PPMI and SVD are usually refered as \emph{"count based"} methods \cite{levy2015improving}, which focus on counting the coocurrence of word and it's context as well as performing linear transformation of the coocurrence matrix using techniques like lower-rank representation with help of SVD. To dig deeper with respect of co-occurrence matrix, GloVe \cite{Pennington2014glove} introduces a loss function:
+Distributed word representation can be built through Point-wise Mutual Information (PMI) \cite{church1990word}. Moreover, it was later on researched that introduction of Positive PMI (PPMI) \cite{bullinaria2007extracting} and Shifted PMI (SPPMI, first presented in \cite{goldberg2014word2vec}) improves performance of models, considering the the fact that introduction of hyperparameter \verb|k| will shift the to optimise \verb|PMI(w, c)|, where \verb|k| is the number of negtive samples in Skip-gram with Negative Sampling and \verb|w| is the central word and \verb|c| is the nagtive sample or context word \cite{levy2014neural}. Methods such as PPMI and SVD are usually refered as \emph{"count based"} methods \cite{levy2015improving}, which focus on counting the coocurrence of word and it's context as well as performing linear transformation of the coocurrence matrix using techniques like lower-rank representation with help of SVD. To dig deeper with respect of co-occurrence matrix, GloVe \cite{Pennington2014glove} introduces a loss function
+
 \begin{equation}
-J=\sum_{i,j=1}^{V}f(X_ij)(w_i^T\tilde{w_j}+b_i\tilde{b_j}-logX_ij)^2
+J=\sum_{i,j=1}^{V}f(X_ij)(w_i^T\tilde{w_j}+b_i\tilde{b_j}-logX_ij)^2,
 \end{equation}
-Where $f(X_ij)$ is
-\begin{equation} 
-  f(x)=\left\{
-    \begin{array}{rl}
-    (\frac{x}{x_{max}})^\alpha & if\quad x<x_{max}\\
-    1 & otherwise
-    \end{array}
-\right.
-\end{equation}
+
+where $f(X_ij)$ is
+
+\[f(x)=\begin{cases}
+    (\frac{x}{x_{max}})^\alpha : \text{if }x<x_{max}\\
+    1 : \text{otherwise}
+    \end{cases}
+\]
+
 Alternatively, vector-based models can be generated with \emph{predictive} methods, which generally outperform the count-based methods \cite{levy2015improving}. The most notable of which is Skip-gram with Negative Sampling (SGNS) with neural network referred in \cite{mikolov2013distributed}, which uses a neural network with only one hidden-layer to generate embeddings. Which implicitly factorizes a shifted PMI matrix \cite{levy2014neural}. In this paper, the base-line model is generalized using framework \verb|gensim|\footnote{http://radimrehurek.com/gensim/} with SGNS and stochastic gradient descent (SGD) to minimize a loss function that defined on both co-occurence of words in a same window (positive co-occurence of central word and context) and negative co-occurrence between central word of a window and negtive sample words. 
 
 \section{Brief introduction on word embedding with Skip-gram model}
@@ -104,16 +105,18 @@ Contrastly, the work from Jeroen B.P. Vuurens et.al. \cite{eickhoff2016efficient
 Unlike the systematic way mentioned in the section above, we present in this paper essentially such method that at first train dedicate sub-models separately, each of wich consume part of corpus file, instead of the whole file. These processes can be run at different processors or even different mappers in a MapReduce cluster \cite{dean2008mapreduce}. Then these sub-models are combined with several different strategies. Due to \verb|iter| times passing-through of whole corpus in the traditional training process, it's trivial that the training time of a distributed representation model depends substaintially on size of corpus. All of word vectors form an ambient Euclidean space, the purpose of distributed word representation is construction of a low-dimensional representation of one of its subspace \cite{Mahadevan2015reasoning}. Several "coarse" sub-models can be trained by using information from different parts of corpus. Which can be irrelevant with each other or be sampled so that the distribution of words are preserved. Then these sub-models can be combined using different strategies to reduce the "coarseness" of each single one of them. There are various of strategies can be conducted while dividing corpus, aligning of manifolds in each models and combining them together. In the following subsections we will go through them one by one.
 
   \subsection{Dividing corpus}
-  We can divide the corpora using a interweaving way. At first we denote sentences in all of documents in corpus with integers and if we divide the whole corpus into k pieces, the t-th piece becomes all centences that denoted as $kn+(t-1)$ (where $k\in Z_\+$ and $t<k$). For example if we have the sentences numbered as 0, 1, 2, 3, 4, 5, ... in the 0th piece becomes 0, 2, 4, ... while the 1st becomes 1, 3, 5, ... Division using this way enables each piece contains different sentences, while spread each documentation into different pieces by granularity of sentence.
+  We can divide the corpora using a interweaving way. At first we denote sentences in all of documents in corpus with integers and if we divide the whole corpus into k pieces, the t-th piece becomes all centences that denoted as $kn+(t-1)$ (where $k\in Z_+$ and $t<k$). For example if we have the sentences numbered as 0, 1, 2, 3, 4, 5, ... in the 0th piece becomes 0, 2, 4, ... while the 1st becomes 1, 3, 5, ... Division using this way enables each piece contains different sentences, while spread each documentation into different pieces by granularity of sentence.
   If maintenance of word distribution is required for the sake of fairness, sampling methods like Bootstrap method \cite{efron1992bootstrap} can be leveraged. Still at first all of sentences contained in corpus are denoted by integers. Then sample k pieces {\`a} M/k centences using Bootstrap method, in order to construct k sub-corpus.
   \subsection{Alignment between models}
   After training sub-model using each sub-corpus dedicately, we can proceed to the combination phase of the whole work flow. One simple approach of combination is to just add different embedded vectors together, hoping the local information presented by a single model can also be maintained using single vector addition without any alignment. But inspecting only two word vector pairs from model 0 and model 1, say $(\vec{a}_0, \vec{b}_0)$ and $(\vec{a}_1, \vec{b}_1)$, without losing the generality. The inner product of each word vectors pair illustrates later on the similarity of word \verb|a| and \verb|b| in each model respectively. The simple vector addition of vectors from model 0 and model 1 dosen't guarantee the information expressed by inner product still preserves. We expect that in the merged model, inner product of $(\vec{a}_m,\vec{b}_m)$ should be a function that depends on only $\langle\vec{a}_0,\vec{b}_0\rangle$ and $\langle\vec{a}_1, \vec{b}_1\rangle$. However after using the simple vector addition, the new inner product is:
   \begin{equation}\label{eq:inner_product}
-  \langle(\vec{a}_0+\vec{a}_1), (\vec{b}_0+\vec{b}_1)\rangle=
-    \langle\vec{a}_0,\vec{b}_0\rangle+
+  \begin{split}
+  &\langle(\vec{a}_0+\vec{a}_1), (\vec{b}_0+\vec{b}_1)\rangle\\
+  = &\langle\vec{a}_0,\vec{b}_0\rangle+
     \langle\vec{a}_1,\vec{b}_1\rangle+
     \langle\vec{a}_0,\vec{b}_1\rangle+
     \langle\vec{a}_1,\vec{b}_0\rangle
+  \end{split}
   \end{equation}
   where the last two part in the right side dependes on the inter-model-distortion because of the unalignment of models. Thus some alignment should be performed.
 
@@ -133,9 +136,83 @@ Unlike the systematic way mentioned in the section above, we present in this pap
   This transformation minimize the inter-model distortion under the constraint that only orthogonal transformations are allowd. Thus reduce the last two items in the \eqref{eq:inner_product} in a way.
 
   \subsubsection{Low rank alignment}
-  The work from Boucher et al. \cite{boucher2015aligning} provides another approach of aligning different manifold together
-  conserning only about inner product of two common word pair, , which can be later on used to illustrate the similarity of two words consider about just  can vector addition amoung all of embedded vectors 
+  The work from Boucher et al. \cite{boucher2015aligning} provides another approach of aligning different manifold together. Consider \verb|X| and \verb|Y| are two manifold to be aligned. They are at first decomposed using SVD such that $X=U_xS_xV_x^\intercal$ and $Y=U_yS_yV_y^\intercal$. With out losing the generality, $S_x$ and $V_x$ are artitioned into $V_x=[V_{x1}V_{x2}]$ and $S_x=[S_{x1}S_{x2}]$ according to 
+  $$
+  I_1=\{i:s_i>1 \forall s_i \in S\}
+  $$
+  and
+  $$
+  I_2=\{i:s_i\leq 1 \forall s_i\in S\}.
+  $$ 
+  This decomposition is used for preparation of low-rank-representation X and Y using Low rank embedding (LRE). The LRE problem is defined as that, given a data set X, finding a proper transformation matrix R, in order to minimize the loss function,
+
+  \begin{equation}\label{eq:LRE_objection}
+  min_R\frac{1}{2}\|X-XR\|^2_F+\lambda\|R\|_*,
+  \end{equation}
+
+  where $\lambda > 0, \|X\|_F=\sqrt{\sum_i\sum_j|x_{i,j}|^2}$ is called Frobenius norm, while $\|X\|_*=\sum_i\sigma_i(X)$ is the spectral norm and where by $\sigma_i$ are singular values. \cite{candes2010power} proved that the formula \eqref{eq:LRE_objection} is a convex relaxation of rank minimization problem and it's result \verb|R| is the so-called reconstruction coefficients, which discribe the intra-manifold relationship between points inside a single manifold. The \eqref{eq:LRE_objection} is showed in \cite{favaro2011closed} can be solved in closed form. This is where we use the decomposition of \verb|X| and \verb|Y|. For example, the optimal closed-form solution of reconstruction of coefficients for \verb|X| is
+  
+  \begin{equation}
+  R^{(X)}=V_x1(I-S_x1^{-1})V_x1^\intercal.
+  \end{equation}
+
+  Once the $R^{(X)}$ and $R^{(Y)}$ are calculated, they can be blocked as
+  
+  \[R= \begin{bmatrix}
+      R^{(X)} & 0 \\
+      0 & R^{(Y)}
+      \end{bmatrix}\] and 
+  \[C=\begin{bmatrix}
+      0 & C^{(X,Y)}\\
+      C^{(Y,X)} & 0
+      \end{bmatrix}\],
+
+  where $C^{(X,Y)}$ is inter-manifolds correspondence, defined as
+
+  \[C_{i,j}^{(X,Y)}=\begin{cases}
+                    1 : X_i\text{ is in correspondence with }Y_i\\
+                    0 : \text{otherwise}
+                    \end{cases}\].
+
+  Defining $F\in {\rm I\!R}^{(2N\times d)}$ as
+
+  \[F=\begin{bmatrix}
+      F^{(X)}\
+      F^{(Y)}
+      \end{bmatrix}\],
+
+  where \verb|N| is the number of points in each manifold and \verb|d| is the dimension of both manifolds, $F^{(X)}$ and $F^{(Y)}$ are the aligned manifolds. The alignment precision of \verb|F| can be discribed as loss function
+
+  \begin{equation}\label{eq:alignment_precision_objection}
+  \mathcal{Z}(F)=(1-\mu )\|F-RF\|^2_F+\mu\sum_{i,j=1}^N\|F_i-F_j\|^2C_{i,j},
+  \end{equation}
+
+  where $\mu\in[0,1]$ is a hyper parameter that controls the inter-manifold correspondence or intra-manifold correspondence matters significantly. With help of the Lagrange multipliers method, equation \eqref{eq:alignment_precision_objection} can be solved by finding the d smallest non-zero eigenvectors of the matrix
+
+  \begin{equation}
+  (1-\mu)M+2\mu L,
+  \end{equation}
+
+  where
+
+  \[M=\begin{bmatrix}
+    (I-R^{(x)})^2 & 0\\
+    0 & (i-R^{(Y)})^2
+    \end{bmatrix}\],
+
+  and
+
+  \[L=\begin{bmatrix}
+    D^X & -C^{(X,Y)}\\
+    (-C^{(X,Y)})^\intercal & D^Y
+    \end{bmatrix}\],
+
+  where by \[D=\begin{bmatrix}D^X & 0\\0 & D^Y\end{bmatrix}\] is a diagonal matrix.
+  \subsection{Normalized or Unnormalized?}
   \subsection{Combination of sub-models}
+  \subsubsection{with Vector Addition}
+  \subsubsection{with PCA projection}
+  \subsubsection{}
   \subsection{Combination using ensemble learning}
 
 \section{Experiment result}
