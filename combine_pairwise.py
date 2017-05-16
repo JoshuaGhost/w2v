@@ -15,7 +15,7 @@
     For order it can be:
         sequential      : sequential merge
         dichoto         : dicotomicall merge
-        min_linear_err  : everytime combine the two with minimum error w.r.t.
+        min_procrustes_err  : everytime combine the two with minimum error w.r.t.
                           orthogonal Procrustes error
 
     For combination strategy it can be:
