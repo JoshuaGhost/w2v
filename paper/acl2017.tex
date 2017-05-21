@@ -209,6 +209,7 @@ Unlike the systematic way mentioned in the section above, we present in this pap
 
   where by \[D=\begin{bmatrix}D^X & 0\\0 & D^Y\end{bmatrix}\] is a diagonal matrix.
   \subsection{Normalized or Unnormalized?}
+  According to work of Levy et al. \cite{levy2015improving}, 
   \subsection{Combination of sub-models}
   \subsubsection{with Vector Addition}
   \subsubsection{with PCA projection}
@@ -221,8 +222,8 @@ In this paper, we keep hyperparameters same as most-performed SGNS model evaluat
 \caption{Performance and training time of different scalable strategies}
 \begin{tabular}{c|cccccccc|c}
 \hline
-Method    & AP   & MEN  & MTurk & WS353 & WS353R & WS353S & Google & MSR  & training time\\ \hline
-Base-line & .595 & .736 & .694  & .611  & .514   & .754   & .661   & .440 & \\ \hline
+Dataset   & AP   & MEN  & MTurk & WS353 & WS353R & WS353S & Google & MSR  & training time\ \hline
+Base-line & .595 & .736 & .694  & .611  & .514   & .754   & .661   & .440 & 5d 3h 11m 25s\\ \hline
 \end{tabular}
 \label{table:benchmark}
 \end{table*}

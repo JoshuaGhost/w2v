@@ -119,7 +119,7 @@ def merge(embeddings, order='sequential', strategy='avg', lra=False):
 
     def merge_min_procrustes_err(embeddings):
         namelist = [i for i in range(len(embeddings))]
-        err = np.eye(len(embeddings)) * 32768.0
+        err = np.eye(len(embeddings)) * 3276899999.0
         for i in namelist[:-1]:
             for j in namelist[i+1:]:
                 err[i][j] = procrustes_err(embeddings[i], embeddings[j])
@@ -136,7 +136,7 @@ def merge(embeddings, order='sequential', strategy='avg', lra=False):
             Z = combine(embeddings[idx_i], embeddings[idx_j], strategy)
             embeddings.append(Z)
             namelist.remove(idx_i)
-            namelist.remove(idx_j)
+            namelist.remove(idy_j)
             if len(namelist) == 0:
                 break
             namelist.append(p)
