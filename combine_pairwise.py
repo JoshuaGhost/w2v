@@ -136,7 +136,7 @@ def merge(embeddings, order='sequential', strategy='avg', lra=False):
             Z = combine(embeddings[idx_i], embeddings[idx_j], strategy)
             embeddings.append(Z)
             namelist.remove(idx_i)
-            namelist.remove(idy_j)
+            namelist.remove(idx_j)
             if len(namelist) == 0:
                 break
             namelist.append(p)
