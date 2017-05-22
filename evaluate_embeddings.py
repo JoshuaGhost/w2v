@@ -31,8 +31,10 @@ logger = logging.getLogger(__name__)
 
 jobs = []
 
+valiable_exts = ['.pkl', '.pickle', '.w2v']
+
 for root, subdirs, files in walk(opts.input_dir):
-    for fname in files:
+    for fname in (n for n in files if path.splitext(n)[1] in valiable_exts):
         file_path = path.join(root, fname)
         jobs.append(['load_embedding', {'fname': file_path, 'format': 'dict'}, fname])
 

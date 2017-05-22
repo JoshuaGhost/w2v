@@ -25,9 +25,10 @@ $debug mkdir $TMP_RESULTS_DIR
 $debug mkdir $FINAL_RESULT_DIR
 $debug mkdir $ARCHIVED_MODELS_DIR
 
-CONFIGS=$( parallel printf "%s,%s,%s,%s,%s\ " ::: \
+            #{'sequential','dichoto','min_procrustes_err'} ::: \
+CONFIGS=$( parallel --gnu printf "%s,%s,%s,%s,%s\ " ::: \
             {$SKIP_MODELS_DIR,$BOOT_MODELS_DIR} ::: \
-            {'sequential','dichoto','min_procrustes_err'} ::: \
+            'min_procrustes_err' ::: \
             {'vector_addition','linear_transform','pca_transbase'} ::: \
             {'Y','N'} ::: \
             {'Y','N'} )

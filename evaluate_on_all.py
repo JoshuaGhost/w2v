@@ -67,6 +67,8 @@ if __name__ == "__main__":
                 format = "word2vec"
             elif ext == ".pkl":
                 format = "dict"
+            elif ext == ".w2v":
+                format = "gensim"
 
         assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin', 'combined_vectors'], "Unrecognized format"
 
