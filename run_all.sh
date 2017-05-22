@@ -25,7 +25,10 @@ $debug mkdir $TMP_RESULTS_DIR
 $debug mkdir $FINAL_RESULT_DIR
 $debug mkdir $ARCHIVED_MODELS_DIR
 
+<<<<<<< HEAD
             #{'sequential','dichoto','min_procrustes_err'} ::: \
+=======
+>>>>>>> a77444f7e42c5a093b502b634205701700040870
 CONFIGS=$( parallel --gnu printf "%s,%s,%s,%s,%s\ " ::: \
             {$SKIP_MODELS_DIR,$BOOT_MODELS_DIR} ::: \
             'min_procrustes_err' ::: \
