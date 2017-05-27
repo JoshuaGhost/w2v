@@ -10,18 +10,18 @@
                   <combination strategy>
                   <use lra?>
                   <use normed vector?>
-                  <name of merged file>
+                  <directory of merged file>
 
     For order it can be:
-        sequential      : sequential merge
-        dichoto         : dicotomicall merge
-        min_procrustes_err  : everytime combine the two with minimum error w.r.t.
+        seq     : sequential merge
+        dicht   : dicotomicall merge
+        MPE	: everytime combine the two with minimum error w.r.t.
                           orthogonal Procrustes error
 
     For combination strategy it can be:
-        vector_addition : merge using average through each dimension
-        linear_transform: merge using average then normalization
-        pca_transbase   : merge under hilbert space
+        vadd	: merge using average through each dimension
+        lint	: merge using average then normalization
+        PCA	: merge under hilbert space
 """
 import logging
 import os
@@ -40,12 +40,12 @@ from glob import glob
 from config import LOG_FILE
 from lra import low_rank_align
 
-def load_vocab(vocab_file):
-    with open(vocab_file, 'r') as f:
+def load_vocab(fvocab):
+    with open(fvocab, 'r') as f:
         vocab = [word.lower()[:-1] for word in f.readlines()]
     return vocab
         
-def vocab_intersect(v1, v2):
+def vocab_intersection(v1, v2):
     return v1.intersection(v2)
 
 def load_common_vectors(common_vocab, normed):
@@ -56,9 +56,6 @@ def load_common_vectors(common_vocab, normed):
         vectors = [model.wv[word] for word in common_vocab]
         return np.array(vectors)
     return _load_vectors
-
-def vocab_intersect(v1, v2):
-    return v1.intersection(v2)
 
 def procrustes_trans(X, Y):
      s = Y.T.dot(X)
@@ -91,14 +88,14 @@ def combine(X, Y, strategy, lra=False):
     
     if lra:
         X, Y = low_rank_align(X, Y, np.eye(X.shape[0]))
-    if strategy == 'linear_transform':
+    if strategy == 'lint':
         return _linear_trans(X, Y)
-    if strategy == 'vector_addition':
+    if strategy == 'vadd':
         return _vector_add(X, Y)
-    if strategy == 'pca_transbase':
+    if strategy == 'PCA':
         return _pca_transbase(X, Y)
 
-def merge(embeddings, order='sequential', strategy='avg', lra=False):
+def merge(embeddings, order='seq', strategy='vadd', lra=False):
     def merge_seq(embeddings):
         embeddings = deque(embeddings)
         while len(embeddings) > 1:
@@ -108,7 +105,7 @@ def merge(embeddings, order='sequential', strategy='avg', lra=False):
             embeddings.appendleft(Z)
         return embeddings.popleft()
 
-    def merge_dichoto(embeddings):
+    def merge_bin(embeddings):
         embeddings = deque(embeddings)
         while len(embeddings) > 1:
             X = embeddings.popleft()
@@ -117,7 +114,7 @@ def merge(embeddings, order='sequential', strategy='avg', lra=False):
             embeddings.append(Z)
         return embeddings.popleft()
 
-    def merge_min_procrustes_err(embeddings):
+    def merge_MPE(embeddings):
         namelist = [i for i in range(len(embeddings))]
         err = np.eye(len(embeddings)*2-1)
         for i in namelist[:-1]:
@@ -144,12 +141,12 @@ def merge(embeddings, order='sequential', strategy='avg', lra=False):
             p += 1
         return embeddings[-1]
 
-    if order == 'sequential':
+    if order == 'seq':
         return merge_seq(embeddings)
-    elif order == 'dichoto':
-        return merge_dichoto(embeddings)
-    elif order == 'min_procrustes_err':
-        return merge_min_procrustes_err(embeddings)
+    elif order == 'bin':
+        return merge_bin(embeddings)
+    elif order == 'MPE':
+        return merge_MPE(embeddings)
     
 
 if __name__ == '__main__':
@@ -164,45 +161,45 @@ if __name__ == '__main__':
         print globals()['__doc__'] % locals()
         sys.exit(1)
 
-    (sub_models_dir, num_sub_models, order,
+    (dfrags, nfrags, order,
      strategy, lra, normed,
-     output_folder) = sys.argv[1:8]
+     dout) = sys.argv[1:8]
     
-    config = [num_sub_models, order, strategy]
+    config = [nfrags, order, strategy]
 
-    num_sub_models = int(num_sub_models)
+    nfrags = int(nfrags)
     lra = (lra == 'Y')
     normed = (normed == 'Y')
-    log_file = LOG_FILE
-    benchmark_vocab_dir = 'vocab/vocab.txt'
+    flog = LOG_FILE
+    fvocab = 'vocab/vocab.txt'
 
     config += ['lra'] if lra else []
     config += ['normed'] if normed else []
-    output_file = '-'.join(['merge'] + config)
-    output_file += '.pkl'
+    fout_name = '-'.join(['merged', dfrags.split('/')[-2]] + config)
+    fout_name += '.pkl'
 
-    ftime = open(log_file, 'a+')
+    ftime = open(flog, 'a+')
     ftime.write('time of alignment and combination with order:'
                 ' %s and strategy: %s\n' % (order, strategy))
-    ftime.write('sub-models under %s\n' % sub_models_dir)
-    ftime.write('combined models saved as %s\n\n' % os.path.join(output_folder, output_file))
+    ftime.write('sub-models under %s\n' % dfrags)
+    ftime.write('combined models saved as %s\n\n' % os.path.join(dout, fout_name))
 
     time_elapsed = -ctime()
 
-    model_name_list = [sub_models_dir+'article.txt.'+str(i)+'.txt.w2v'
-           for i in range(num_sub_models)]
-    vocabs = [set(Word2Vec.load(mname).wv.vocab) for mname in model_name_list]
-    init_vocab = set(load_vocab(benchmark_vocab_dir))
+    namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
+           	      for i in range(nfrags)]
+    vocabs = [set(Word2Vec.load(mname).wv.vocab) for mname in namelist_frags]
+    init_vocab = set(load_vocab(fvocab))
     common_vocab = reduce(lambda x, y: x.intersection(y),
                           vocabs,
                           init_vocab)
     common_vocab = list(common_vocab)
-    embeddings = map(load_common_vectors(common_vocab, normed), model_name_list)
+    embeddings = map(load_common_vectors(common_vocab, normed), namelist_frags)
     
     merged_embeddings = merge(embeddings, order=order, strategy=strategy, lra=lra)
    
-    with open(os.path.join(output_folder, output_file), 'w+') as ofile:
-        pickle.dump(dict(zip(common_vocab, merged_embeddings)), ofile)
+    with open(os.path.join(dout, fout_name), 'w+') as fout:
+        pickle.dump(dict(zip(common_vocab, merged_embeddings)), fout)
 
     time_elapsed += ctime()
     
