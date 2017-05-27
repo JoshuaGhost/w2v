@@ -225,7 +225,20 @@ Unlike the systematic way mentioned in the section above, we present in this pap
   Add vectors together is one of the first intuition when talking about combination two bundle of vectors. The direct addition of two vectors from two sub-models can be seen as calculating middle point of two vectors when put them into a same space. However as depicted in \eqref{eq:inner_product}, simple addition may introduce additional distortion because of nonalignment between models. Thus for comparison, we ran naked vector addition as well as vector addition with alignment using orthogonal transformation and low rank alignment.
 
   \subsubsection{Using PCA and projection}
-  If vectors from two different models are just stacked together without any additional computation, all information from both models can be preserved. However because of the fact that we are using different part of same corpus, identical word does have same semantic within the same corpus. Also because semantic is under our hypothesis implied by the distribution of itself and it's context, only thing have to be focused on is the distribution of words and their context in different corpus. These distributions can be has similar with each other while some techniques preserving the distribution of sentences are employed when slicing the corpus.
+  If vectors from two different models are just stacked together without any additional computation, all information from both models can be preserved. However because of the fact that we are using different part of same corpus, identical word does have same semantic within the same corpus. Also because semantic is under our hypothesis implied by the distribution of itself and it's context, only thing then has to be concerned about is the distribution of words with their context in different corpus fragments. These distributions can be similar with each other while some distribution-preserving techniques of sentences are employed when slicing the corpus. For example if we use bootstrap method to divide the entire corpus, probability that a word occurs in a specific fragment is only it's term frequency multiplied by the possibility, whether the sentences containing the word is sampled. Meanwhile because the granularity of sampling is on the level of sentences, the co-occurrence of it's context still preserves. Since all of the words are multiplied by a same factor, the expectation of final results should maintain. In mathematical language, the final result of SGNS model with entire corpus, denoted as matrix $W_i$ and $C_i$, which are vector expression of central words and context words, are according to the \cite{levy2014neural}, as
+  
+  \begin{equation}
+  M^{SGNS}_ij &= W_i\dotC_j = \vec{w_i}\dot\vec{c_j} = PMI(w_i, c_j) - \log k
+              &= \log {(\frac{#(w,c)\dot|D|}{#(w)\dot#(c)})} - \log k.
+  \end{equation}
+
+  Which, however, in our fragmentation-combination model turns to be like:
+
+  \begin{equation}
+  M^{Frag-Comb}_ig = \log {(\frac{\frac{#(w,c)}{n}\dot\frac{|D|}{n}}{\frac{#(w)}{n}\dot\frac{#(c)}{n}})},
+  \end{equation}
+
+  where n is the number of fragments, while $\frac{1}{n}$ is the probability whether a sentence is selected in a specific fragment.
 
 \section{Experiment result}
 In this paper, following the advice in \cite{levy2015improving}, hyper-parameters are chosen as \verb|win=10|, \verb|neg=5|, \verb|dim=500| and \verb|iter=5|. English wiki dump (enwiki-latest-pages-articles on March 2nd, 2016\footnote{from https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2}) is used as corpus. In table \ref{table:benchmark} the line "base-line" represents the performance of model who uses whole corpus with out any division or combination. each column stands for a evaluation dataset or training time. This benchmark is also kept the same with \cite{levy2015improving}.
