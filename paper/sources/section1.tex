@@ -1,0 +1,24 @@
+\section{Introduction}
+In NLP applications, the first problem to solve is to find a propose representation (or token) of words \cite{schutze2008introduction}. One can use a random generated integer token, one-hot encoding \cite{turian2010word} or Huffman code \cite{el2006compression}, with respect to data compression, deal with it, as long as the representation could be \'understood\' by machines. However, representations such as simple integer don't take the semantic information into consideration \cite{le2014distributed}. While method such as one-hot encoding will also cause \textit{curse of dimensionality} if being directly used in an NLP applications \cite{bengio2003neural}. Word representations with respect of semantic and within low dimension are therefore need to be developed. 
+
+As human beings, we can understand the meaning of one word through looking for the corresponded entry in a dictionary and read the description. In order to understand the description we have to find a description of the description, i.e. meta-description, meta-meta-description and so on all the way run into the awkward stymie of self-reference. It's alright for a human brain but a catastrophe for modern computers who are based on formal arithmetic system. This self-reference can't be complete and conflict-free according to G{\"o"}del's incompleteness theorems \cite{godel1931formal}.
+
+Thanks for the contribution by Zellig Harris, a basic hypothesis on distributional semantics was introduced that linguistic items with similar distributions have similar meanings. Meaning, or semantic similarity between two linguistic expression depends strongly on the circumstance or the context they appear \cite{harris1954distributional}. Fortunately, computers are champions in forming distributional properties by counting and regression.
+
+This word representation dates back to 1986 due to Rumelhart, Hinton and Williams \cite{williams1986learning}. Word embedding uses co-occurrence of words and a softmax functional with help of stochastic gradient descent(SGD) to train a model, where each word is represented by, saying \'embedded in\' a vector in a high-dimensional space. In which model metric of distance (e.g. L2-Norm) between a pair of synonyms, or other pairs of words representing similar concept is smaller than other pairs. Also those representation vectors of words have also \'parallelism\' in word pairs, such that vec("Beijing")-vec("China")+vec("Germany") is close to vec("Berlin") \cite{le2014distributed}, which means vector from "China" to "Beijing" is somehow has the same direction and norm as the vector from "Germany" to "Berlin". Popular applications of word embedding are for example machine translation \cite{cho2014learning}, image annotation \cite{weston2011wsabie} and so on. 
+
+Distributed word representation can be built through Point-wise Mutual Information (PMI) \cite{church1990word}. Moreover, it was later on researched that introduction of Positive PMI (PPMI) \cite{bullinaria2007extracting} and Shifted PMI (SPPMI, first presented in \cite{goldberg2014word2vec}) improves performance of models, considering the the fact that introduction of hyper-parameter \verb|k| will shift the to optimize \verb|PMI(w, c)|, where \verb|k| is the number of negative samples in Skip-gram with Negative Sampling and \verb|w| is the central word and \verb|c| is the native sample or context word \cite{levy2014neural}. Methods such as PPMI and SVD are usually referred as \emph{"count based"} methods \cite{levy2015improving}, which focus on counting the co-occurrence of word and it's context as well as performing linear transformation of the co-occurrence matrix using techniques like lower-rank representation with help of SVD. To dig deeper with respect of co-occurrence matrix, GloVe \cite{Pennington2014glove} introduces a loss function
+
+\begin{equation}
+J=\sum_{i,j=1}^{V}f(X_ij)(w_i^T\tilde{w_j}+b_i\tilde{b_j}-logX_ij)^2,
+\end{equation}
+
+where $f(X_ij)$ is
+
+\[f(x)=\begin{cases}
+    (\frac{x}{x_{max}})^\alpha : \text{if }x<x_{max}\\
+    1 : \text{otherwise}
+    \end{cases}
+\]
+
+Alternatively, vector-based models can be generated with \emph{predictive} methods, which generally outperform the count-based methods \cite{levy2015improving}. The most notable of which is Skip-gram with Negative Sampling (SGNS) with neural network referred in \cite{mikolov2013distributed}, which uses a neural network with only one hidden-layer to generate embeddings. Which implicitly factorizes a shifted PMI matrix \cite{levy2014neural}. In this paper, the base-line model is generalized using framework \verb|gensim|\footnote{http://radimrehurek.com/gensim/} with SGNS and stochastic gradient descent (SGD) to minimize a loss function that defined on both co-occurrence of words in a same window (positive co-occurrence of central word and context) and negative co-occurrence between central word of a window and negative sample words. 

@@ -1,21 +1,7 @@
-TEX=latex
-TTP=texi2pdf
-BIB=bibtex
-
-dvi:
-	$(TEX) acl2017.tex
-	$(BIB) acl2017.aux
-	$(BIB) acl2017.aux
-	$(TEX) acl2017.tex
-
 pdf:
-	$(TTP) acl2017.tex
-	$(BIB) acl2017.aux
-	$(BIB) acl2017.aux
-	$(TTP) acl2017.tex
-
-clean:
-	rm -f *.aux *.bbl *.blg *.dvi *.pdf *.log
+	texi2pdf sources/acl2017.tex -o output/new.pdf
+pdf-mostly-clean:
+	texi2pdf sources/acl2017.tex -o output/new.pdf --mostly-clean
 
 .PHONY:
-	dvi pdf clean
+	pdf pdf-mostly-clean
