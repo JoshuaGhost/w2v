@@ -36,9 +36,16 @@ from time import time as ctime
 from scipy.sparse import lil_matrix
 from collections import deque
 from glob import glob
+from multiprocessing import Pool
 
 from config import LOG_FILE
 from lra import low_rank_align
+
+program = os.path.basename(sys.argv[0])
+logger = logging.getLogger(program)
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
+#logging.root.setLevel(level=logging.INFO)
+logging.root.setLevel(level=logging.ERROR)
 
 def load_vocab(fvocab):
     with open(fvocab, 'r') as f:
@@ -69,7 +76,7 @@ def procrustes_err(X, Y):
     E = Ystar - X
     return np.trace(E.T.dot(E))
     
-def combine(X, Y, strategy, lra=False):
+def combine(X, Y, strategy, uselra):
     def _vector_add(X, Y):
         return X+Y
 
@@ -82,11 +89,11 @@ def combine(X, Y, strategy, lra=False):
         dim = X.shape[1]
         V = np.hstack((X, Y))
         R = V.T.dot(V)
-        _, evecs = np.linalg.eig(R)
-        evecs = evecs[:, :dim]
+        _, evecs = np.linalg.eigh(R)
+        evecs = evecs[:, -dim:]
         return V.dot(evecs)
     
-    if lra:
+    if uselra:
         X, Y = low_rank_align(X, Y, np.eye(X.shape[0]))
     if strategy == 'lint':
         return _linear_trans(X, Y)
@@ -95,13 +102,13 @@ def combine(X, Y, strategy, lra=False):
     if strategy == 'PCA':
         return _pca_transbase(X, Y)
 
-def merge(embeddings, order='seq', strategy='vadd', lra=False):
+def merge(embeddings, order, strategy, uselra):
     def merge_seq(embeddings):
         embeddings = deque(embeddings)
         while len(embeddings) > 1:
             X = embeddings.popleft()
             Y = embeddings.popleft()
-            Z = combine(X, Y, strategy, lra)
+            Z = combine(X, Y, strategy, uselra)
             embeddings.appendleft(Z)
         return embeddings.popleft()
 
@@ -148,46 +155,41 @@ def merge(embeddings, order='seq', strategy='vadd', lra=False):
     elif order == 'MPE':
         return merge_MPE(embeddings)
     
-
-if __name__ == '__main__':
-    program = os.path.basename(sys.argv[0])
-    global logger
-    logger = logging.getLogger(program)
-    logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
-    logging.root.setLevel(level=logging.INFO)
-    logger.info("running %s" % ' '.join(sys.argv))
-
-    if len(sys.argv) < 5:
+def parse_argvs(argvs):
+    if len(argvs) < 5:
         print globals()['__doc__'] % locals()
         sys.exit(1)
 
     (dfrags, nfrags, order,
-     strategy, lra, normed,
-     dout) = sys.argv[1:8]
+     strategy, uselra, normed,
+     dout) = argvs[1:8]
     
     config = [nfrags, order, strategy]
 
     nfrags = int(nfrags)
-    lra = (lra == 'Y')
+    uselra = (uselra == 'Y')
     normed = (normed == 'Y')
     flog = LOG_FILE
     fvocab = 'vocab/vocab.txt'
 
-    config += ['lra'] if lra else []
+    config += ['lra'] if uselra else []
     config += ['normed'] if normed else []
     fout_name = '-'.join(['merged', dfrags.split('/')[-2]] + config)
     fout_name += '.pkl'
+    return dfrags, nfrags, order, strategy, uselra, normed, dout, fout_name
 
-    ftime = open(flog, 'a+')
-    ftime.write('time of alignment and combination with order:'
-                ' %s and strategy: %s\n' % (order, strategy))
-    ftime.write('sub-models under %s\n' % dfrags)
-    ftime.write('combined models saved as %s\n\n' % os.path.join(dout, fout_name))
+def job_load(j):
 
-    time_elapsed = -ctime()
+if __name__ == '__main__':
+    logger.info("running %s" % ' '.join(sys.argv))
+
+    dfrags, nfrags, order, strategy, uselra, normed, dout, fout_name = parse_argvs(sys.argv)
+    
+    etime = -ctime()
 
     namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
            	      for i in range(nfrags)]
+    models = 
     vocabs = [set(Word2Vec.load(mname).wv.vocab) for mname in namelist_frags]
     init_vocab = set(load_vocab(fvocab))
     common_vocab = reduce(lambda x, y: x.intersection(y),
@@ -201,13 +203,10 @@ if __name__ == '__main__':
     with open(os.path.join(dout, fout_name), 'w+') as fout:
         pickle.dump(dict(zip(common_vocab, merged_embeddings)), fout)
 
-    time_elapsed += ctime()
+    etime += ctime()
     
-    ftime.write('combination time: %f sec\n\n' % time_elapsed)
-
     from time import localtime, strftime
     times = strftime("%Y-%m-%d %H:%M:%S", localtime())
-
-    ftime.write("full-stack of experiment finished at %s\n\n" % times)
-    ftime.close()
+    with open(flog, 'a+') as ftime:
+        ftime.write("%s, %s, %s, %f\n" % (stime, 'combine', os.path.join(dout, fout_name), etime))
 
