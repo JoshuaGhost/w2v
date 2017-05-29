@@ -14,7 +14,7 @@
 
     For order it can be:
         seq     : sequential merge
-        dicht   : dicotomicall merge
+        bin     : dicotomicall merge
         MPE	: everytime combine the two with minimum error w.r.t.
                           orthogonal Procrustes error
 
@@ -44,25 +44,16 @@ from lra import low_rank_align
 program = os.path.basename(sys.argv[0])
 logger = logging.getLogger(program)
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
-#logging.root.setLevel(level=logging.INFO)
-logging.root.setLevel(level=logging.ERROR)
+logging.root.setLevel(level=logging.INFO)
+#logging.root.setLevel(level=logging.ERROR)
 
-def load_vocab(fvocab):
-    with open(fvocab, 'r') as f:
-        vocab = [word.lower()[:-1] for word in f.readlines()]
-    return vocab
-        
-def vocab_intersection(v1, v2):
-    return v1.intersection(v2)
+fvocab = 'vocab/vocab.txt'
+with open(fvocab, 'r') as f:
+    common_vocab = [word.lower()[:-1] for word in f.readlines()]
+common_vocab = set(common_vocab)
 
-def load_common_vectors(common_vocab, normed):
-    def _load_vectors(mname):
-        model = Word2Vec.load(mname)
-        if normed:
-            model.init_sims()
-        vectors = [model.wv[word] for word in common_vocab]
-        return np.array(vectors)
-    return _load_vectors
+flog = LOG_FILE
+
 
 def procrustes_trans(X, Y):
      s = Y.T.dot(X)
@@ -170,7 +161,6 @@ def parse_argvs(argvs):
     uselra = (uselra == 'Y')
     normed = (normed == 'Y')
     flog = LOG_FILE
-    fvocab = 'vocab/vocab.txt'
 
     config += ['lra'] if uselra else []
     config += ['normed'] if normed else []
@@ -178,7 +168,19 @@ def parse_argvs(argvs):
     fout_name += '.pkl'
     return dfrags, nfrags, order, strategy, uselra, normed, dout, fout_name
 
-def job_load(j):
+def load_model(mname):
+    return Word2Vec.load(mname)
+
+def retrieve_vocab_as_set(model):
+    return set(model.wv.vocab)
+
+def normalize_model(model):
+    model.init_sims()
+    return model
+
+def load_common_vecs(model):
+    return np.array([model.wv[word] for word in common_vocab])
+
 
 if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
@@ -189,16 +191,19 @@ if __name__ == '__main__':
 
     namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
            	      for i in range(nfrags)]
-    models = 
-    vocabs = [set(Word2Vec.load(mname).wv.vocab) for mname in namelist_frags]
-    init_vocab = set(load_vocab(fvocab))
+    #models = map(Word2Vec.load, namelist_frags)
+    models = Pool(nfrags).map(load_model, namelist_frags)
+    if normed:
+        models = Pool(nfrags).map(normalize_model, models)
+
+    vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)
     common_vocab = reduce(lambda x, y: x.intersection(y),
-                          vocabs,
-                          init_vocab)
+                          vocabs + [common_vocab])
     common_vocab = list(common_vocab)
-    embeddings = map(load_common_vectors(common_vocab, normed), namelist_frags)
+
+    vecs = Pool(nfrags).map(load_common_vecs, models)
     
-    merged_embeddings = merge(embeddings, order=order, strategy=strategy, lra=lra)
+    merged_embeddings = merge(vecs, order=order, strategy=strategy, uselra=uselra)
    
     with open(os.path.join(dout, fout_name), 'w+') as fout:
         pickle.dump(dict(zip(common_vocab, merged_embeddings)), fout)
@@ -206,7 +211,7 @@ if __name__ == '__main__':
     etime += ctime()
     
     from time import localtime, strftime
-    times = strftime("%Y-%m-%d %H:%M:%S", localtime())
+    stime = strftime("%Y-%m-%d %H:%M:%S", localtime())
     with open(flog, 'a+') as ftime:
         ftime.write("%s, %s, %s, %f\n" % (stime, 'combine', os.path.join(dout, fout_name), etime))
 
