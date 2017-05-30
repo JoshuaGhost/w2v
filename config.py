@@ -10,6 +10,8 @@ BENCHMARK_FOLDER 	= ''
 CE_FOLDER			= '/tmp/w2v/default_results/'
 DICT_PATH	 		= '/usr/share/dict/words'
 
+TMP_DIR = '/tmp/zijian/'
+
 STOPLIST = set('for a of the and to in \x00'.split())
 
 TEST_MODE = False

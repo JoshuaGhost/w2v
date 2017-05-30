@@ -38,7 +38,7 @@ from collections import deque
 from glob import glob
 from multiprocessing import Pool
 
-from config import LOG_FILE
+from config import LOG_FILE, TMP_DIR
 from lra import low_rank_align
 
 program = os.path.basename(sys.argv[0])
@@ -53,7 +53,7 @@ with open(fvocab, 'r') as f:
 common_vocab = set(common_vocab)
 
 flog = LOG_FILE
-
+tmp_dir = TMP_DIR
 
 def procrustes_trans(X, Y):
      s = Y.T.dot(X)
@@ -155,6 +155,7 @@ def parse_argvs(argvs):
      strategy, uselra, normed,
      dout) = argvs[1:8]
     
+    mdivide = dfrags.split('/')[-2]
     config = [nfrags, order, strategy]
 
     nfrags = int(nfrags)
@@ -164,9 +165,10 @@ def parse_argvs(argvs):
 
     config += ['lra'] if uselra else []
     config += ['normed'] if normed else []
-    fout_name = '-'.join(['merged', dfrags.split('/')[-2]] + config)
+    fout_name = '-'.join(['merged', mdivide] + config)
     fout_name += '.pkl'
-    return dfrags, nfrags, order, strategy, uselra, normed, dout, fout_name
+    return (dfrags, mdivide, nfrags, order, strategy,
+            uselra, normed, dout, fout_name)
 
 def load_model(mname):
     return Word2Vec.load(mname)
@@ -181,28 +183,44 @@ def normalize_model(model):
 def load_common_vecs(model):
     return np.array([model.wv[word] for word in common_vocab])
 
+def retrieve_vecs():
+    if os.path.isfile(tmp_dir+'vocab.pkl') and os.path.isfile(tmp_dir+'vecs.pkl'):
+        logger.info('vocab and vecs already exist under %s' % tmp_dir)
+        common_vocab = pickle.load(tmp_dir+'vocab.pkl')
+        vecs = pickle.load(tmp_dir+'vecs.pkl')
+    else:
+        logger.info('{generating,dumping} {vocab,vecs} files under %s' % tmp_dir)
+        namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
+                          for i in range(nfrags)]
+        models = Pool(nfrags).map(load_model, namelist_frags)
+        if normed:
+            models = Pool(nfrags).map(normalize_model, models)
+        vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)
+        common_vocab = reduce(lambda x, y: x.intersection(y),
+                              vocabs + [common_vocab])
+        common_vocab = list(common_vocab)
+        vecs = Pool(nfrags).map(load_common_vecs, models)
+        with open(tmp_dir+'vocab.pkl') as fvocab:
+            pickle.dump(fvocab, common_vocab)
+        with open(tmp_dir+'vecs.pkl') as fvecs:
+            pickle.dump(fvecs, vecs)
+    return vecs
 
 if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
 
-    dfrags, nfrags, order, strategy, uselra, normed, dout, fout_name = parse_argvs(sys.argv)
+    (dfrags, mdivide, nfrags, order, strategy, 
+     uselra, normed, dout, fout_name) = parse_argvs(sys.argv)
+    
+    tmp_dir+=(mdivide+'/')
+    if normed:
+        tmp_dir+='normed/'
+    else:
+        tmp_dir+='origin/'
+
+    vecs = retrieve_vecs()
     
     etime = -ctime()
-
-    namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
-           	      for i in range(nfrags)]
-    #models = map(Word2Vec.load, namelist_frags)
-    models = Pool(nfrags).map(load_model, namelist_frags)
-    if normed:
-        models = Pool(nfrags).map(normalize_model, models)
-
-    vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)
-    common_vocab = reduce(lambda x, y: x.intersection(y),
-                          vocabs + [common_vocab])
-    common_vocab = list(common_vocab)
-
-    vecs = Pool(nfrags).map(load_common_vecs, models)
-    
     merged_embeddings = merge(vecs, order=order, strategy=strategy, uselra=uselra)
    
     with open(os.path.join(dout, fout_name), 'w+') as fout:
