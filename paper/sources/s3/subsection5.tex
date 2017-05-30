@@ -1,45 +1,45 @@
-  \subsection{Combination of sub-models}
+\subsection{Combination of sub-models}
   After alignment (or without it) and normalization (or without it), it's finally the time of combination. In our experiments, two kinds of combination are employed, thus direct vector addition and projection using PCA. In following sections they are to be briefly depicted how and why they might or might not work in our experiments.
 
   \subsubsection{Using vector addition}
   Add vectors together is one of the first intuition when talking about combination two bundle of vectors. The direct addition of two vectors from two sub-models can be seen as calculating middle point of two vectors when put them into a same space. However as depicted in \eqref{eq:inner_product}, simple addition may introduce additional distortion because of nonalignment between models. Thus for comparison, we ran naked vector addition as well as vector addition with alignment using orthogonal transformation and low rank alignment.
 
   \subsubsection{Using PCA and projection}
-  If vectors from two different models are just stacked together without any additional computation, all information from both models can be preserved. However because of the fact that we are using different part of same corpus, identical word does have same semantic within the same corpus. Also because semantic is under our hypothesis implied by the distribution of itself and it's context, only thing then has to be concerned about is the distribution of words with their context in different corpus fragments. These distributions can be similar with each other while some distribution-preserving techniques of sentences are employed when slicing the corpus. For example if we use bootstrap method to divide the entire corpus, probability that a word occurs in a specific fragment is only it's term frequency multiplied by the possibility, whether the sentences containing the word is sampled. Meanwhile because the granularity of sampling is on the level of sentences, the co-occurrence of it's context still preserves. Since all of the words are multiplied by a same factor, the expectation of final results should maintain. In mathematical language, the final result of SGNS model with entire corpus, denoted as matrix $W_i$ and $C_i$, which are vector expression of central words and context words, are according to the \cite{levy2014neural}, as
-  
+  If vectors from two different models are just stacked together without any additional computation, all information from both models can be preserved. However because of the fact that we are using different part of same corpus, identical word does have same semantic within the same corpus. Also because semantic is under our hypothesis implied by the distribution of itself and it's context, only thing then has to be concerned about is the distribution of words with their context in different corpus fragments. These distributions can be similar with each other while some distribution-preserving sampling techniques of sentences are employed when slicing the original corpus. We denote the final result of SGNS model using entire original corpus as matrix $W_i$ and $C_i$, which are vector expression of all central words and context words in the vocabulary, are according to the \cite{levy2014neural}, there is relationship between these two matrices and PMI of each pair of $w_i$ and $c_j$, such as
+
   \begin{equation}
   \begin{split}
-  M^{SGNS}_{ij} &= W_i\cdot C_j = \vec{w_i}\cdot\vec{c_j}\\
-                &= PMI(w_i, c_j) - \log k\\
-                &= \log {(\frac{\#(w_i,c_j)\cdot|D|}{\#(w_i)\cdot\#(c_j)})} - \log k.
+    M^{SGNS}_{ij} &= W_i\cdot C_j = \vec{w_i}\cdot\vec{c_j}\\
+                  &= PMI(w_i, c_j) - \log k\\
+                  &= \log {(\frac{\#(w_i,c_j)\cdot|D|}{\#(w_i)\cdot\#(c_j)})} - \log k.
   \end{split}
   \end{equation}
 
-  Which, however, in our fragmentation-combination model turns to be like:
+  When the original corpus is divided using sampling method into \verb|d| pieces, within each piece this relation ship according to \ref{sss:random_sampling} turns to be like
 
   \begin{equation}
-  M^{frag\_comb}_{ij} = \log (\frac{{\frac{\#(w_i,c_j)}{n}}\cdot{\frac{|D|}{n}}} {{\frac{\#(w_i)}{n}}\cdot{\frac{\#(c_j)}{n}}}) - \log k,
+    M^{frag\_comb}_{ij} = \log (\frac{{\frac{\#(w_i,c_j)}{d}}\cdot{\frac{|D|}{d}}} {{\frac{\#(w_i)}{d}}\cdot{\frac{\#(c_j)}{d}}}) - \log k,
   \end{equation}
 
-  where n is the number of fragments, k as number of negative samples keeps the same, while $\frac{1}{n}$ is the probability whether a sentence is selected in a specific fragment. Based on the fact that each fragment of corpus focuses only on partial information, each generated sub-model introduces additional variance to $\vec{w}$ s and $\vec{c}$ s, while preserving their expectation. Denoting the concatenated matrix as
+  where k as number of negative samples keeps the same. Based on the fact that each fragment of corpus focuses only on partial information, each generated sub-model introduces additional variance to $\vec{w}$ s and $\vec{c}$ s, while their expectations are preserved. Denoting the concatenated embedding matrix for central words as
 
   \[W_{con}=\begin{bmatrix}
-    W_1\\
-    W_2\end{bmatrix},\]
+              W_1\\
+              W_2
+            \end{bmatrix},\]
 
   where $W_1$ and $W_2$ are the embedded vectors from two models, the most principal component of the concatenated matrix $\vec{p^1_con}$ should be also the concatenation of two most principal components from both matrix, denoted as 
 
   \[\begin{bmatrix}
-  a_{11}\vec{p^1_1}\\
-  a_{12}\vec{p^1_2}
-  \end{bmatrix},\] 
+      a_{11}\vec{p^1_1}\\
+      a_{12}\vec{p^1_2}
+    \end{bmatrix},\] 
 
   where $a_{11}, a_{12}\in{\rm I\!R}$ are scaling factors, making the length ($L_2$ norm) of this base vector stays 1. So that in one hand according to the logic of PCA the sum of projections of all data vectors alone this direction is maximized, in the other hand transformation matrix is normalized and orthogonal, which enable a transformation of base merely through matrix multiplication. Analogously, $\vec{p^2_{con}}$ should also be like
 
   \[\begin{bmatrix}
-  a_{11}\vec{p^2_1}\\
-  a_{22}\vec{p^2_2}
-  \end{bmatrix},\]
+      a_{11}\vec{p^2_1}\\
+      a_{22}\vec{p^2_2}
+    \end{bmatrix},\]
 
   so on and so forth. A set of in \verb|d| dimension embedded vector has maximum \verb|d| principal component, with respect that there can be maximum \verb|d| orthogonal basis that can span the subspace those vectors embedded in. Therefore only first \verb|d| principal components of $W_{con}$ are informative, meanwhile can form a orthogonal normalized matrix with shape of $(2d, d)$. This orthogonal matrix projects the concatenated vectors into vectors with "standard length", which makes them ready for the next round of combination.
-
