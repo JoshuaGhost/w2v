@@ -180,14 +180,17 @@ def normalize_model(model):
     model.init_sims()
     return model
 
-def load_common_vecs(model):
-    return np.array([model.wv[word] for word in common_vocab])
+def load_common_vecs(vmpair):
+    return np.array([vmpair[1].wv[word] for word in vmpair[0]])
 
 def retrieve_vecs():
+    vocab = common_vocab
     if os.path.isfile(tmp_dir+'vocab.pkl') and os.path.isfile(tmp_dir+'vecs.pkl'):
         logger.info('vocab and vecs already exist under %s' % tmp_dir)
-        common_vocab = pickle.load(tmp_dir+'vocab.pkl')
-        vecs = pickle.load(tmp_dir+'vecs.pkl')
+        with open(tmp_dir+'vocab.pkl', 'r') as fvocab:
+            vocab = pickle.load(fvocab)
+        with open(tmp_dir+'vecs.pkl', 'r') as fvecs:
+            vecs = pickle.load(fvecs)
     else:
         logger.info('{generating,dumping} {vocab,vecs} files under %s' % tmp_dir)
         namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
@@ -195,16 +198,15 @@ def retrieve_vecs():
         models = Pool(nfrags).map(load_model, namelist_frags)
         if normed:
             models = Pool(nfrags).map(normalize_model, models)
-        vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)
-        common_vocab = reduce(lambda x, y: x.intersection(y),
-                              vocabs + [common_vocab])
-        common_vocab = list(common_vocab)
-        vecs = Pool(nfrags).map(load_common_vecs, models)
-        with open(tmp_dir+'vocab.pkl') as fvocab:
-            pickle.dump(fvocab, common_vocab)
-        with open(tmp_dir+'vecs.pkl') as fvecs:
-            pickle.dump(fvecs, vecs)
-    return vecs
+        vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)+[vocab]
+        vocab = reduce(lambda x, y: x.intersection(y), vocabs)
+        vocab = list(vocab)
+        vecs = Pool(nfrags).map(load_common_vecs, zip([vocab for i in range(len(models))], models))
+        with open(tmp_dir+'vocab.pkl', 'w+') as fvocab:
+            pickle.dump(vocab, fvocab)
+        with open(tmp_dir+'vecs.pkl', 'w+') as fvecs:
+            pickle.dump(vecs, fvecs)
+    return vocab, vecs
 
 if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
@@ -218,7 +220,7 @@ if __name__ == '__main__':
     else:
         tmp_dir+='origin/'
 
-    vecs = retrieve_vecs()
+    common_vocab, vecs = retrieve_vecs()
     
     etime = -ctime()
     merged_embeddings = merge(vecs, order=order, strategy=strategy, uselra=uselra)
