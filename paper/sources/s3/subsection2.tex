@@ -5,13 +5,13 @@ When the combination processes, extra error can be introduced because of calcula
 	The successive combination means that, if we want to merge 5 models with number [1, 2, 3, 4, 5] together, model 1 and 2 are at first combined. Then the result of this combination is used to combine with model 3... so on and so forth. This combination order should run the fastest because it introduces no additional data structures or calculation, also it treated model sequence as a stream and actually regardless of numeric order of them. However the perturbation introduced while combining two models keep increasing, because from the second combination on, one of two combinators is always the result of previous combination.
 
 	\subsubsection{Binary order}
-	Like the example before, the combination of models sequence [1, 2, 3, 4, 5] starts with poping out two left most model 1 and 2 and combining them together 1 and 2, the result is named as model 1_2 and append into end of models sequence. This pop 2->combine->append procedure is repeated again and again until there is only one single model left in the sequence (in this case, the final result should be named as 3_4_5_1_2). This strategy uses more RAM as it entailing all the combined models currently in sequence maintained, or dumped in hard disk, which is in turn time consuming.
+	Like the example before, the combination of models sequence [1, 2, 3, 4, 5] starts with poping out two left most model 1 and 2 and combining them together 1 and 2, the result is named as model 1\_2 and append into end of models sequence. This pop 2->combine->append procedure is repeated again and again until there is only one single model left in the sequence (in this case, the final result should be named as 3\_4\_5\_1\_2). This strategy uses more RAM as it entailing all the combined models currently in sequence maintained, or dumped in hard disk, which is in turn time consuming.
 
 	\subsubsection{Combine two with minimum Procrustes error}
 	Sch{\"o}nemann \'s work solved so-called Orthogonal Procrustes Problem perfectly. This problem is defined as alignment of two matrix \verb|A| and \verb|B| with transformation using a orthogonal matrix \verb|C| so that the trace of the rest error matrix \verb|E| multiply with its transpose is minimum. The matrix \verb|T| is then
 
 	\begin{equation}
-		min_T \tr (E^\intercal\cdot E) = B-A\cdot T.
+		min_T tr(E^\intercal\cdot E) = B-A\cdot T.
 	\end{equation}
 
-	We define here the $\tr (E^\intercal \cdot E)$ as the Procrustes Error. In the following sections of this paper this orthogonal transformation will be introduced as one kind of alignment methods between two models. In aspect of combination order, we can combine each time such pair of matrices, that the Procrustes Error is minimum among all pairs of models.
+	We define here the $tr(E^\intercal \cdot E)$ as the Procrustes Error. In the following sections of this paper this orthogonal transformation will be introduced as one kind of alignment methods between two models. In aspect of combination order, we can combine each time such pair of matrices, that the Procrustes Error is minimum among all pairs of models.
