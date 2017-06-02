@@ -108,7 +108,7 @@ def merge(embeddings, order, strategy, uselra):
         while len(embeddings) > 1:
             X = embeddings.popleft()
             Y = embeddings.popleft()
-            Z = combine(X, Y, strategy, lra)
+            Z = combine(X, Y, strategy, uselra)
             embeddings.append(Z)
         return embeddings.popleft()
 
@@ -127,7 +127,7 @@ def merge(embeddings, order, strategy, uselra):
                     if err[i][j] < err[idx_i][idx_j]:
                         idx_i = i
                         idx_j = j
-            Z = combine(embeddings[idx_i], embeddings[idx_j], strategy)
+            Z = combine(embeddings[idx_i], embeddings[idx_j], strategy, uselra)
             embeddings.append(Z)
             namelist.remove(idx_i)
             namelist.remove(idx_j)
@@ -176,9 +176,9 @@ def load_model(mname):
 def retrieve_vocab_as_set(model):
     return set(model.wv.vocab)
 
-def normalize_model(model):
-    model.init_sims()
-    return model
+#def normalize_model(model):
+#    model.init_sims()
+#    return model
 
 def load_common_vecs(vmpair):
     return np.array([vmpair[1].wv[word] for word in vmpair[0]])
@@ -196,14 +196,18 @@ def retrieve_vecs():
         namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
                           for i in range(nfrags)]
         models = Pool(nfrags).map(load_model, namelist_frags)
-        if normed:
-            models = Pool(nfrags).map(normalize_model, models)
+	for model in models:
+	    model.init_sims()
+        #if normed:
+        #    models = Pool(nfrags).map(normalize_model, models)
         vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)+[vocab]
         vocab = reduce(lambda x, y: x.intersection(y), vocabs)
         vocab = list(vocab)
-        vecs = Pool(nfrags).map(load_common_vecs, zip([vocab for i in range(len(models))], models))
         with open(tmp_dir+'vocab.pkl', 'w+') as fvocab:
             pickle.dump(vocab, fvocab)
+	logger.info('vocab retrieved, extracting corresponding vectors')
+
+        vecs = Pool(nfrags).map(load_common_vecs, zip([vocab for i in range(len(models))], models))
         with open(tmp_dir+'vecs.pkl', 'w+') as fvecs:
             pickle.dump(vecs, fvecs)
     return vocab, vecs
