@@ -196,10 +196,9 @@ def retrieve_vecs():
         namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
                           for i in range(nfrags)]
         models = Pool(nfrags).map(load_model, namelist_frags)
-	for model in models:
-	    model.init_sims()
-        #if normed:
-        #    models = Pool(nfrags).map(normalize_model, models)
+	if normed:
+	    for model in models:
+		model.init_sims()
         vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)+[vocab]
         vocab = reduce(lambda x, y: x.intersection(y), vocabs)
         vocab = list(vocab)
