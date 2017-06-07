@@ -10,7 +10,7 @@
   where the last two part in the right side depends on the between-model-distortion because of the nonalignment of models. Thus some alignment should be performed.
 
   \subsubsection{Alignment through Orthogonal Linear Transformation}
-  Defined and solved in \cite{schonemann1966generalized}, the Orthogonal Procrustes Problem focuses on solve such problem: Given matrix \verb|A| and matrix \verb|B|, find a orthogonal transformation matrix T so that the squared mean error (SME) between transformed A using T and B is minimized. Mathematically speaking, define
+  Defined and solved in \cite{schonemann1966generalized}, the Orthogonal Procrustes Problem focuses on solve such problem: Given matrix $A$ and matrix $B$, find a orthogonal transformation matrix T so that the squared mean error (SME) between transformed A using T and B is minimized. Mathematically speaking, define
   
   \begin{equation}
     T = \min_{T}tr[E^\intercal \cdot E],
@@ -31,7 +31,7 @@
   This transformation minimize the inter-model distortion under the constraint that only orthogonal transformations are allowed. Thus reduce the last two items in the \eqref{eq:inner_product} in a way.
 
   \subsubsection{Low rank alignment}
-  The work from Boucher et al. \cite{boucher2015aligning} provides another approach of aligning different manifold together. Consider \verb|X| and \verb|Y| are two manifold to be aligned. They are at first decomposed using SVD such that $X=U_xS_xV_x^\intercal$ and $Y=U_yS_yV_y^\intercal$. With out losing the generality, $S_x$ and $V_x$ are partitioned into $V_x=[V_{x1}V_{x2}]$ and $S_x=[S_{x1}S_{x2}]$ according to 
+  The work from Boucher et al. \cite{boucher2015aligning} provides another approach of aligning different manifold together. Consider $X$ and $Y$ are two manifold to be aligned. They are at first decomposed using SVD such that $X=U_xS_xV_x^\intercal$ and $Y=U_yS_yV_y^\intercal$. With out losing the generality, $S_x$ and $V_x$ are partitioned into $V_x=[V_{x1}V_{x2}]$ and $S_x=[S_{x1}S_{x2}]$ according to 
 
   \begin{equation}
     I_1=\{i:s_i>1 \forall s_i \in S\}
@@ -46,10 +46,10 @@
   This decomposition is used for preparation of low-rank-representation X and Y using Low rank embedding (LRE). The LRE problem is defined as that, given a data set X, finding a proper transformation matrix R, in order to minimize the loss function,
 
   \begin{equation}\label{eq:LRE_objection}
-    min_R\frac{1}{2}\|X-XR\|^2_F+\lambda\|R\|_*,
+    \min_R\frac{1}{2}\|X-XR\|^2_F+\lambda\|R\|_*,
   \end{equation}
 
-  where $\lambda > 0, \|X\|_F=\sqrt{\sum_i\sum_j|x_{i,j}|^2}$ is called Frobenius norm, while $\|X\|_*=\sum_i\sigma_i(X)$ is the spectral norm and where by $\sigma_i$ are singular values. \cite{candes2010power} proved that the formula \eqref{eq:LRE_objection} is a convex relaxation of rank minimization problem and it's result \verb|R| is the so-called reconstruction coefficients, which describe the intra-manifold relationship between points inside a single manifold. The \eqref{eq:LRE_objection} is showed in \cite{favaro2011closed} can be solved in closed form. This is where we use the decomposition of \verb|X| and \verb|Y|. For example, the optimal closed-form solution of reconstruction of coefficients for \verb|X| is
+  where $\lambda > 0, \|X\|_F=\sqrt{\sum_i\sum_j|x_{i,j}|^2}$ is called Frobenius norm, while $\|X\|_*=\sum_i\sigma_i(X)$ is the spectral norm and where by $\sigma_i$ are singular values. \cite{candes2010power} proved that the formula \eqref{eq:LRE_objection} is a convex relaxation of rank minimization problem and it's result $R$ is the so-called reconstruction coefficients, which describe the intra-manifold relationship between points inside a single manifold. The \eqref{eq:LRE_objection} is showed in \cite{favaro2011closed} can be solved in closed form. This is where we use the decomposition of $X$ and $Y$. For example, the optimal closed-form solution of reconstruction of coefficients for $X$ is
   
   \begin{equation}
     R^{(X)}=V_x1(I-S_x1^{-1})V_x1^\intercal.
@@ -83,7 +83,7 @@
         F^{(Y)}
       \end{bmatrix},\]
 
-  where \verb|N| is the number of points in each manifold and \verb|d| is the dimension of both manifolds, $F^{(X)}$ and $F^{(Y)}$ are the aligned manifolds. The alignment precision of \verb|F| can be described as loss function
+  where $N$ is the number of points in each manifold and $d$ is the dimension of both manifolds, $F^{(X)}$ and $F^{(Y)}$ are the aligned manifolds. The alignment precision of $F$ can be described as loss function
 
   \begin{equation}\label{eq:alignment_precision_objection}
     \mathcal{Z}(F)=(1-\mu )\|F-RF\|^2_F+\mu\sum_{i,j=1}^N\|F_i-F_j\|^2C_{i,j},
