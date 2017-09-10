@@ -1,0 +1,182 @@
+\documentclass[12pt, a4paper, twoside, openright]{report}
+
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+\usepackage{ae}
+\usepackage{typearea}
+\usepackage[ngerman, english]{babel}
+
+\usepackage[dvipsnames]{xcolor}
+
+\usepackage{tikz}
+\usepackage{tkz-graph}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{patterns}
+
+
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{framed}
+\captionsetup[subfigure]{labelformat=empty}
+
+\usepackage[shortlabels]{enumitem}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{pdflscape}
+\typearea{12}
+\usepackage[a4paper,inner=3.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm,pdftex]{geometry}
+
+
+
+
+\usepackage{subcaption}
+\usepackage[export]{adjustbox}% http://ctan.org/pkg/adjustbox
+
+
+\usepackage{csvsimple}
+
+\usepackage[chapter]{algorithm}
+\usepackage{float}
+
+\usepackage{siunitx, booktabs}
+
+\usepackage[noend]{algpseudocode}
+
+\theoremstyle{definition}
+
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% Literaturverzeichnis
+
+\usepackage{filecontents}
+\renewcommand\bibname{Bibliography}
+
+\usepackage{afterpage}
+
+\usepackage[hidelinks]{hyperref}
+
+
+\usepackage{pgfplots}
+
+
+
+
+% argument #1: any options
+\newenvironment{customlegend}[1][]{%
+	\begingroup
+	% inits/clears the lists (which might be populated from previous
+	% axes):
+	\csname pgfplots@init@cleared@structures\endcsname
+	\pgfplotsset{#1, legend cell align=left}%
+}{%
+% draws the legend:
+	\csname pgfplots@createlegend\endcsname
+	\endgroup
+}%
+
+\newenvironment{nstabbing}
+{\setlength{\topsep}{0pt}%
+	\setlength{\partopsep}{0pt}%
+	\tabbing}
+{\endtabbing}
+
+% makes \addlegendimage available (typically only available within an
+% axis environment):
+\def\addlegendimage{\csname pgfplots@addlegendimage\endcsname}
+
+\newcommand{\argmin}[1]{\underset{#1}{\operatorname{arg}\,\operatorname{min}}\;}
+
+\newtheoremstyle{named}{}{}{\itshape}{}{\bfseries}{:}{\newline}{\thmname{#1} \thmnumber{#2} (#3)}
+\theoremstyle{named}
+\newtheorem{lemma}{Lemma}[chapter]
+
+\newtheoremstyle{def}{}{}{}{}{\bfseries}{:}{\newline}{\thmname{#1} \thmnumber{#2}}
+\theoremstyle{def}
+\newtheorem{exmp}{Example}[chapter]
+
+\newtheorem{definition}{Definition}[chapter]
+
+
+\date{November 17th 2016}
+
+\newcommand{\blankpage}{
+	\newpage
+	\thispagestyle{empty}
+	\mbox{}
+	\newpage
+}
+
+
+\begin{document}
+
+
+\parindent 0pt
+\parskip 6pt
+
+\title{
+\begin{figure}[h!]
+	\includegraphics[width=0.6\textwidth, valign=t]{Grafiken/luh_logo_rgb.jpg}
+	\hfill
+	\includegraphics[width=0.22\textwidth, valign=t]{Grafiken/l3slogo.png}
+\end{figure}
+\LARGE{\textbf{TITLE}}
+\\[2cm]
+\normalsize{\textbf{Master Thesis}}\\
+\normalsize{Master of Science in Informatics}
+\\[2cm]
+\normalsize{\textbf{AUTOHR}}\\
+\normalsize{Matriculation Number: XXXXXX}
+\\[2cm]
+\normalsize{First Examiner: XXXXXXXXXl}\\
+\normalsize{Second Examiner: XXXXXXXXX}\\
+\normalsize{Advisor: XXXXXXXXX}
+}
+\author{}
+\maketitle
+
+%\newpage
+%\setcounter{page}{2}
+%\thispagestyle{empty}~
+%\newpage
+
+%\begin{abstract}
+%\setcounter{page}{3}
+%\input{00_abstract_de}
+%\end{abstract}
+
+%\newpage
+%\setcounter{page}{4}
+%\thispagestyle{empty}~
+%\newpage
+
+%\setcounter{page}{5}
+
+
+\pagenumbering{Roman}
+\tableofcontents
+
+\parskip 12pt
+
+
+
+\parskip 6pt
+
+%Buecher, die nicht zitiert werden ins Literaturverzeichnis
+\nocite{*}
+%Literarut-/Tabellen-/Abbildungsverzeichnis
+%\listoffigures
+%\listoftables
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{literatur}
+
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
+
+
+
+\end{document}
