@@ -37,19 +37,16 @@ if __name__ == '__main__':
     num_sub_models =  len([name for name in listdir(articles_dir) if isfile(join(articles_dir, name))])
     new_min_count = 100/num_sub_models
 
-    ftime = open(LOG_FILE, 'a+')
-    ftime.write('following are times of training with corpora from %s\n'% articles_dir)
-    ftime.write('trained sub-models are saved under %s\n\n'% sub_models_dir)
+    logger.info('Note: corpora are from %s, Sub-models are saved under %s' % (articles_dir, sub_models_dir))
 
     for dirpath, dnames, fnames in os.walk(articles_dir):
         for midx, article_name in enumerate(fnames):
-            sub_model_name = os.path.basename(article_name)+'.w2v'
+            sub_model_name = '.'.join(os.path.basename(article_name).split('.')[:-1])+'.w2v'
             if os.path.isfile(sub_models_dir+sub_model_name):
                 logger.info('sub model %s existed, skip this one' % sub_model_name)
                 continue
             else:
-                print article_name
-                timed = -ctime()
+                logger.info('Start to train sub-model %s' % sub_model_name)
                 model = Word2Vec(LineSentence(articles_dir+article_name),
                                 size = 500,
                                 negative = 5,
@@ -59,15 +56,7 @@ if __name__ == '__main__':
                                 null_word = 1,
                                 min_count = new_min_count,
                                 sample = 1e-4)
-                timed += ctime()
+                logger.info('Sub-model %s train finished' % sub_model_name)
                 model.save(sub_models_dir+sub_model_name)
-                from time import localtime, strftime
-                time_now = strftime('%Y-%m-%d %H:%M:%S', localtime())
-                ftime.write('training finished at %s\n' % time_now)
-                ftime.write(' corpus name: %s\n'% article_name)
-                ftime.write('  model name: %s\n'% sub_model_name)
-                ftime.write('time elapsed: %f sec\n\n'% timed)
 
-    ftime.write('training of individual sub-models finished, start to combine...\n')
-    ftime.write('---------------------------------------\n\n')
-    ftime.close()
+    logger.info('Sub-models training finished.')
