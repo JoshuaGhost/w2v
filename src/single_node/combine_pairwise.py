@@ -38,22 +38,20 @@ from collections import deque
 from glob import glob
 from multiprocessing import Pool
 
-from config import LOG_FILE, TMP_DIR
 from lra import low_rank_align
+from tsne import tsne
 
 program = os.path.basename(sys.argv[0])
 logger = logging.getLogger(program)
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
-logging.root.setLevel(level=logging.INFO)
+logging.root.setLevel(level=logging.DEBUG)
 #logging.root.setLevel(level=logging.ERROR)
 
-fvocab = 'vocab/vocab.txt'
+fvocab = '../../vocab/vocab.txt'
 with open(fvocab, 'r') as f:
     common_vocab = [word.lower()[:-1] for word in f.readlines()]
 common_vocab = set(common_vocab)
 
-flog = LOG_FILE
-tmp_dir = TMP_DIR
 
 def procrustes_trans(X, Y):
      s = Y.T.dot(X)
@@ -86,15 +84,19 @@ def combine(X, Y, strategy, uselra):
     
     if uselra:
         X, Y = low_rank_align(X, Y, np.eye(X.shape[0]))
+
     if strategy == 'lint':
         return _linear_trans(X, Y)
     if strategy == 'vadd':
         return _vector_add(X, Y)
     if strategy == 'PCA':
         return _pca_transbase(X, Y)
+    if strategy == 'tsne':
+        return tsne(np.hstack((X, Y)), no_dims=500, initial_dims=1000)
+
 
 def merge(embeddings, order, strategy, uselra):
-    def merge_seq(embeddings):
+    def _merge_seq(embeddings):
         embeddings = deque(embeddings)
         while len(embeddings) > 1:
             X = embeddings.popleft()
@@ -103,7 +105,7 @@ def merge(embeddings, order, strategy, uselra):
             embeddings.appendleft(Z)
         return embeddings.popleft()
 
-    def merge_bin(embeddings):
+    def _merge_bin(embeddings):
         embeddings = deque(embeddings)
         while len(embeddings) > 1:
             X = embeddings.popleft()
@@ -112,7 +114,7 @@ def merge(embeddings, order, strategy, uselra):
             embeddings.append(Z)
         return embeddings.popleft()
 
-    def merge_MPE(embeddings):
+    def _merge_MPE(embeddings):
         namelist = [i for i in range(len(embeddings))]
         err = np.eye(len(embeddings)*2-1)
         for i in namelist[:-1]:
@@ -140,35 +142,50 @@ def merge(embeddings, order, strategy, uselra):
         return embeddings[-1]
 
     if order == 'seq':
-        return merge_seq(embeddings)
+        return _merge_seq(embeddings)
     elif order == 'bin':
-        return merge_bin(embeddings)
+        return _merge_bin(embeddings)
     elif order == 'MPE':
-        return merge_MPE(embeddings)
-    
+        return _merge_MPE(embeddings)
+
+
 def parse_argvs(argvs):
-    if len(argvs) < 5:
-        print globals()['__doc__'] % locals()
-        sys.exit(1)
+    import argparse
 
-    (dfrags, nfrags, order,
-     strategy, uselra, normed,
-     dout) = argvs[1:8]
-    
-    mdivide = dfrags.split('/')[-2]
-    config = [nfrags, order, strategy]
+    parser=argparse.ArgumentParser(description='Process some arguments.')
 
-    nfrags = int(nfrags)
-    uselra = (uselra == 'Y')
-    normed = (normed == 'Y')
-    flog = LOG_FILE
+    parser.add_argument('-s', '--source', dest='dfrags',\
+                        help='source directory that contains model fragments entail to merge')
+    parser.add_argument('-n', '--nfrags', type=int,\
+                        help='number of fragments require to merge')
+    parser.add_argument('--order',\
+                        help='order of merging, can be \
+                                seq (for sequence), \
+                                bin (for binary) and \
+                                MPE (for min Procrustes error)')
+    parser.add_argument('-l', '--lra', type=bool, dest='uselra', default=False,\
+                        help='whether use lra to arrange')
+    parser.add_argument('--norm', type=bool, dest='normed', default=False,\
+                        help='whether normalize the models')
+    parser.add_argument('--strategy',\
+                        help='strategy to use when pairwise combining, can be \
+                                vadd (for vector add), \
+                                lint (for linear transformation) and \
+                                PCA')
+    parser.add_argument('-d', '--destination', dest='dout',\
+                        help='destination directory to save merged model')
+    parser.add_argument('-o', '--output', dest='fout_name',\
+                        help='name of output file')
 
-    config += ['lra'] if uselra else []
-    config += ['normed'] if normed else []
-    fout_name = '-'.join(['merged', mdivide] + config)
-    fout_name += '.pkl'
-    return (dfrags, mdivide, nfrags, order, strategy,
-            uselra, normed, dout, fout_name)
+    ns = parser.parse_args(argvs)
+    mdivide = ns.dfrags.split('/')[-2]
+    tmp_dir = 'temp/' + (mdivide+'/') + ('normed/' if ns.normed else 'origin/')
+ 
+    return (ns.dfrags, mdivide, ns.nfrags,
+            ns.order, ns.strategy, ns.uselra,
+            ns.normed, ns.dout, ns.fout_name,
+            tmp_dir)
+
 
 def load_model(mname):
     return Word2Vec.load(mname)
@@ -176,65 +193,69 @@ def load_model(mname):
 def retrieve_vocab_as_set(model):
     return set(model.wv.vocab)
 
-#def normalize_model(model):
-#    model.init_sims()
-#    return model
-
 def load_common_vecs(vmpair):
     return np.array([vmpair[1].wv[word] for word in vmpair[0]])
 
-def retrieve_vecs():
+def getattr(attr):
+    def getattr_from(model):
+        return getattr(model, attr)
+    return getattr_from
+
+
+def retrieve_vecs(dfrags, nfrags, tmp_dir):
     vocab = common_vocab
     if os.path.isfile(tmp_dir+'vocab.pkl') and os.path.isfile(tmp_dir+'vecs.pkl'):
         logger.info('vocab and vecs already exist under %s' % tmp_dir)
+
         with open(tmp_dir+'vocab.pkl', 'r') as fvocab:
             vocab = pickle.load(fvocab)
         with open(tmp_dir+'vecs.pkl', 'r') as fvecs:
             vecs = pickle.load(fvecs)
     else:
         logger.info('{generating,dumping} {vocab,vecs} files under %s' % tmp_dir)
-        namelist_frags = [dfrags+'article.txt.'+str(i)+'.txt.w2v'
-                          for i in range(nfrags)]
-        models = Pool(nfrags).map(load_model, namelist_frags)
-	if normed:
-	    for model in models:
-		model.init_sims()
+
+        logger.debug('loading models...')
+        models = Pool(nfrags).map(load_model, [dfrags+'article.txt.'+str(i)+'.txt.w2v' for i in range(nfrags)])
+        logger.debug('models loaded')
+
+        if normed:
+            logger.debug('normalizing models...')
+            Pool(nfrags).map(getattr('init_sims', model))
+            logger.debug('models normalization complete')
+
+        logger.debug('extracting common vocabs...')
         vocabs = Pool(nfrags).map(retrieve_vocab_as_set, models)+[vocab]
-        vocab = reduce(lambda x, y: x.intersection(y), vocabs)
-        vocab = list(vocab)
+        vocab = list(reduce(lambda x, y: x.intersection(y), vocabs))
         with open(tmp_dir+'vocab.pkl', 'w+') as fvocab:
             pickle.dump(vocab, fvocab)
-	logger.info('vocab retrieved, extracting corresponding vectors')
+	logger.debug('vocab extraction complete')
 
+        logger.debug('extracting corresponding vectors...')
         vecs = Pool(nfrags).map(load_common_vecs, zip([vocab for i in range(len(models))], models))
         with open(tmp_dir+'vecs.pkl', 'w+') as fvecs:
             pickle.dump(vecs, fvecs)
+        logger.debug('vectors extraction complete')
+
     return vocab, vecs
+
 
 if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
 
-    (dfrags, mdivide, nfrags, order, strategy, 
-     uselra, normed, dout, fout_name) = parse_argvs(sys.argv)
+    (dfrags, mdivide, nfrags,
+     order, strategy, uselra,
+     normed, dout, fout_name,
+     tmp_dir) = parse_argvs(sys.argv[1:])
     
-    tmp_dir+=(mdivide+'/')
-    if normed:
-        tmp_dir+='normed/'
-    else:
-        tmp_dir+='origin/'
-
-    common_vocab, vecs = retrieve_vecs()
+    logger.debug(tmp_dir)
+    logger.info('retrieving common vocabulary and vectors...')
+    common_vocab, vecs = retrieve_vecs(dfrags, nfrags, tmp_dir)
+    logger.info('retrieval complete')
     
-    etime = -ctime()
+    logger.info('mering model fragments...')
     merged_embeddings = merge(vecs, order=order, strategy=strategy, uselra=uselra)
-   
+    logger.info('merging complete')
+
     with open(os.path.join(dout, fout_name), 'w+') as fout:
         pickle.dump(dict(zip(common_vocab, merged_embeddings)), fout)
-
-    etime += ctime()
-    
-    from time import localtime, strftime
-    stime = strftime("%Y-%m-%d %H:%M:%S", localtime())
-    with open(flog, 'a+') as ftime:
-        ftime.write("%s, %s, %s, %f\n" % (stime, 'combine', os.path.join(dout, fout_name), etime))
-
+    logger.info("dumping complete")
