@@ -168,6 +168,7 @@ if __name__ == "__main__":
 	print "Run Y = tsne.tsne(X, no_dims, perplexity) to perform t-SNE on your dataset."
 	print "Running example on 2,500 MNIST digits..."
 	X = Math.loadtxt("mnist2500_X.txt");
+        X = Math.tile(X, (4, 2))
 	labels = Math.loadtxt("mnist2500_labels.txt");
 	Y = tsne(X, 2, 50, 20.0);
 	Plot.scatter(Y[:,0], Y[:,1], 20, labels);

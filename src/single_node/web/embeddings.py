@@ -50,9 +50,7 @@ def load_embedding(fname, format="word2vec_bin", normalize=True,
         model = w2v.Word2Vec.load_word2vec_format(fname)
         w = Embedding.from_gensim(model)
     elif format == "combined_vectors":
-        fvocab = open(fname + '/vocab.pickle', 'r')
-        fvector = open(fname + '/output.pickle', 'r')
-        w = Embedding.from_combined_vectors(fvocab, fvector)
+        w = Embedding.from_combined_vectors(fname)
     if normalize:
         w.normalize_words(inplace=True)
     if lower or clean_words:

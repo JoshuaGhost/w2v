@@ -203,11 +203,14 @@ class Embedding(object):
         return Embedding(vocabulary=vocab, vectors=vectors)
 
     @staticmethod
-    def from_combined_vectors(fvocab, fvectors):
+    def from_combined_vectors(fname):
         import pickle
-        words = pickle.load(fvocab)
-        vocab = CountedVocabulary(word_count = dict(zip(words, [10000 for i in range(len(words))])))
-        vectors = pickle.load(fvectors)
+        with open(fname, 'r') as fin:
+            e = pickle.load(fin)
+        vocab = e.keys()
+        print vocab[:10]
+        vectors = [e[word] for word in vocab]
+        vocab = CountedVocabulary(word_count = dict(zip(vocab, [10000] * len(vocab))))
         return Embedding(vocabulary=vocab, vectors=vectors)
 
     @staticmethod
