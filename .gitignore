@@ -13,7 +13,8 @@ MODELS_FOLDER/*
 *.log
 run_rest.sh
 output/*
-temp/*
+*temp*
 w2v/*
 .gitignore
-
+*tmp*
+recent_log.txt

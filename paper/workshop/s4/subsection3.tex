@@ -1,0 +1,117 @@
+\subsection{Alignment between models}
+  After training sub-model using each sub-corpus dedicatedly, we can proceed to the combination phase of the whole work flow. One simple approach of combination is to just add different embedded vectors together, hoping the local information presented by a single model can also be maintained using single vector addition without any alignment. But inspecting only two word vector pairs from model 0 and model 1, say $(\vec{a}_0, \vec{b}_0)$ and $(\vec{a}_1, \vec{b}_1)$, without losing the generality. The inner product of each vector pair illustrates the similarity of word \verb|a| and \verb|b| in each model respectively. Simply adding vectors from model 0 with correspondent vectors in model 1 separately doesn't guarantee that information expressed by two dedicated models using inner product still preserves. We expect that in the merged model, inner product of $(\vec{a}_m,\vec{b}_m)$ should be a function that depends on only $\langle\vec{a}_0,\vec{b}_0\rangle$ and $\langle\vec{a}_1, \vec{b}_1\rangle$. However after using the simple vector addition, the new inner product is
+  \begin{equation}\label{eq:inner_product}\begin{split}
+   &\langle(\vec{a}_0+\vec{a}_1), (\vec{b}_0+\vec{b}_1)\rangle\\
+   = &\langle\vec{a}_0,\vec{b}_0\rangle+
+     \langle\vec{a}_1,\vec{b}_1\rangle+
+     \langle\vec{a}_0,\vec{b}_1\rangle+
+     \langle\vec{a}_1,\vec{b}_0\rangle,
+  \end{split}\end{equation}
+  where the last two part in the right side depends on the between-model-distortion because of the nonalignment of models. Thus some alignment should be performed.
+
+  \subsubsection{Alignment through Orthogonal Linear Transformation}
+  Defined and solved in \cite{schonemann1966generalized}, the Orthogonal Procrustes Problem focuses on solve such problem: Given matrix $A$ and matrix $B$, find a orthogonal transformation matrix T so that the squared mean error (SME) between transformed A using T and B is minimized. Mathematically speaking, define
+  
+  \begin{equation}
+    T = \min_{T}tr[E^\intercal \cdot E],
+  \end{equation}
+  
+  where 
+  
+  \begin{equation}
+    E=B-A\cdot T,
+  \end{equation}
+    
+    under the constraint that 
+  
+  \begin{equation}
+    T\cdot T^\intercal=T^\intercal T=I.
+  \end{equation}
+  
+  This transformation minimize the inter-model distortion under the constraint that only orthogonal transformations are allowed. Thus reduce the last two items in the \eqref{eq:inner_product} in a way.
+
+  \subsubsection{Low rank alignment}
+  The work from Boucher et al. \cite{boucher2015aligning} provides another approach of aligning different manifold together. Consider $X$ and $Y$ are two manifold to be aligned. They are at first decomposed using SVD such that $X=U_xS_xV_x^\intercal$ and $Y=U_yS_yV_y^\intercal$. With out losing the generality, $S_x$ and $V_x$ are partitioned into $V_x=[V_{x1}V_{x2}]$ and $S_x=[S_{x1}S_{x2}]$ according to 
+
+  \begin{equation}
+    I_1=\{i:s_i>1 \forall s_i \in S\}
+  \end{equation}
+
+  and
+  
+  \begin{equation}
+    I_2=\{i:s_i\leq 1 \forall s_i\in S\}.
+  \end{equation} 
+
+  This decomposition is used for preparation of low-rank-representation X and Y using Low rank embedding (LRE). The LRE problem is defined as that, given a data set X, finding a proper transformation matrix R, in order to minimize the loss function,
+
+  \begin{equation}\label{eq:LRE_objection}
+    \min_R\frac{1}{2}\|X-XR\|^2_F+\lambda\|R\|_*,
+  \end{equation}
+
+  where $\lambda > 0, \|X\|_F=\sqrt{\sum_i\sum_j|x_{i,j}|^2}$ is called Frobenius norm, while $\|X\|_*=\sum_i\sigma_i(X)$ is the spectral norm and where by $\sigma_i$ are singular values. \cite{candes2010power} proved that the formula \eqref{eq:LRE_objection} is a convex relaxation of rank minimization problem and it's result $R$ is the so-called reconstruction coefficients, which describe the intra-manifold relationship between points inside a single manifold. The \eqref{eq:LRE_objection} is showed in \cite{favaro2011closed} can be solved in closed form. This is where we use the decomposition of $X$ and $Y$. For example, the optimal closed-form solution of reconstruction of coefficients for $X$ is
+  
+  \begin{equation}
+    R^{(X)}=V_x1(I-S_x1^{-1})V_x1^\intercal.
+  \end{equation}
+
+  Once the $R^{(X)}$ and $R^{(Y)}$ are calculated, they can be blocked as
+  
+  \[R= \begin{bmatrix}
+        R^{(X)} & 0 \\
+        0 & R^{(Y)}
+      \end{bmatrix}\]
+
+  and
+
+  \[C=\begin{bmatrix}
+        0 & C^{(X,Y)}\\
+        C^{(Y,X)} & 0
+      \end{bmatrix},\]
+
+  where $C^{(X,Y)}$ is inter-manifolds correspondence, defined as
+
+  \[C_{i,j}^{(X,Y)}=\begin{cases}
+                      1 : X_i\text{ is in correspondence with }Y_i\\
+                      0 : \text{otherwise}
+                    \end{cases}\].
+
+  Defining $F\in {\rm I\!R}^{(2N\times d)}$ as
+
+  \[F=\begin{bmatrix}
+        F^{(X)}\
+        F^{(Y)}
+      \end{bmatrix},\]
+
+  where $N$ is the number of points in each manifold and $d$ is the dimension of both manifolds, $F^{(X)}$ and $F^{(Y)}$ are the aligned manifolds. The alignment precision of $F$ can be described as loss function
+
+  \begin{equation}\label{eq:alignment_precision_objection}
+    \mathcal{Z}(F)=(1-\mu )\|F-RF\|^2_F+\mu\sum_{i,j=1}^N\|F_i-F_j\|^2C_{i,j},
+  \end{equation}
+
+  where $\mu\in[0,1]$ is a hyper parameter that controls the inter-manifold correspondence or intra-manifold correspondence matters significantly. With help of the Lagrange multipliers method, equation \eqref{eq:alignment_precision_objection} can be solved by finding the d smallest non-zero eigenvectors of the matrix
+
+  \begin{equation}
+    (1-\mu)M+2\mu L,
+  \end{equation}
+
+  where
+
+  \[M=\begin{bmatrix}
+        (I-R^{(x)})^2 & 0\\
+        0 & (i-R^{(Y)})^2
+      \end{bmatrix},\]
+
+  and
+
+  \[L=\begin{bmatrix}
+        D^X & -C^{(X,Y)}\\
+        (-C^{(X,Y)})^\intercal & D^Y
+      \end{bmatrix},\]
+
+  where by 
+    \[D=\begin{bmatrix}
+          D^X & 0\\
+          0 & D^Y
+        \end{bmatrix}\]
+  is a diagonal matrix.
