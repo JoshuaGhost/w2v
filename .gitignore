@@ -11,4 +11,9 @@ MODELS_FOLDER/*
 *.dvi
 *.pdf
 *.log
+run_rest.sh
+output/*
+temp/*
+w2v/*
+.gitignore
 
