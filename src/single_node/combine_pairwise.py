@@ -39,7 +39,7 @@ from glob import glob
 from multiprocessing import Pool
 
 from lra import low_rank_align
-from tsne import tsne
+from tsne_smp import tsne
 
 program = os.path.basename(sys.argv[0])
 logger = logging.getLogger(program)
@@ -92,7 +92,8 @@ def combine(X, Y, strategy, uselra):
     if strategy == 'PCA':
         return _pca_transbase(X, Y)
     if strategy == 'tsne':
-        return tsne(np.hstack((X, Y)), no_dims=500, initial_dims=1000)
+        Z = np.hstack((X,Y))
+        return tsne(Z, no_dims=500, initial_dims=1000)
 
 
 def merge(embeddings, order, strategy, uselra):
@@ -155,10 +156,11 @@ def parse_argvs(argvs):
     parser=argparse.ArgumentParser(description='Process some arguments.')
 
     parser.add_argument('-s', '--source', dest='dfrags',\
+                        default="../../temp/models/two_parts_bootstrap/",\
                         help='source directory that contains model fragments entail to merge')
-    parser.add_argument('-n', '--nfrags', type=int,\
+    parser.add_argument('-n', '--nfrags', type=int, default=2,\
                         help='number of fragments require to merge')
-    parser.add_argument('--order',\
+    parser.add_argument('--order', default='seq',\
                         help='order of merging, can be \
                                 seq (for sequence), \
                                 bin (for binary) and \
@@ -167,14 +169,14 @@ def parse_argvs(argvs):
                         help='whether use lra to arrange')
     parser.add_argument('--norm', type=bool, dest='normed', default=False,\
                         help='whether normalize the models')
-    parser.add_argument('--strategy',\
+    parser.add_argument('--strategy', default='tsne',\
                         help='strategy to use when pairwise combining, can be \
                                 vadd (for vector add), \
                                 lint (for linear transformation) and \
                                 PCA')
-    parser.add_argument('-d', '--destination', dest='dout',\
+    parser.add_argument('-d', '--destination', dest='dout', default="../../output/models/two/",\
                         help='destination directory to save merged model')
-    parser.add_argument('-o', '--output', dest='fout_name',\
+    parser.add_argument('-o', '--output', dest='fout_name', default="tsne_two_part.pkl",\
                         help='name of output file')
 
     ns = parser.parse_args(argvs)
@@ -196,11 +198,6 @@ def retrieve_vocab_as_set(model):
 def load_common_vecs(vmpair):
     return np.array([vmpair[1].wv[word] for word in vmpair[0]])
 
-def getattr(attr):
-    def getattr_from(model):
-        return getattr(model, attr)
-    return getattr_from
-
 
 def retrieve_vecs(dfrags, nfrags, tmp_dir):
     vocab = common_vocab
@@ -220,7 +217,8 @@ def retrieve_vecs(dfrags, nfrags, tmp_dir):
 
         if normed:
             logger.debug('normalizing models...')
-            Pool(nfrags).map(getattr('init_sims', model))
+            for model in models:
+                model.init_sims()
             logger.debug('models normalization complete')
 
         logger.debug('extracting common vocabs...')

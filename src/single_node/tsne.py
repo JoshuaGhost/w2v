@@ -12,7 +12,7 @@
 #  Copyright (c) 2008 Tilburg University. All rights reserved.
 
 import numpy as Math
-import pylab as Plot
+#import pylab as Plot
 
 def Hbeta(D = Math.array([]), beta = 1.0):
 	"""Compute the perplexity and the P-row for a specific value of the precision of a Gaussian distribution."""
@@ -39,7 +39,6 @@ def x2p(X = Math.array([]), tol = 1e-5, perplexity = 30.0):
 
 	# Loop over all datapoints
 	for i in range(n):
-
 		# Print progress
 		if i % 500 == 0:
 			print "Computing P-values for point ", i, " of ", n, "..."
@@ -171,5 +170,5 @@ if __name__ == "__main__":
         X = Math.tile(X, (4, 2))
 	labels = Math.loadtxt("mnist2500_labels.txt");
 	Y = tsne(X, 2, 50, 20.0);
-	Plot.scatter(Y[:,0], Y[:,1], 20, labels);
-	Plot.show();
+	#Plot.scatter(Y[:,0], Y[:,1], 20, labels);
+	#Plot.show();

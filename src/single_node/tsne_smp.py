@@ -13,8 +13,10 @@
 
 import numpy as Math
 from scipy.sparse.csgraph import laplacian
-import pylab as Plot
+#import pylab as Plot
 
+
+Math.seterr(all='raise')
 
 def Hbeta(D = Math.array([]), beta = 1.0):
 	"""Compute the perplexity and the P-row for a specific value of the precision of a Gaussian distribution."""
@@ -33,12 +35,12 @@ def calP(vec):
         n = vec.shape[0]
         if i % 500 == 0:
                 print "Computing P-values for point ", i, " of ", n, "..."
-        beta = 1.
+        beta = Math.array([1.])
         # Compute the Gaussian kernel and entropy for the current precision
         betamin = -Math.inf;
         betamax =  Math.inf;
         Di = vec[Math.concatenate((Math.r_[0:i], Math.r_[i+1:n]))];
-        (H, thisP) = Hbeta(Di, beta);
+        (H, thisP) = Hbeta(Di, beta)
 
         # Evaluate whether the perplexity is within tolerance
         Hdiff = H - logU;
@@ -65,7 +67,7 @@ def calP(vec):
                 tries = tries + 1;
 
         # Set the final row of P
-        P = Math.concatenate((thisP[0:i], [0,], thisP[i:n]))
+        P = Math.concatenate((thisP[0:i], [0.,], thisP[i:n]))
         return Math.r_[beta, P]
         
 
@@ -83,8 +85,10 @@ def x2p(X = Math.array([]), tol = 1e-5, perplexity = 30.0):
         global tolerance
         tolerance = tol
 
+        P = Math.zeros((n,n))
+        beta = Math.ones((n,1))
         from multiprocessing import Pool
-        P = Math.array(Pool(24).map(calP, enumerate(D)))
+        P = Math.array(Pool(18).map(calP, enumerate(D)))
 
         beta = P[:,0]
         P = P[:,1:]
