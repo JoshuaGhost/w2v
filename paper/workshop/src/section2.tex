@@ -1,0 +1,21 @@
+\section{Brief introduction on word embedding with Skip-gram model}
+As illustrated in \cite{mikolov2013distributed}, the goal of training process of a distributed representation model is to find a participate parameter combination for a 1-(hidden-)layer neural network. In this section we will go through how a distributed representation model of words as vectors is trained.
+
+  \subsection{Notions and Conventions}
+  $V$: Set of all vocabularies. Before training the model using corpus, we need to identify all of the legal words, i.e. words do have meaning and are frequent. Normally a threshold $\tau_v$ is introduced, so that all the words occur less than $\tau_v$ times within whole corpus are pruned. For the sake of a systematic comparison, in our experiment we use vocabulary extracted from \verb|GoogleNews-vectors-negative300.bin|\footnote{found in https://code.google.com/archive/p/word2vec/}, whose count is approximately same as \cite{levy2015improving}. Following are the notions used within this paper.
+
+  $v$: number of vocabulary, i.e. $|V|$,
+
+  $X_{1 \times v}$: input of the neural network, one-hot encoding of a word,
+
+  $dim$: dimension of embedded space,
+
+  $L1_{v \times dim}$: embedding layer, multiply a one-hot vector with it produces the embedding of the input word,
+
+  $neg$: number of random negtive sampling,
+
+  $L2_{dim \times v}$: hidden layer. Because of the using of negtive-sampling while calculating the embedding in our experiment, it usually occures only partially, denoted as $L2P_{dim \times (neg+1)}$, where the "$+1$" indicates the target word in the output of network.
+
+  With Skip-gram method in \cite{mikolov2013distributed} using a simplified variant of Noise Contrastive Estimation (NCE) \cite{gutmann2012noise}, the activation function in output layer is a logit function: $y=\frac{1}{1+\exp ^{(-syn0\times W^T)}}$. The final loss function is according to \cite{mikolov2013distributed} denoted as 
+
+  $\log{\sigma(v^\prime_{wO})}$In each round of training, we at first find the context word and target word in the same window, then after forward propagation with respect to network structure, the activation function calculates predicted labels, which can be treated as 'co-occurrence' between context word and target word, as well as 'co-occurrence' between negative sampled words and target word. Then the error are defined as difference between labels (context word = 1, negtive sampled word = 0) and predicted result, which is used to multiply with learning factor $\alpha$ in the backward propagation. These iterate until the result convergent.
