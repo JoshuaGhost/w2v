@@ -12,10 +12,18 @@ As illustrated in \cite{mikolov2013distributed}, the goal of training process of
 
   $L1_{v \times dim}$: embedding layer, multiply a one-hot vector with it produces the embedding of the input word,
 
+  $v_{wI}$: vector of context word, used to predict the central word of window. The letter \textit{I} represents that this word vector is the input of the NN,
+
   $neg$: number of random negtive sampling,
 
-  $L2_{dim \times v}$: hidden layer. Because of the using of negtive-sampling while calculating the embedding in our experiment, it usually occures only partially, denoted as $L2P_{dim \times (neg+1)}$, where the "$+1$" indicates the target word in the output of network.
+  $L2_{dim \times v}$: hidden layer. Because of the using of negtive-sampling while calculating the embedding in our experiment, it usually occures only partially, denoted as $L2P_{dim \times (neg+1)}$, where the "$+1$" indicates the target word,
 
-  With Skip-gram method in \cite{mikolov2013distributed} using a simplified variant of Noise Contrastive Estimation (NCE) \cite{gutmann2012noise}, the activation function in output layer is a logit function: $y=\frac{1}{1+\exp ^{(-syn0\times W^T)}}$. The final loss function is according to \cite{mikolov2013distributed} denoted as 
+  $v^\prime_{wO}$: negtive sampled word vector in hidden layer. The letter \textit{O} represents output of the NN.
 
-  $\log{\sigma(v^\prime_{wO})}$In each round of training, we at first find the context word and target word in the same window, then after forward propagation with respect to network structure, the activation function calculates predicted labels, which can be treated as 'co-occurrence' between context word and target word, as well as 'co-occurrence' between negative sampled words and target word. Then the error are defined as difference between labels (context word = 1, negtive sampled word = 0) and predicted result, which is used to multiply with learning factor $\alpha$ in the backward propagation. These iterate until the result convergent.
+  With Skip-gram method in \cite{mikolov2013distributed} using a simplified variant of Noise Contrastive Estimation (NCE) \cite{gutmann2012noise}, the activation function in output layer is a logit function: $y=\frac{1}{1+\exp ^{(-syn0\times W^T)}}$. The final objective function is according to \cite{mikolov2013distributed} denoted as
+
+  \begin{equation}\label{eq:nceloss}
+  \log{\sigma({v^\prime_{wO}}^\intercal v_{wI})}+\sum_{i=1}^k{\mathbb{E}_{w_i~P_n(w)[\log{\sigma({-v^\prime_{wi}}^\intercal v_{wI})}]}}
+  \end{equation}
+
+  In each round of training, we at first identify context words and target word within one shifting window. In negtive sampling, one central word is used as 'signal' and other according to some distribution picked word are as 'noise'. The ituition of the objective function \ref{eq:nceloss} is that the central signal word should be predicted with higher probability than the negtive-sampled, background noise words, or else the objective will drop. These iterate until the result convergent.
