@@ -18,3 +18,5 @@ w2v/*
 .gitignore
 *tmp*
 recent_log.txt
+*.out
+
