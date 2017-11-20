@@ -18,4 +18,10 @@ w2v/*
 .gitignore
 *tmp*
 recent_log.txt
+<<<<<<< HEAD
 combined_output/*
+||||||| merged common ancestors
+=======
+*.out
+
+>>>>>>> 1369aabe15d3bd4e5eb5ac457f45b120227c0b2d

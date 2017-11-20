@@ -1,0 +1,29 @@
+\section{Brief introduction on word embedding with Skip-gram model}
+As illustrated in \cite{mikolov2013distributed}, the goal of training process of a distributed representation model is to find a participate parameter combination for a 1-(hidden-)layer neural network. In this section we will go through how a distributed representation model of words as vectors is trained.
+
+  \subsection{Notions and Conventions}
+  $V$: Set of all vocabularies. Before training the model using corpus, we need to identify all of the legal words, i.e. words do have meaning and are frequent. Normally a threshold $\tau_v$ is introduced, so that all the words occur less than $\tau_v$ times within whole corpus are pruned. For the sake of a systematic comparison, in our experiment we use vocabulary extracted from \verb|GoogleNews-vectors-negative300.bin|\footnote{found in https://code.google.com/archive/p/word2vec/}, whose count is approximately same as \cite{levy2015improving}. Following are the notions used within this paper.
+
+  $v$: number of vocabulary, i.e. $|V|$,
+
+  $X_{1 \times v}$: input of the neural network, one-hot encoding of a word,
+
+  $dim$: dimension of embedded space,
+
+  $L1_{v \times dim}$: embedding layer, multiply a one-hot vector with it produces the embedding of the input word,
+
+  $v_{wI}$: vector of context word, used to predict the central word of window. The letter \textit{I} represents that this word vector is the input of the NN,
+
+  $neg$: number of random negtive sampling,
+
+  $L2_{dim \times v}$: hidden layer. Because of the using of negtive-sampling while calculating the embedding in our experiment, it usually occures only partially, denoted as $L2P_{dim \times (neg+1)}$, where the "$+1$" indicates the target word,
+
+  $v^\prime_{wO}$: negtive sampled word vector in hidden layer. The letter \textit{O} represents output of the NN.
+
+  With Skip-gram method in \cite{mikolov2013distributed} using a simplified variant of Noise Contrastive Estimation (NCE) \cite{gutmann2012noise}, the activation function in output layer is a logit function: $y=\frac{1}{1+\exp ^{(-syn0\times W^T)}}$. The final objective function is according to \cite{mikolov2013distributed} denoted as
+
+  \begin{equation}\label{eq:nceloss}
+  \log{\sigma({v^\prime_{wO}}^\intercal v_{wI})}+\sum_{i=1}^k{\mathbb{E}_{w_i~P_n(w)[\log{\sigma({-v^\prime_{wi}}^\intercal v_{wI})}]}}
+  \end{equation}
+
+  In each round of training, we at first identify context words and target word within one shifting window. In negtive sampling, one central word is used as 'signal' and other according to some distribution picked word are as 'noise'. The ituition of the objective function \ref{eq:nceloss} is that the central signal word should be predicted with higher probability than the negtive-sampled, background-noise words, or else the objective would drop. This procedure iterates until the objective convergent.
