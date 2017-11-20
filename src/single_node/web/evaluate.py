@@ -338,7 +338,7 @@ def evaluate_similarity(w, X, y, cosine_similarity):
     if cosine_similarity:
         scores = np.array([v1.dot(v2.T) for v1, v2 in zip(A, B)])
     else:
-        scores = np.array([np.sqrt((v**2).sum()) for v in (A-B)])
+        scores = np.array([1/np.sqrt((v**2).sum()) for v in (A-B)])
     return scipy.stats.spearmanr(scores, y).correlation
 
 
