@@ -48,6 +48,8 @@ parser.add_option("-c", "--clean_words", dest="clean_words",
 
 if __name__ == "__main__":
     (options, args) = parser.parse_args()
+    
+    cosine_similarity = False
 
     # Load embeddings
     fname = options.filename
@@ -78,11 +80,12 @@ if __name__ == "__main__":
             dim = len(next(open(fname)).split()) - 1
 
         #w = load_embedding(fname, format=format, normalize=True, lower=True, clean_words=options.clean_words, load_kwargs=load_kwargs)
-        w = load_embedding(fname, format=format, normalize=True, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
+        #w = load_embedding(fname, format=format, normalize=True, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
+        w = load_embedding(fname, format=format, normalize=cosine_similarity, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
 
     out_fname = options.output if options.output else "results.csv"
 
-    results = evaluate_on_all(w)
+    results = evaluate_on_all(w, cosine_similarity=cosine_similarity)
 
     logger.info("Saving results...")
     print(results)

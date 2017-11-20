@@ -298,7 +298,7 @@ def evaluate_on_WordRep(w, max_pairs=1000, solver_kwargs={}):
                       pd.Series(count, name="count")], axis=1)
 
 
-def evaluate_similarity(w, X, y):
+def evaluate_similarity(w, X, y, cosine_similarity):
     """
     Calculate Spearman correlation between cosine similarity of the model
     and human rated similarity of word pairs
@@ -335,11 +335,14 @@ def evaluate_similarity(w, X, y):
     mean_vector = np.mean(w.vectors, axis=0, keepdims=True)
     A = np.vstack(w.get(word, mean_vector) for word in X[:, 0])
     B = np.vstack(w.get(word, mean_vector) for word in X[:, 1])
-    scores = np.array([v1.dot(v2.T) for v1, v2 in zip(A, B)])
+    if cosine_similarity:
+        scores = np.array([v1.dot(v2.T) for v1, v2 in zip(A, B)])
+    else:
+        scores = np.array([np.sqrt((v**2).sum()) for v in (A-B)])
     return scipy.stats.spearmanr(scores, y).correlation
 
 
-def evaluate_on_all(w):
+def evaluate_on_all(w, cosine_similarity):
     """
     Evaluate Embedding on all fast-running benchmarks
 
@@ -372,7 +375,7 @@ def evaluate_on_all(w):
     similarity_results = {}
 
     for name, data in iteritems(similarity_tasks):
-        similarity_results[name] = evaluate_similarity(w, data.X, data.y)
+        similarity_results[name] = evaluate_similarity(w, data.X, data.y, cosine_similarity)
         logger.info("Spearman correlation of scores on {} {}".format(name, similarity_results[name]))
 
     # Calculate results on analogy
