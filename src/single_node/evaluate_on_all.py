@@ -70,7 +70,7 @@ if __name__ == "__main__":
             elif ext == ".w2v":
                 format = "gensim"
 
-        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin', 'combined_vectors'], "Unrecognized format"
+        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin', 'combined_vectors', 'dict'], "Unrecognized format"
 
         load_kwargs = {}
         if format == "glove":
