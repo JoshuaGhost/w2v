@@ -1,0 +1,41 @@
+\section{Experiment results} \label{experiment_results}
+"For this paper, we finished all experiments following the advice in \cite{levy2015improving}, thus hyper-parameters are chosen as \verb|win=10|, \verb|neg=5|, \verb|dim=500| and \verb|iter=5|. English wiki dump (enwiki-latest-pages-articles on March 2nd, 2016\footnote{from https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2}) is used as corpus. Parts of experiment results, with configuration in which performance the best, are demonstrated in table \ref{tab:result_part}. Results for all combination of experiment setting is shown in appendix \ref{sec:result}. In those tables the line "baseline" represents the performance of model who uses whole corpus with out any division or combination. The lines named as "avg {skip,sampling}" represent the average performance over all fragments produced by two types of division methods. Each column in both tables stands for an evaluation dataset or time consumed for combination or (average) training. This benchmark is also kept the same with \cite{levy2015improving}. All of the experiments ran on 18 cores of a server with dual-way Intel(R) Xeon(R) CPU E5645 @ 2.40GHz with 126G of RAM. The size of entire corpus is approximately 14G. The combination and training times, however, because of public occupation of the server within institute, are for reference only. What is not mentioned in both table is that the average division time for corpus. For \verb|skip| method this time is 2.487 sec, for \verb|sampling| method it is 41.878 sec."
+
+\begin{table*}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+    Configuration & AP & ESSLI\_1a & ESSLI\_2c & MEN & SimLex999 & WS353 & WS353R & Google & MSR & time (sec) \\
+    \hline
+    skip-seq-PCA & 0.607 & 0.795 & 0.556 & 0.741 & 0.345 & 0.613 & 0.526 & 0.714 & 0.442 & 12 \\
+    \hline
+    sampling-seq-PCA & 0.642 & 0.795 & 0.556 & 0.741 & 0.345 & 0.614 & 0.527 & 0.713 & 0.441 & 267 \\
+    \hline
+    sampling-seq-PCA-lra & 0.453 & 0.659 & 0.6 & 0.051 & 0.036 & -0.052 & -0.005 & 0 & 0 & 24429 \\
+    \hline
+    sampling-seq-PCA-lra-normed & 0.48 & 0.636 & 0.622 & 0.038 & -0.038 & 0.012 & -0.055 & 0.001 & 0.001 & 32168 \\
+    \hline
+    sampling-bin-PCA & 0.622 & 0.818 & 0.6 & 0.741 & 0.344 & 0.612 & 0.525 & 0.712 & 0.44 & 150 \\
+    \hline
+    sampling-MPE-PCA & 0.619 & 0.795 & 0.556 & 0.741 & 0.344 & 0.613 & 0.525 & 0.713 & 0.441 & 351 \\
+    \hline
+    skip-bin-vadd & 0.595 & 0.795 & 0.533 & 0.713 & 0.302 & 0.561 & 0.475 & 0.654 & 0.378 & 2 \\
+    \hline
+    skip-bin-vadd-lra & 0.54 & 0.659 & 0.644 & 0.702 & 0.391 & 0.619 & 0.535 & 0.68 & 0.425 & 11064 \\
+\hline
+\end{tabular}
+}
+\caption{Part of experiment results}
+\label{tab:result_part}
+\end{table*}
+
+From the result we can draw several conclusions.
+\begin{itemize}
+	\item \verb|sampling| method performs under nearly all circumstances better than \verb|skip| method,
+	\item \verb|PCA|, without any \verb|LRA| or normalization, cooperating especially with \verb|seq| order, performs the best,
+	\item around most of data set in all three type of data set (categorization, similarity and analogy), \verb|LRA| improves result of direct vector addition,
+	\item \verb|PCA| and orthogonal transformation should never occur together with \verb|LRA|.
+\end{itemize}
+
+The reason for the first conclusion is like inferred in section \ref{sec:division}, \verb|sampling| method preserves distribution over all words and thus produces model fragments more 'smoothly'. This consequentially represents less disturbance among model fragments and thence better performance when combining several model fragments together. For the second conclusion, from the table we can see that under both types of division method the configuration \verb|seq|-\verb|PCA| without \verb|LRA| or normalization seizures top-3 among all configurations on 10 out of 17 evaluation datasets. This also proves the hypothesis that compared with direct vector addition and vector addition after orthogonal transformation, PCA is the most optimal method while decreasing data-dimensions when most of dimensions provide no more information but redundancy. The \verb|seq| (consecutive order) however, doesn't help much when the combination process runs in a e.g. Map-Reduce cluster. Therefore binary order can be a secondary choice when large scale parallel computation is needed. As to the third conclusion, if a \verb|PCA| is too time and space consuming, considering the calculation demand of PCA or SVD, directly vector addition between two models can be a secondary substitution. A \verb|LRA| might help to improve the performance of vector addition because of the alignment, but \verb|LRA| itself is too time consuming and thus the profit doesn't cover the loss in the aspect of time. \verb|LRA| provide an alignment approach with help of low-rank-representation, which according to \cite{boucher2015aligning} guarantees only local linearity. Furthermore, according to the formulas in \verb|LRA| algorithm, it treats disturbance between data as noise and try to diminish it, which firstly do harm to information to both model fragments, which is already be done by PCA and orthogonal transformation\footnote{due to calculation accuracy of modern electronic computer} and secondly make our central thought of 'enrich the detail through combination of several model fragments' meaningless.
