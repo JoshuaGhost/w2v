@@ -1,5 +1,0 @@
-17/09/13 16:03:15 WARN streaming.StreamJob: -file option is deprecated, please use generic option -files instead.
-17/09/13 16:03:16 WARN security.UserGroupInformation: PriviledgedActionException as:zijian (auth:SIMPLE) cause:org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory hdfs://nameservice1/user/zijian/output already exists
-17/09/13 16:03:16 WARN security.UserGroupInformation: PriviledgedActionException as:zijian (auth:SIMPLE) cause:org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory hdfs://nameservice1/user/zijian/output already exists
-17/09/13 16:03:16 ERROR streaming.StreamJob: Error Launching job : Output directory hdfs://nameservice1/user/zijian/output already exists
-Streaming Command Failed!

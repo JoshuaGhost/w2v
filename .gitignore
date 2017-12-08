@@ -1,3 +1,9 @@
+src/hadoop_cluster/env.zip
+src/hadoop_cluster/env/
+src/hadoop_cluster/output/
+src/hadoop_cluster/text?.txt
+src/hadoop_cluster/upload/text?.txt
+*.swo
 *.py~
 *.pyc
 *.txt
@@ -18,15 +24,8 @@ w2v/*
 .gitignore
 *tmp*
 recent_log.txt
-<<<<<<< HEAD
 combined_output/*
-||||||| merged common ancestors
-=======
 *.out
-<<<<<<< HEAD
 *env.zip
 src/hadoop_cluster/env/
-=======
 
->>>>>>> 1369aabe15d3bd4e5eb5ac457f45b120227c0b2d
->>>>>>> 698149b040750ccd77fd85da07b6ba39a6ca8bcc
