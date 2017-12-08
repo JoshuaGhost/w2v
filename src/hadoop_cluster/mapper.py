@@ -4,7 +4,7 @@ from gensim.models.word2vec import LineSentence
 
 import sys
 
- class DividedLineSentence(object):
+class DividedLineSentence(object):
      def __init__(self, source, strategy='sampling', npart=10):
          self.strategy = strategy
          self.npart = npart
@@ -24,11 +24,21 @@ import sys
      def __del__(self):
          self.source_doc.close()      
 #==========================================not completed above========================
-for line in sys.stdin:
-    order, filename = line.split('#')
-    order = order.strip()
-    filename = filename.strip()
-    m = Word2Vec(LineSentence(filename.strip()), min_count=0)
-    for word in m.wv.vocab:
-        print word.strip() + '\t' + order + '#' +\
-              ','.join([str(num) for num in m.wv[word]]).strip()
+
+if __name__ == '__main__':
+    for line in sys.stdin:
+        order, filename = line.split('#')
+        order = order.strip()
+        filename = filename.strip()
+        m = Word2Vec(DividedLieSentence(line.strip()),
+                        size = 500,
+                        negative = 5,
+                        workers = 18,
+                        window = 10,
+                        sg = 1,
+                        null_word = 1,
+                        min_count = new_min_count,
+                        sample = 1e-4)
+        for word in m.wv.vocab:
+            print word.strip() + '\t' + order + '#' +\
+                  ','.join([str(num) for num in m.wv[word]]).strip()

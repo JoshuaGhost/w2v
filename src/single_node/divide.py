@@ -5,7 +5,7 @@
     <dir/to/parts>/<strategy_code> with name of <corpus_name>.<part_num>.txt
 
     Usage:
-    python divide_corpus.py <strategy> <num of parts> <dir/to/temp_document> <dir/saving/partial/documents>
+    python divide_corpus.py <strategy> <num of parts> <dir/to/corpus_fileument> <dir/saving/partial/documents>
 
     For the strategy, it can be:
         skip: divide corpus so that every <num of parts> document is saved into one part
@@ -99,27 +99,21 @@ if __name__ == '__main__':
         print globals()['__doc__'] %locals()
         sys.exit(1)
     
-    strategy, npart, temp_doc, parts_dir = sys.argv[1:5]
+    strategy, npart, corpus_file, parts_dir = sys.argv[1:5] #strategy = {bootstrap, skip}
     npart = int(npart)
-    corpus_name = os.path.basename(temp_doc)
+    corpus_name = '.'.join(os.path.basename(corpus_file).split('.')[:-1])
 
-    logger.info('start to divide corpus')
-    ftime = open(LOG_FILE, 'a+')
+    logger.info('start to divide corpora')
     
     from time import localtime, strftime
-    times = strftime("%Y-%m-%d %H:%M:%S", localtime())
 
-    ftime.write('=======================================\n')
-    ftime.write("experiment started at %s\n" % times)
-    ftime.write('running %s\n' % ' '.join(sys.argv))
-    ftime.write('divide corpus file [%s] into [%d] part with strategy [%s]\n' % (temp_doc, npart, strategy))
-    ftime.write('divided corpus saved under [%s]\n' % parts_dir)
+    logger.info('divide corpus file [%s] into [%d] part with strategy [%s]' % (corpus_file, npart, strategy))
+    logger.info('divided corpus saved under [%s]' % parts_dir)
 
-    all_parts = DividedLineSentence(strategy, npart, temp_doc)
-    for idx, part in enumerate(all_parts):
-        sub_folder = all_parts.sub_folder
-        filename = parts_dir+sub_folder+corpus_name+'.'+str(idx)+'.txt'
-        etime = -ctime()
+    lineSentences = DividedLineSentence(strategy, npart, corpus_file)
+    for idx, part in enumerate(lineSentences):
+        sub_folder = lineSentences.sub_folder
+        filename = parts_dir+'/'+sub_folder+'/'+corpus_name+'.'+str(idx)+'.txt'
         if os.path.exists(filename):
             logger.info('part %d exists, skip it' % idx)
             continue
@@ -130,10 +124,6 @@ if __name__ == '__main__':
                 if (j+1) % 1000 ==0:
                     logger.info('Saved '+str(j)+' articles')
             output.close()
-            etime += ctime()
-            ftime.write('part %d generated, time elapsed: %f sec\n' % (idx, etime))
+            logger.info('part %d generated' % idx)
             logger.info('finished saving partial articles No. '+str(idx))
 
-    ftime.write('division finished, start to train...\n')
-    ftime.write('---------------------------------------\n\n')
-    ftime.close()
