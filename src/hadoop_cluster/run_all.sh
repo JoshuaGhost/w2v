@@ -4,7 +4,7 @@ if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_STREAM_JAR=${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-streaming-2.6.5.jar
 else
     HADOOP_HOME=/opt/cloudera/parcels/CDH/
-    HADOOP_STREAM_JAR=${HADOOP_HOME}/jars/hadoop-streaming-2.6.0-mr1-cdh5.12.0.jar
+    HADOOP_STREAM_JAR=${HADOOP_HOME}/jars/*hadoop-streaming*.jar
 fi
 HADOOP_BIN=${HADOOP_HOME}/bin/hadoop
 
@@ -22,8 +22,13 @@ if [ $? -eq 0 ]; then
     hdfs dfs -rm -r output;
 fi
 
+hdfs dfs -rm -r {filenames.txt,text*,mapper.py,reducer.py}
 
-hdfs dfs -put filename.txt
+hdfs dfs -put filenames.txt
+hdfs dfs -put upload/*
+hdfs dfs -put mapper.py
+hdfs dfs -put reducer.py
+
 $HADOOP_BIN jar $HADOOP_STREAM_JAR\
            -archives env.zip#env\
            -file mapper.py\
@@ -31,8 +36,8 @@ $HADOOP_BIN jar $HADOOP_STREAM_JAR\
            -file reducer.py\
            -reducer reducer.py\
            -file upload/*\
-           -file ./filename.txt\
-           -input filename.txt\
+           -file ./filenames.txt\
+           -input filenames.txt\
            -output output;
 
 if [ -d output ]; then
@@ -40,6 +45,8 @@ if [ -d output ]; then
 fi
 
 hdfs dfs -test -e output
-if [$? -eq 0 ]; then
+
+if [ $? -eq 0 ]; then
     hdfs dfs -get output
 fi
+
