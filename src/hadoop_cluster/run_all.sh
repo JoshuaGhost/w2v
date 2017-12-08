@@ -1,7 +1,11 @@
 HOSTAME=$(uname -n)
+tempPath=$PATH
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
-    HADOOP_STREAM_JAR=${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-streaming-2.6.5.jar
+    HADOOP_STREAM_JAR=${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-streaming-*.jar
+elif [ $HOSTNAME == "watchdog" ]; then
+    HADOOP_STREAM_JAR=${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-streaming-*.jar
+    PATH=${PATH}:$HADOOP_HOME/bin
 else
     HADOOP_HOME=/opt/cloudera/parcels/CDH/
     HADOOP_STREAM_JAR=${HADOOP_HOME}/jars/*hadoop-streaming*.jar
@@ -22,7 +26,7 @@ if [ $? -eq 0 ]; then
     hdfs dfs -rm -r output;
 fi
 
-hdfs dfs -rm -r {filenames.txt,text*,mapper.py,reducer.py}
+#hdfs dfs -rm -r {filenames.txt,text*,mapper.py,reducer.py}
 
 hdfs dfs -put filenames.txt
 hdfs dfs -put upload/*
@@ -49,4 +53,4 @@ hdfs dfs -test -e output
 if [ $? -eq 0 ]; then
     hdfs dfs -get output
 fi
-
+PATH=$tempPath
