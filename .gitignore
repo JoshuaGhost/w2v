@@ -1,0 +1,6 @@
+src/hadoop_cluster/env.zip
+src/hadoop_cluster/env/
+src/hadoop_cluster/output/
+src/hadoop_cluster/text?.txt
+src/hadoop_cluster/upload/text?.txt
+*.swo
