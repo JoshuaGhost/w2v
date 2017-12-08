@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
         #w = load_embedding(fname, format=format, normalize=True, lower=True, clean_words=options.clean_words, load_kwargs=load_kwargs)
         #w = load_embedding(fname, format=format, normalize=True, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
-        w = load_embedding(fname, format=format, normalize=cosine_similarity, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
+        w = load_embedding(fname, format=format, normalize=True, lower=False, clean_words=options.clean_words, load_kwargs=load_kwargs)
 
     out_fname = options.output if options.output else "results.csv"
 
