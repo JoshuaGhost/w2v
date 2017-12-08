@@ -10,10 +10,10 @@ buffer = ['0' for i in range(NUM_SPLIT)]
 
 for line in sys.stdin:
     word, vec = line.split('\t')
-    order, vec = vec.split('#')
+    mapper_idx, vec = vec.split('#')
 
     word = word.strip()
-    order = int(order)
+    mapper_idx = int(mapper_idx)
     vec = vec.strip()
     '''
         damn hadoop may feed a reducer with
@@ -25,4 +25,4 @@ for line in sys.stdin:
         buffer = ['0' for i in range(NUM_SPLIT)]
         currentword = word
     else:
-        buffer[order] = vec
+        buffer[mapper_idx] = vec
