@@ -22,7 +22,7 @@ def reservoir(source, nsamples):
         else:
             if int(random.uniform(0, idx)) < nsamples:
                 ret[int(random.uniform(0, nsamples))] = copy.deepcopy(term)
-    return ret
+    return [sentence.split() for sentence in ret]
 
 def skip(source, nparts):
     import itertools
@@ -33,7 +33,8 @@ def skip(source, nparts):
 
 def sampling(source, nparts):
     source.seek(0)
-    nline = sum(1 for line in source)
+    nline = sum(1 for line in source.readlines())
+    source.seek(0)
     return reservoir(source, nline/nparts)
 
 
@@ -62,8 +63,6 @@ if __name__ == '__main__':
         idx = idx.strip()
         filename = filename.strip()
         samples = SubLineSentences(filename, 'sampling', nparts)
-        for sentence in samples:
-            print sentence
         m = Word2Vec(samples,
                     size = dim,
                     negative = n_ns,

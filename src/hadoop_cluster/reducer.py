@@ -6,7 +6,7 @@ NUM_SPLIT=10
 
 currentword = None
 
-buffer = ['0' for i in range(NUM_SPLIT)]
+buffer = {}
 
 for line in sys.stdin:
     word, vec = line.split('\t')
@@ -21,8 +21,7 @@ for line in sys.stdin:
     '''
     if not currentword or currentword != word:
         if currentword and len(buffer)==NUM_SPLIT:
-            print currentword + ':' + ','.join(buffer)
-        buffer = ['0' for i in range(NUM_SPLIT)]
+            print currentword + ':' + ','.join([buffer[idx] for idx in buffer])
+            buffer = {}
         currentword = word
-    else:
-        buffer[mapper_idx] = vec
+    buffer[mapper_idx] = vec
