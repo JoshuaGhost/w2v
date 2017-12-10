@@ -28,4 +28,5 @@ combined_output/*
 *.out
 *env.zip
 src/hadoop_cluster/env/
+*article.txt
 

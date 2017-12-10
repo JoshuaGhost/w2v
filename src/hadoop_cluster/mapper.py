@@ -1,7 +1,6 @@
 #!./env/bin/python
 from gensim.models.word2vec import Word2Vec
 from gensim.models.word2vec import LineSentence
-from reservoir_sampling import reservoir
 
 import sys
 import copy, random
