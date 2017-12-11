@@ -5,10 +5,10 @@ from gensim.models.word2vec import LineSentence
 import sys
 import copy, random
 
-nparts = 10
+nparts = 100
 min_count = 100
-#sub_min_count = min_count/nparts
-sub_min_count=0
+sub_min_count = min_count/nparts
+#sub_min_count=0
 n_ns = 5
 dim = 500
 
