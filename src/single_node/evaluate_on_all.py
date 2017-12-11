@@ -49,7 +49,7 @@ parser.add_option("-c", "--clean_words", dest="clean_words",
 if __name__ == "__main__":
     (options, args) = parser.parse_args()
     
-    cosine_similarity = False
+    cosine_similarity = True
 
     # Load embeddings
     fname = options.filename
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             elif ext == ".w2v":
                 format = "gensim"
 
-        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin', 'combined_vectors', 'dict'], "Unrecognized format"
+        assert format in ['word2vec_bin', 'word2vec', 'glove', 'bin', 'gensim', 'gensim_bin', 'dict'], "Unrecognized format"
 
         load_kwargs = {}
         if format == "glove":
