@@ -21,7 +21,7 @@ if [ ! -f env.zip ]; then
     cd ..
 fi
 
-for file in {filenames.txt,text.txt,mapper.py,reducer.py}; do
+for file in {filenames.txt,article.txt,mapper.py,reducer.py}; do
     hdfs dfs -test -e $file
     if [ $? -ne 0 ]; then
         hdfs dfs -put $file;
@@ -41,7 +41,7 @@ hadoop jar $HADOOP_STREAM_JAR\
     -file filenames.txt\
     -file mapper.py\
     -file reducer.py\
-    -file upload/text.txt\
+    -file article.txt\
     -input filenames.txt\
     -mapper mapper.py\
     -reducer reducer.py\
