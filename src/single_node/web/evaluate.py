@@ -339,8 +339,6 @@ def evaluate_similarity(w, X, y, cosine_similarity):
         scores = np.array([v1.dot(v2.T) for v1, v2 in zip(A, B)])
     else:
         scores = np.array([1/np.sqrt((v**2).sum()) for v in (A-B)])
-    import pdb
-    pdb.set_trace()
     return scipy.stats.spearmanr(scores, y).correlation
 
 
@@ -386,7 +384,6 @@ def evaluate_on_all(w, cosine_similarity):
         "Google": fetch_google_analogy(),
         "MSR": fetch_msr_analogy()
     }
-    '''
     analogy_results = {}
 
     for name, data in iteritems(analogy_tasks):
@@ -419,7 +416,5 @@ def evaluate_on_all(w, cosine_similarity):
     analogy = pd.DataFrame([analogy_results])
     sim = pd.DataFrame([similarity_results])
     results = cat.join(sim).join(analogy)
-    '''
-    results = sim
 
     return results

@@ -63,6 +63,7 @@ class DividedLineSentence(object):
     def __del__(self):
         self.source_doc.close()
 
+#==========================================not completed above========================
 
 if __name__ == '__main__':
     for line in sys.stdin:
