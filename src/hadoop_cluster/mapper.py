@@ -27,7 +27,7 @@ if __name__ == '__main__':
                     sample = 1e-4)
 
         for word in m.wv.vocab:
-            embedding = word.strip()+'\t'
+            embedding = repr(word.strip())+'\t' #repr() is needed because of non-ascii chars in corpus, thus the word in output are all like u'word'
             embedding += idx+'#'
             embedding += str(m.wv[word].tolist())[1:-1]
             print embedding

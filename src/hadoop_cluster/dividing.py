@@ -24,7 +24,7 @@ if __name__ == '__main__':
     nlines = int(os.popen('wc '+source_name).read().split()[0])
     size_in_byte = os.stat(source_name).st_size
     lines_per_part = nlines/nparts+1
-    lines_per_part = nlines
+    #lines_per_part = nlines
     byte_per_part = size_in_byte/nparts+1
 
     out_name = 'article'
