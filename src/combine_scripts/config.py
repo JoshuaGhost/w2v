@@ -1,0 +1,11 @@
+base_dir = "/home/zijian/workspace/master_thesis/w2v/"
+folder_in = base_dir+'src/hadoop_cluster/output/'
+nmodels = 99
+fname = 'part-'
+ext = ''
+ndim = 500
+mean_corr = False
+norm = False
+arch = 'mapreduce'
+folder_out = base_dir+'models/documentwise/combined/'
+dump_name = 'sampling_100_documentwise_pca'
