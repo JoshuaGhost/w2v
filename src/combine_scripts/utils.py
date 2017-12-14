@@ -16,10 +16,10 @@ def read_wv(fname):
 def load_embeddings(folder, filename, extension, nmodels, norm, arch):
     vocab = []
     vecs = []
+    fnames = os.popen('ls '+folder+filename+"*"+extension).read().split()
     if arch == 'mapreduce':
-        lsresult = os.popen('ls '+folder+filename+"*"+extension).read().split()
         p = Pool(18)
-        wvs = p.map(read_wv, lsresult)
+        wvs = p.map(read_wv, fnames)
         vocab = [wv[0] for wv in wvs]
         vecs = [wv[1] for wv in wvs]
         print len(vocab)
@@ -29,7 +29,8 @@ def load_embeddings(folder, filename, extension, nmodels, norm, arch):
         return vocab, array(vecs)
 
     elif arch == 'local':
-        ms=[w2v.load(folder+'/'+filename+str(i)+extension) for i in range(nmodels)]
+        lsresult = os
+        ms=[w2v.load(fname) for fname in fnames]
         vocab = reduce(lambda x, y: x.intersection(y), [set(m.wv.vocab.keys()) for m in ms])
         vocab = list(vocab)
         if norm:

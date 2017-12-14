@@ -36,6 +36,7 @@ if __name__ == '__main__':
 
     num_sub_models =  len([name for name in listdir(articles_dir) if isfile(join(articles_dir, name))])
     new_min_count = 100/num_sub_models
+    dim = 5000/num_sub_models
 
     logger.info('Note: corpora are from %s, Sub-models are saved under %s' % (articles_dir, sub_models_dir))
 
@@ -48,7 +49,7 @@ if __name__ == '__main__':
             else:
                 logger.info('Start to train sub-model %s' % sub_model_name)
                 model = Word2Vec(LineSentence(articles_dir+article_name),
-                                size = 500,
+                                size = dim,
                                 negative = 5,
                                 workers = 18,
                                 window = 10,
