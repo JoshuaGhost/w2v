@@ -9,9 +9,13 @@ from multiprocessing import Pool
 nmodels = 10
 new_dim = 500
 def read_wv(fname):
+    vocab = []
+    vecs = []
     for line in open(fname, 'r'):
         word, vec = map(eval, line.split(':'))
-    return word, vec
+        vocab.append(word)
+        vecs.append(vecs)
+    return vocab, vecs
 
 def load_embeddings(folder, filename, extension, nmodels, norm, arch):
     vocab = []
@@ -22,10 +26,6 @@ def load_embeddings(folder, filename, extension, nmodels, norm, arch):
         wvs = p.map(read_wv, lsresult)
         vocab = [wv[0] for wv in wvs]
         vecs = [wv[1] for wv in wvs]
-        print len(vocab)
-        print len(vecs)
-        print vocab[0]
-        print vecs[0][0]
         return vocab, array(vecs)
 
     elif arch == 'local':

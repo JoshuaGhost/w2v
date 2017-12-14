@@ -1,5 +1,7 @@
 HOSTAME=$(uname -n)
 tempPath=$PATH
+LOCAL_OUTPUT='output/sampling'
+
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
     HADOOP_STREAM_JAR=${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-streaming-*.jar
@@ -52,8 +54,8 @@ if [ -d output ]; then
 fi
 
 hdfs dfs -test -e output
-
 if [ $? -eq 0 ]; then
-    hdfs dfs -get output
+    mkdir -pv $LOCAL_OUTPUT
+    hdfs dfs -get output $LOCAL_OUTPUT
 fi
 PATH=$tempPath
