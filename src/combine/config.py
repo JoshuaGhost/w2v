@@ -1,0 +1,12 @@
+base_dir = "/home/zijian/workspace/master_thesis/w2v/"
+division_type = 'sampling_100'
+combine_method = 'pca'
+arch = 'mapreduce'
+folder_in = base_dir+'models/'+division_type+'/'+'subs/'
+fname = 'part-'
+ext = ''
+ndim = 500
+mean_corr = False
+norm = False
+folder_out = base_dir+'models/'+exp_name+'/'+'combined/'
+dump_name = exp_name+'_'+combine_method
