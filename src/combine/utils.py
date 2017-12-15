@@ -13,7 +13,7 @@ def read_wv(fname):
     for line in open(fname, 'r'):
         word, vec = map(eval, line.split(':'))
         vocab.append(word)
-        vecs.append(vecs)
+        vecs.append(vec)
     return vocab, vecs
 
 def load_embeddings(folder, filename, extension, norm, arch):
@@ -21,11 +21,15 @@ def load_embeddings(folder, filename, extension, norm, arch):
     vecs = []
     fnames = os.popen('ls '+folder+filename+"*"+extension).read().split()
     if arch == 'mapreduce':
-        p = Pool(18)
-        wvs = p.map(read_wv, fnames)
+        #p = Pool(18)
+        #wvs = p.map(read_wv, fnames)
+        wvs = []
+        for fname in fnames:
+            wvs.append(read_wv(fname))
         vocab = [wv[0] for wv in wvs]
+        vocab = reduce(list.__add__, vocab)
         vecs = [wv[1] for wv in wvs]
-        return vocab, array(vecs)
+        return vocab, vstack(array(vecs))
 
     elif arch == 'local':
         lsresult = os

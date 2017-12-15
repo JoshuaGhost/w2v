@@ -5,7 +5,7 @@ from config import *
 import os
 
 if __name__=='__main__':
-    vocab, vecs = load_embeddings(folder_in, fname, ext, nmodels, norm, arch)
+    vocab, vecs = load_embeddings(folder_in, fname, ext, norm, arch)
     vocab, vecs = dim_reduce(vocab, vecs, ndim, mean_corr)
     d = dict(zip(vocab, vecs))
     os.system('mkdir -pv '+folder_out)
