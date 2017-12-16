@@ -1,5 +1,7 @@
 HOSTAME=$(uname -n)
 tempPath=$PATH
+LOCAL_OUTPUT='output/sampling'
+
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
     HADOOP_STREAM_JAR=${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-streaming-*.jar
@@ -21,7 +23,7 @@ if [ ! -f env.zip ]; then
     cd ..
 fi
 
-for file in {filenames.txt,article.txt,mapper.py,reducer.py}; do
+for file in {filenames.txt,sampling.article.*.txt,mapper.py,reducer.py}; do
     hdfs dfs -test -e $file
     if [ $? -ne 0 ]; then
         hdfs dfs -put $file;
@@ -41,30 +43,19 @@ hadoop jar $HADOOP_STREAM_JAR\
     -file filenames.txt\
     -file mapper.py\
     -file reducer.py\
-    -file article.txt\
+    -file sampling.article.*.txt\
     -input filenames.txt\
     -mapper mapper.py\
     -reducer reducer.py\
     -output output;
-
-#$HADOOP_BIN jar $HADOOP_STREAM_JAR\
-#    -archives env.zip#env\
-#    -file mapper.py\
-#    -file reducer.py\
-#    -file filenames.txt\
-#    -file upload/*\
-#    -input filenames.txt\
-#    -mapper mapper.py\
-#    -reducer reducer.py\
-#    -output output;
 
 if [ -d output ]; then
     rm -r output;
 fi
 
 hdfs dfs -test -e output
-
 if [ $? -eq 0 ]; then
-    hdfs dfs -get output
+    mkdir -pv $LOCAL_OUTPUT
+    hdfs dfs -get output $LOCAL_OUTPUT
 fi
 PATH=$tempPath

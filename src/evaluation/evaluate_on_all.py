@@ -49,7 +49,8 @@ parser.add_option("-c", "--clean_words", dest="clean_words",
 if __name__ == "__main__":
     (options, args) = parser.parse_args()
     
-    cosine_similarity = True
+    #cosine_similarity = True
+    cosine_similarity = False
 
     # Load embeddings
     fname = options.filename
