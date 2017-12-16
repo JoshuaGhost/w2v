@@ -1,5 +1,5 @@
 import os
-from numpy import hstack
+from numpy import hstack, vstack
 from numpy import array
 from numpy.linalg import eigh
 from gensim.models.word2vec import Word2Vec as w2v
@@ -21,11 +21,8 @@ def load_embeddings(folder, filename, extension, norm, arch):
     vecs = []
     fnames = os.popen('ls '+folder+filename+"*"+extension).read().split()
     if arch == 'mapreduce':
-        #p = Pool(18)
-        #wvs = p.map(read_wv, fnames)
-        wvs = []
-        for fname in fnames:
-            wvs.append(read_wv(fname))
+        p = Pool(18)
+        wvs = p.map(read_wv, fnames)
         vocab = [wv[0] for wv in wvs]
         vocab = reduce(list.__add__, vocab)
         vecs = [wv[1] for wv in wvs]

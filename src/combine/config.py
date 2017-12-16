@@ -1,6 +1,6 @@
 base_dir = "/home/zijian/workspace/master_thesis/w2v/"
 division_strategy = 'sampling_100'
-combine_method = 'pca'
+combine_method = 'concate'
 arch = 'mapreduce'
 folder_in = base_dir+'models/'+division_strategy+'/'+'subs/'
 fname = 'part-'
