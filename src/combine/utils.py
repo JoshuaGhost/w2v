@@ -1,6 +1,7 @@
 import os
 from numpy import hstack, vstack
 from numpy import array
+from numpy import sqrt
 from numpy.linalg import eigh
 from gensim.models.word2vec import Word2Vec as w2v
 
@@ -26,7 +27,11 @@ def load_embeddings(folder, filename, extension, norm, arch):
         vocab = [wv[0] for wv in wvs]
         vocab = reduce(list.__add__, vocab)
         vecs = [wv[1] for wv in wvs]
-        return vocab, vstack(array(vecs))
+        vecs = vstack(array(vecs))
+        if norm:
+            for i in xrange(vecs.shape[0]):
+                vecs[i,:] /= sqrt((vecs[i, :] ** 2).sum(-1))
+        return vocab, vecs
 
     elif arch == 'local':
         lsresult = os

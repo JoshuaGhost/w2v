@@ -1,12 +1,12 @@
 base_dir = "/home/zijian/workspace/master_thesis/w2v/"
 division_strategy = 'sampling_100'
-combine_method = 'concate'
+combine_method = 'pca_mean_corr'
 arch = 'mapreduce'
 folder_in = base_dir+'models/'+division_strategy+'/'+'subs/'
 fname = 'part-'
 ext = ''
 ndim = 500
-mean_corr = False
-norm = False
+mean_corr = True
+norm = True
 folder_out = base_dir+'models/'+division_strategy+'/'+'combined/'
 dump_name = division_strategy+'_'+combine_method
