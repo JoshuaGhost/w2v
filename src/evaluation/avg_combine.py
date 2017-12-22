@@ -36,7 +36,7 @@ except IOError:
         logger.info('reading file {}, current vocabulary size: {}'.format(f.name, len(words)))
         for line in f.open():
             w,v = line.strip().split(':')
-            words.append(w)
+            words.append(eval(w))
             vecs.append(eval(v))
     vecs = array(vecs)
     dump(words, open(str(words_dump_path),'w+'))
@@ -64,4 +64,4 @@ for i in xrange(nparts):
 
 results = pd.concat(results_statistic).mean()
 print results
-results.to_csv(out_fname)
+results.to_csv(str(out_fname))
