@@ -1,7 +1,8 @@
 from gensim.models.word2vec import Word2Vec
 from pathlib2 import Path
 from pickle import load, dump
-from numpy import log, exp, vstack, hstack, array
+from numpy import log, exp, vstack, hstack, array, zeros, ones
+from scipy.special import expit
 import logging
 import numpy as np
 
@@ -20,13 +21,15 @@ logger = logging.getLogger('combining_document_new')
 logger.setLevel(logging.INFO)
 subs_dir = Path('../../models/documentwise_100/subs/').resolve()
 
-dim_merge = 500
 
 try:
     Ws = load(open(str(Ws_dump_dir)))
     Cs = load(open(str(Ws_dump_dir)))
     counts = load(open(str(counts_dump_dir)))
     vocab_common = load(open(str(vocab_common_dump_dir)))
+    #Ws = ones((100, len(vocab_common), 50))
+    #Cs = ones((100, 50, len(vocab_common)))
+    #counts = ones((100, len(vocab_common)))
 except IOError:
     Ws = []
     Cs = []
@@ -83,37 +86,84 @@ except IOError:
 
 num_models = len(Ws)
 num_vocab = len(vocab_common)
+dim_old = len(Ws[0][0])
+
+dim_merge = 500
+
 logger.info("{} sub-models loaded, {} words in common vocabulary".format(num_models, len(vocab_common)))
 
 logger.info("word-wise aligned, start to merging")
 
 iteration = 10
-Wn = np.random.random((num_vocab, dim_merge))
-Cn = np.random.random((dim_merge, num_vocab))
+Wn = np.random.random((num_vocab, dim_merge))/dim_merge
+Cn = np.random.random((dim_merge, num_vocab))/dim_merge
 
-log_count_total = log(counts.sum(axis=0))
+log_count_sum = log(counts.sum(axis=0))
 
 def approach(X, Y, G):
-    learning_rat = 0.001
-    threshold = 0.0001
+    learning_rate = 0.001
+    err_threshold = 0.1
+    epsilon = 1e-9
+    beta1 = 0.9
+    beta2 = 0.9999
+
+    mX = zeros((1, dim_merge))
+    mY = zeros((dim_merge, num_vocab))
+
+    VX = zeros((1, dim_merge))+epsilon
+    VY = zeros((dim_merge, num_vocab))+epsilon
+
+    X = X.reshape((1, dim_merge))
+    Y = Y.reshape((dim_merge, num_vocab))
+
+    G = G.reshape((1, num_vocab))
+    G = expit(G)
+
     while True:
-        err = X.dot(Y) - G
-        if max(abs(err)) < threshold:
+        P = expit(X.dot(Y))
+        E = (P - G)
+        max_E = max(abs(E.reshape(num_vocab))) 
+        
+        if max_E < err_threshold:
             return X, Y
-        X -= learning_rate * err.dot(Y.T)
-        Y -= learning_rate * X.T.dot(err)
+        
+        logger.info('max error: {}'.format(max_E))
+        
+        Xahead = X-learning_rate*mX/VX
+        Yahead = Y-learning_rate*mY/VY
+        
+        Pahead = expit(Xahead.dot(Yahead))
+        Eahead = Pahead-G
+        gradient = Eahead*Pahead*(1-Pahead)
+        gradientX = gradient.dot(Y.T)
+        gradientY = X.T.dot(gradient)
+
+        mX = beta1*mX+(1-beta1)*gradientX
+        mY = beta1*mY+(1-beta1)*gradientY
+        
+        VX = beta2*VX+(1-beta2)*gradientX**2+epsilon
+        VY = beta2*VY+(1-beta2)*gradientY**2+epsilon
+        
+        X -= learning_rate * mX/VX
+        Y -= learning_rate * mY/VY
 
 for i in xrange(iteration):
     for idxw, word in enumerate(vocab_common):
-        temp = [exp(-Ws[idxm, idxw].dot(Cs[idxm])) for idxm in xrange(num_models)]
-        print temp.shape
-        print counts.shape
-        print count[0].shape
-        print count[0, idxw].shape
-        temp = [temp*counts[idxm,idxw]*counts[idxm] for idxm in xrange(num_models)]
+        temp = []
+        for idxm in xrange(num_models):
+            w = Ws[idxm, idxw].reshape((1, dim_old))
+            cs = Cs[idxm].reshape((dim_old, num_vocab))
+            temp.append(exp(-w.dot(cs)))
+        temp = array(temp)
+        for idxm in xrange(num_models):
+            count_w = counts[idxm, idxw]
+            counts_c = counts[idxm].reshape((1, num_vocab))
+            temp[idxm] *= count_w * counts_c
         temp = temp.sum(axis=0)
         lhs = -log(temp*num_models**2)
-        goal = lhs+log_count_total[idxw]+log_count_total
+        goal = lhs+log_count_sum[idxw]+log_count_sum
         Wn[idxw], Cn = approach(Wn[idxw], Cn, goal)
+        logger.info("word idx {} learning complete".format(idxw))
+    logger.info('iteration {} complete'.fomat(i))
 
 dump(dict(zip(vocab_common, Wn)), open(str(output_dir)))

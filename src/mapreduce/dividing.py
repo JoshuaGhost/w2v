@@ -4,46 +4,47 @@ from math import log
 import sys
 import copy, random
 import os
+from pathlib2 import Path
+from sampling import reservoir
+import logging
 
+original_corpus_folder = Path('.').resolve()
+original_corpus_path = original_corpus_folder/Path('article.txt')
+sub_corpora_folder = Path('/tmp/zzj').resolve()
+nsub_corpora = 100
+sub_name = 'article'
+sub_ext = 'txt'
+strategy = 'sampling'
+#nlines_origin = int(os.popen('wc '+str(original_corpus_path)).read().split()[0])
+nlines_origin = 4227933
 
-def reservoir(source, nsamples):
-    ret = []
-    for idx, sentence in enumerate(source.readlines()):
-        if len(ret)<nsamples:
-            ret.append(sentence)
-        else:
-            if int(random.uniform(0, idx)) < nsamples:
-                ret[int(random.uniform(0, nsamples))] = sentence
-    return ret
-
+FORMAT = '%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger('divider')
+logger.setLevel(logging.INFO)
 
 if __name__ == '__main__':
-    source_name = 'article.txt'
-    nparts = 100
+    size_in_byte_origin = os.stat(str(original_corpus_path)).st_size
+    nlines_sub_corpus = nlines_origin/nsub_corpora+1
+    size_in_byte_sub = size_in_byte_origin/nsub_corpora+1
 
-    nlines = int(os.popen('wc '+source_name).read().split()[0])
-    size_in_byte = os.stat(source_name).st_size
-    lines_per_part = nlines/nparts+1
-    #lines_per_part = nlines
-    byte_per_part = size_in_byte/nparts+1
+    logger.info('start to split original corpus into {} sub-corpora'.format(nsub_corpora))
 
-    out_name = 'article'
-    out_ext = 'txt'
-
-    strategy = 'sampling'
-
-    source = open(source_name, 'r')
-    for idx in range(nparts):
-        fout = open('.'.join([strategy,out_name,str(idx).zfill(int(log(nparts)/log(10)+1)),out_ext]), 'w+')
+    origin = open(str(original_corpus_path), 'r')
+    for idx in range(nsub_corpora):
+        conf = [strategy, sub_name, str(idx).zfill(int(log(nsub_corpora)/log(10)+1)), sub_ext]
+        sub_corpus_path = sub_corpora_folder/Path('.'.join(conf))
+        fsub = open(str(sub_corpus_path), 'w+')
         if strategy == 'skip':
-            source.seek(0)
-            sentences = [sentence for sentence in islice(source.readlines(), idx, None, nparts)]
+            origin.seek(0)
+            sub_corpus = [s for s in islice(origin.readlines(), idx, None, nsub_corpora)]
         elif strategy == 'sampling':
-            source.seek(0)
-            sentences = [sentence for sentence in reservoir(source, lines_per_part)]
+            origin.seek(0)
+            sub_corpus = [s for s in reservoir(origin.readlines(), nlines_sub_corpus)]
         elif strategy == 'chunk':
-            sentences = source.read(byte_per_part)
-        fout.writelines(sentences)
-        fout.close()
-    source.close()
+            sub_corpus = origin.read(size_in_byte_sub)
+        fsub.writelines(sub_corpus)
+        fsub.close()
+        logger.info('sub corpus No. {} complete'.format(idx))
+    origin.close()
 
