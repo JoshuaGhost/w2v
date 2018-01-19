@@ -4,6 +4,7 @@ from numpy import array
 from numpy import sqrt
 from numpy.linalg import eigh
 from gensim.models.word2vec import Word2Vec as w2v
+from pickle import load
 
 from multiprocessing import Pool
 
@@ -54,7 +55,7 @@ def read_wv(fname):
 def load_embeddings(folder, filename, extension, norm, arch):
     vocab = []
     vecs = []
-    fnames = os.popen('ls '+folder+filename+"*"+extension).read().split()
+    fnames = os.popen('ls '+folder+'/'+filename+"*"+extension+'|grep -v syn1neg|grep -v syn0').read().split()
     if arch == 'mapreduce':
         p = Pool(18)
         wvs = p.map(read_wv, fnames)
@@ -69,7 +70,7 @@ def load_embeddings(folder, filename, extension, norm, arch):
 
     elif arch == 'local':
         lsresult = os
-        ms=[w2v.load(fname) for fname in fnames]
+        ms = [w2v.load(fname) for fname in fnames]
         vocab = reduce(lambda x, y: x.intersection(y), [set(m.wv.vocab.keys()) for m in ms])
         vocab = list(vocab)
         if norm:
