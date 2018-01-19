@@ -2,7 +2,7 @@
 from numpy import array
 import sys
 
-NUM_SPLIT=100
+NUM_SPLIT=50
 
 currentword = None
 
