@@ -1,7 +1,7 @@
 from sampling import reservoir
 from pathlib2 import Path
 from numpy import log, sqrt, exp
-from collections import Counter
+from utils import KL_divergence, smoothen, hist2dist
 from scipy.stats import norm
 import pickle
 import logging
@@ -32,19 +32,6 @@ wlength = 10
 epsilon = 0.01
 smoothen_factor = 0.001
            
-def KL_divergence(P, Q, loggedQ=False):
-    if not loggedQ:
-        Q = [log(q) for q in Q]
-    return sum([p*(log(p)-q) if p > 0. else 0. for p,q in zip(P,Q)])
-
-def hist2dist(h):
-    s = sum(h)
-    return [float(c)/s for c in h]
-
-def smoothen(d, smoothen_factor):
-    noz = Counter(d)[0]
-    return [(1-smoothen_factor*noz)*p if p!=0 else smoothen_factor for p in d]
-
 if __name__ == '__main__':
     try:
         vocab = pickle.load(open(str(fname_vocab)))
