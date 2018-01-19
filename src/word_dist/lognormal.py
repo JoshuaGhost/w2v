@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import lognorm
 from numpy import pi, sqrt, log, exp
 from collections import Counter
+import pickle
 
 import matplotlib.pyplot as plt
 import pylab as pl
@@ -48,35 +49,37 @@ def lognorm_para_estimate(hist, include_zero=True, epsilon=10**(-13)):
 
 def smoothen(d, smoothen_factor):
     noz = Counter(d)[0]
-    return [(1-smoothen_factor*noz)*p if p!=0 else smoothen_factor for p in d]
+    s = sum(d)
+    return [(1-smoothen_factor*noz/float(s))*p if p!=0 else smoothen_factor for p in d]
 
-hist_threshold = 60
-scale = 15
-hist = [0] * hist_threshold
-for line in open('workspace/master_thesis/corpora/test.txt'):
-    wc = Counter(line.split())
-    count = wc['love']
-    if count<60:
-        hist[count]+=1
+if __name__=='__main__':
+    hist_threshold = 60
+    scale = 15
+    hist = [0] * hist_threshold
+    for line in open('workspace/master_thesis/corpora/test.txt'):
+        wc = Counter(line.split())
+        count = wc['love']
+        if count<60:
+            hist[count]+=1
 
-hist = smoothen(hist, 1)
+    hist = smoothen(hist, 1)
 
-sum_hist = sum(hist)
-dist = [h/float(sum_hist) for h in hist]
+    sum_hist = sum(hist)
+    dist = [h/float(sum_hist) for h in hist]
 
-epsilon = 0.5
-for scale in range(10, 21):
-    epsilon = 10.**(-6)
-    mu, s = lognorm_para_estimate(hist, True, epsilon)
-    p = lognorm.pdf([i for i in range(hist_threshold)], scale=exp(mu), s=s)
+    epsilon = 0.5
+    for scale in range(10, 21):
+        epsilon = 10.**(-6)
+        mu, s = lognorm_para_estimate(hist, True, epsilon)
+        p = lognorm.pdf([i for i in range(hist_threshold)], scale=exp(mu), s=s)
 
-    print KL_divergence(dist[1:], [i*scale for i in p[1:]])
-    print dist
-    print p
+        print KL_divergence(dist[1:], [i*scale for i in p[1:]])
+        print dist
+        print p
 
-    pl.figure(figsize=(10,10))
-    plt.plot([log(i*scale) for i in p[1:]], [log(i) for i in dist[1:]], 'ro')
-    plt.plot([i for i in range(-8, 0)], [i for i in range(-8, 0)], 'b-')
-    #plt.show()
-    pl.savefig('pics/scale{}.png'.format(str(scale)))
-    plt.close()
+        pl.figure(figsize=(10,10))
+        plt.plot([log(i*scale) for i in p[1:]], [log(i) for i in dist[1:]], 'ro')
+        plt.plot([i for i in range(-8, 0)], [i for i in range(-8, 0)], 'b-')
+        #plt.show()
+        pl.savefig('pics/scale{}.png'.format(str(scale)))
+        plt.close()
