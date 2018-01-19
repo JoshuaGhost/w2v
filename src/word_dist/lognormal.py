@@ -52,11 +52,16 @@ def smoothen(d, smoothen_factor):
     s = sum(d)
     return [(1-smoothen_factor*noz/float(s))*p if p!=0 else smoothen_factor for p in d]
 
-hist_threshold = 100
-scale = 15
-hdict = pickle.load(open('hist.pkl'))
-for word in hdict:
-    hist = hdict[word][:hist_threshold]
+if __name__=='__main__':
+    hist_threshold = 60
+    scale = 15
+    hist = [0] * hist_threshold
+    for line in open('workspace/master_thesis/corpora/test.txt'):
+        wc = Counter(line.split())
+        count = wc['love']
+        if count<60:
+            hist[count]+=1
+
     hist = smoothen(hist, 1)
 
     sum_hist = sum(hist)
@@ -76,5 +81,5 @@ for word in hdict:
         plt.plot([log(i*scale) for i in p[1:]], [log(i) for i in dist[1:]], 'ro')
         plt.plot([i for i in range(-8, 0)], [i for i in range(-8, 0)], 'b-')
         #plt.show()
-        pl.savefig('pics/word{}scale{}.png'.format(word, str(scale)))
+        pl.savefig('pics/scale{}.png'.format(str(scale)))
         plt.close()
