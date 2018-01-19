@@ -4,7 +4,7 @@ from gensim.models.word2vec import LineSentence
 
 import sys
 
-nparts = 100
+nparts = 50
 min_count = 100
 sub_min_count = min_count/nparts
 #sub_min_count=0

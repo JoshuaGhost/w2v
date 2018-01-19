@@ -1,6 +1,6 @@
 HOSTAME=$(uname -n)
 tempPath=$PATH
-LOCAL_OUTPUT='output/sampling'
+LOCAL_OUTPUT='output_sampling_in_mapper/sampling'
 
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
@@ -23,16 +23,16 @@ if [ ! -f env.zip ]; then
     cd ..
 fi
 
-for file in {filenames.txt,sampling.article.*.txt,mapper.py,reducer.py}; do
+for file in {filenames_sampling_in_mapper.txt,article.txt,mapper_sampling_in_mappers.py,reducer.py}; do
     hdfs dfs -test -e $file
     if [ $? -ne 0 ]; then
         hdfs dfs -put $file;
     fi;
 done
 
-hdfs dfs -test -e output
+hdfs dfs -test -e output_sampling_in_mapper
 if [ $? -eq 0 ]; then
-    hdfs dfs -rm -r output;
+    hdfs dfs -rm -r output_sampling_in_mapper;
 fi
 
 echo $HADOOP_HOME
@@ -40,22 +40,22 @@ echo $HADOOP_STREAM_JAR
 
 hadoop jar $HADOOP_STREAM_JAR\
     -archives ./env.zip#env\
-    -file filenames.txt\
-    -file mapper.py\
+    -file filenames_sampling_in_mapper.txt\
+    -file mapper_sampling_in_mappers.py\
     -file reducer.py\
-    -file sampling.article.*.txt\
-    -input filenames.txt\
-    -mapper mapper.py\
+    -file article.txt\
+    -input filenames_sampling_in_mapper.txt\
+    -mapper mapper_sampling_in_mappers.py\
     -reducer reducer.py\
-    -output output;
+    -output output_sampling_in_mapper; 1>>mapred_std_out_sampling_in_mapper 2>>mapred_std_err_sampling_in_mapper
 
-if [ -d output ]; then
-    rm -r output;
+if [ -d output_sampling_in_mapper ]; then
+    rm -r output_sampling_in_mapper;
 fi
 
-hdfs dfs -test -e output
+hdfs dfs -test -e output_sampling_in_mapper
 if [ $? -eq 0 ]; then
     mkdir -pv $LOCAL_OUTPUT
-    hdfs dfs -get output $LOCAL_OUTPUT
+    hdfs dfs -get output_sampling_in_mapper $LOCAL_OUTPUT
 fi
 PATH=$tempPath
