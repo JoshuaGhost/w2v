@@ -3816,3 +3816,12 @@
 2018-01-21 20:02:02,178: INFO: Processing 25/80 batch
 2018-01-21 20:02:17,414: INFO: Processing 33/80 batch
 2018-01-21 20:02:32,805: INFO: Processing 41/80 batch
+2018-01-21 20:02:48,017: INFO: Processing 49/80 batch
+2018-01-21 20:03:03,565: INFO: Processing 57/80 batch
+2018-01-21 20:03:19,158: INFO: Processing 65/80 batch
+2018-01-21 20:03:34,269: INFO: Processing 73/80 batch
+2018-01-21 20:03:49,658: INFO: Analogy prediction accuracy on MSR 0.212125
+2018-01-21 20:03:50,138: INFO: Analogy prediction accuracy on SemEval2012 0.133188031352
+2018-01-21 20:03:50,138: INFO: Calculating categorization benchmarks
+2018-01-21 20:03:50,973: INFO: Cluster purity on BLESS 0.625
+2018-01-21 20:03:52,436: INFO: Cluster purity on AP 0.539800995025

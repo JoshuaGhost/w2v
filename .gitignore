@@ -31,3 +31,4 @@ src/hadoop_cluster/env/
 *article.txt
 models/
 env/
+*.pkl
