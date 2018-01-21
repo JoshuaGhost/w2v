@@ -399,9 +399,9 @@ def evaluate_on_all(w, cosine_similarity):
         "AP": fetch_AP(),
         "BLESS": fetch_BLESS(),
         "Battig": fetch_battig(),
-        #"ESSLI_2c": fetch_ESSLI_2c(),
-        #"ESSLI_2b": fetch_ESSLI_2b(),
-        #"ESSLI_1a": fetch_ESSLI_1a()
+        "ESSLI_2c": fetch_ESSLI_2c(),
+        "ESSLI_2b": fetch_ESSLI_2b(),
+        "ESSLI_1a": fetch_ESSLI_1a()
     }
 
     categorization_results = {}
