@@ -3825,3 +3825,36 @@
 2018-01-21 20:03:50,138: INFO: Calculating categorization benchmarks
 2018-01-21 20:03:50,973: INFO: Cluster purity on BLESS 0.625
 2018-01-21 20:03:52,436: INFO: Cluster purity on AP 0.539800995025
+2018-01-21 20:05:22,300: INFO: Cluster purity on Battig 0.376218696234
+2018-01-21 20:05:22,571: INFO: evaluation results for merging [96, 26, 2, 3, 51, 87, 28, 81, 92, 9, 32, 22, 78, 25, 23, 62, 93, 17, 18, 94]:
+         AP  BLESS    Battig       MEN     MTurk      RG65        RW  \
+0  0.539801  0.625  0.376219  0.636621  0.603942  0.765351  0.252451   
+
+   SimLex999     WS353    WS353R    WS353S    Google       MSR  SemEval2012_2  \
+0   0.237284  0.546368  0.499597  0.638265  0.442335  0.212125       0.133188   
+
+   nsubs  
+0     20  
+2018-01-21 20:05:22,575: INFO: combination routine #4, combining [0, 41, 68, 89, 66, 74, 28, 83, 49, 9, 80, 36, 65, 21, 48, 15, 98, 69, 20, 90]
+2018-01-21 20:05:24,557: INFO: sub embeddings concatenated, start to reduce dimensions...
+2018-01-21 20:05:36,701: INFO: 20 sub models merged, new dim: 50
+2018-01-21 20:05:39,623: INFO: Calculating similarity benchmarks
+2018-01-21 20:05:39,665: WARNING: Missing 2 words. Will replace them with mean vector
+2018-01-21 20:05:39,909: INFO: Spearman correlation of scores on SimLex999 0.243445493599
+2018-01-21 20:05:39,915: WARNING: Missing 1046 words. Will replace them with mean vector
+2018-01-21 20:05:40,179: INFO: Spearman correlation of scores on RW 0.254067161961
+2018-01-21 20:05:40,181: WARNING: Missing 24 words. Will replace them with mean vector
+2018-01-21 20:05:40,386: INFO: Spearman correlation of scores on WS353 0.539737105077
+2018-01-21 20:05:40,387: WARNING: Missing 11 words. Will replace them with mean vector
+2018-01-21 20:05:40,592: INFO: Spearman correlation of scores on WS353S 0.623401887006
+2018-01-21 20:05:40,593: WARNING: Missing 16 words. Will replace them with mean vector
+2018-01-21 20:05:40,798: INFO: Spearman correlation of scores on WS353R 0.496861513849
+2018-01-21 20:05:40,805: WARNING: Missing 1 words. Will replace them with mean vector
+2018-01-21 20:05:41,079: INFO: Spearman correlation of scores on MEN 0.636699153392
+2018-01-21 20:05:41,080: WARNING: Missing 2 words. Will replace them with mean vector
+2018-01-21 20:05:41,301: INFO: Spearman correlation of scores on MTurk 0.593121469777
+2018-01-21 20:05:41,495: INFO: Spearman correlation of scores on RG65 0.755952839927
+2018-01-21 20:05:41,495: INFO: Calculating analogy benchmarks
+2018-01-21 20:05:43,098: WARNING: Missing 498 words. Will replace them with mean vector
+2018-01-21 20:05:43,099: INFO: Processing 1/196 batch
+2018-01-21 20:06:20,465: INFO: Processing 20/196 batch
