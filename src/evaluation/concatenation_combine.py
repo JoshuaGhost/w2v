@@ -21,7 +21,7 @@ logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
 logging.root.setLevel(level=logging.INFO)
 
 fvocab = './vocab_bench.txt'
-out_fname = Path('./simple_comb_eva.csv').resolve()
+out_fname = Path('./concat_eva.csv').resolve()
 
 if __name__=='__main__':
     debug = False
