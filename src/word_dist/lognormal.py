@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import lognorm
 from numpy import pi, sqrt, log, exp
 from collections import Counter
+import pickle
 
 import matplotlib.pyplot as plt
 import pylab as pl
@@ -48,7 +49,8 @@ def lognorm_para_estimate(hist, include_zero=True, epsilon=10**(-13)):
 
 def smoothen(d, smoothen_factor):
     noz = Counter(d)[0]
-    return [(1-smoothen_factor*noz)*p if p!=0 else smoothen_factor for p in d]
+    s = sum(d)
+    return [(1-smoothen_factor*noz/float(s))*p if p!=0 else smoothen_factor for p in d]
 
 if __name__=='__main__':
     hist_threshold = 60
