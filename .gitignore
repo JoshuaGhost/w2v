@@ -31,8 +31,10 @@ src/hadoop_cluster/env/
 *article*
 models/
 env/
+*.pkl
 *csv#
 *test.txt
 *corpus*
 *corpora*
 *csv#
+*ods#

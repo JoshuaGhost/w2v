@@ -3,6 +3,8 @@ from pathlib2 import Path
 from numpy import log
 import pickle
 import logging
+import pandas as pd
+from multiprocessing import Pool
 
 FORMAT="%(asctime)-15s %(message)s"
 logging.basicConfig(format=FORMAT)
@@ -14,14 +16,18 @@ nsentences = 4227933
 fname_corpus = Path("../../original_corpus/article_4227933_lines.txt").resolve()
 tmp_folder = Path('/tmp/zzj/')
 bigram_sample_factor = 0.5
+word_oname = 'samp-kld_word.csv'
+bigram_oname = 'samp-kld_bigram.csv'
 
 debug = False
 if debug:
-    denominators = [5]
-    nsentences = 10
+    denominators = [5, 10, 100]
+    nsentences = 10000
     fname_corpus = Path("../../original_corpus/test.txt").resolve()
     tmp_folder = Path('/tmp/zzjtest/')
     bigram_sample_factor = 0.75
+    word_oname = "debug_" + word_oname
+    bigram_oname = 'debug_' + bigram_oname
 
 wlength = 10
 nsamples = 10
@@ -74,7 +80,40 @@ def KL_divergence(P, Q, loggedQ=False):
 
 def hist2dist(h):
     s = sum(h)
+    if s == 0:
+        return [0. for c in h]
     return [float(c)/s for c in h]
+    
+def divergent(count, ordered_keys, Q, denominator):
+    flat_count = flatten(count, ordered_keys)
+    dist = hist2dist(flat_count)
+    kld_current = KL_divergence(P=dist, Q=Q, loggedQ=True)
+    return pd.DataFrame([['1/'+str(denominator), kld_current]], columns=['sample_size', 'KL_Divergence'])
+
+def worker(argvs):
+    d_idx = argvs[0]
+    d = argvs[1]
+    df_word = pd.DataFrame(columns=['sample_size', 'KL_Divergence_word'])
+    df_bigram = pd.DataFrame(columns=['sample_size', 'KL_Divergence_bigram'])
+    sample_size = int(nsentences/float(d))+1
+    logger.info('sample size: 1/{}th of origin'.format(d))
+    sample = reservoir(open(str(fname_corpus), 'r'), sample_size)
+    for sample_idx in range(nsamples):
+        logger.info('sample #{} of size 1/{}th'.format(sample_idx, d))
+        wc_sample = wc(sample)
+        logger.info('sample #{} of size 1/{}th, word count complete'.format(sample_idx, d))
+        df_word_current = divergent(count=wc_sample, ordered_keys=ordered_vocab, Q=wc_log_dist_origin, denominator=d)
+        logger.info('sample #{} of size 1/{}th, df_word_current calculation complete'.format(sample_idx, d))
+        df_word = df_word.append(df_word_current)
+
+        bic_sample = bic(sample, wlength, bigram_vocab)
+        logger.info('sample #{} of size 1/{}th, bigram count complete'.format(sample_idx, d))
+        df_bigram_current = divergent(count=bic_sample, ordered_keys=ordered_bigram, Q=bic_log_dist_origin, denominator=d)
+        logger.info('sample #{} of size 1/{}th, df_bigram_current calculation complete'.format(sample_idx, d))
+        df_bigram = df_bigram.append(df_bigram_current)
+
+        logger.info('sample #{} of size 1/{}th finished'.format(sample_idx, d))
+    return df_word, df_bigram
 
 if __name__ == '__main__':
     try:
@@ -105,41 +144,11 @@ if __name__ == '__main__':
     bic_dist_origin = hist2dist([float(c) for c in bic_origin])
     bic_log_dist_origin = [log(d) for d in bic_dist_origin]
 
-    kld_word = [0.]*len(denominators)
-    kld_bigram = [0.]*len(denominators)
+    pool = Pool(3)
+    dfs = pool.map(worker, enumerate(denominators))
+    
+    df_word = pd.concat(d[0] for d in dfs)
+    df_bigram = pd.concat(d[1] for d in dfs)
 
-    for sample_idx in range(nsamples):
-        logger.info('processing sample #{}...'.format(str(sample_idx)))
-        for d_idx, d in enumerate(denominators):
-            logger.info('current sample size: 1/{}th of original corpus in count of sentences'.format(str(d)))
-            sample_size = int(nsentences / float(d))
-            sample = reservoir(open(str(fname_corpus), 'r'), sample_size)
-            
-            wc_sample = wc(sample[:sample_size])
-            wc_flat = flatten(wc_sample, ordered_vocab)
-            wc_dist = hist2dist(wc_flat)
-            kld_word[d_idx] += (KL_divergence(P=wc_dist, Q=wc_log_dist_origin, loggedQ=True))
-
-            bic_sample = bic(sample[:sample_size], wlength, bigram_vocab)
-            bic_flat = flatten(bic_sample, ordered_bigram)
-            bic_dist = hist2dist(bic_flat)
-            kld_bigram[d_idx] += (KL_divergence(P=bic_dist, Q=bic_log_dist_origin, loggedQ=True))
-
-            logger.info('sample #{}, sample size: 1/{}:'.format(str(sample_idx), str(d)))
-            logger.info('average KL divergence for word so-far: {}'.format(str(kld_word[d_idx]/(sample_idx+1))))
-            logger.info('average KL divergence for bigram so-far: {}'.format(str(kld_bigram[d_idx]/(sample_idx+1))))
-
-    avg_kld_word = [k/nsamples for k in kld_word]
-    avg_kld_bigram = [k/nsamples for k in kld_bigram]
-    print avg_kld_word
-    print avg_kld_bigram
-
-    with open('samplesize-avgkldiv_word.csv', 'w+') as fout:
-        fout.write('sample_size, average_KL_divergence_word\n')
-        for d, k in zip(denominators, avg_kld_word):
-            fout.write('1/'+str(d)+', '+str(k)+'\n')
-
-    with open('samplesize-avgkldiv_bigram.csv', 'w+') as fout:
-        fout.write('sample_size, average_KL_divergence_bigram\n')
-        for d, k in zip(denominators, avg_kld_bigram):
-            fout.write('1/'+str(d)+', '+str(k)+'\n')
+    df_word.to_csv(word_oname)
+    df_bigram.to_csv(bigram_oname)

@@ -81,15 +81,14 @@ def load_embeddings(folder, filename, extension, norm, arch):
             vecs = [[m.wv.syn0[m.wv.vocab[word].index] for word in vocab] for m in ms]
         return vocab, hstack(vecs)
 
-def dim_reduce(vocab, vecs, new_dim, mean_corr):
+def dim_reduce(vecs, eigval_threshold, mean_corr):
     ms = None
     if mean_corr:
-        vecs_mean_corr = vecs-(vecs.sum(axis=0).reshape((1,vecs.shape[1])))/vecs.shape[0]
-    cov = vecs.transpose().dot(vecs)
+        vecs = vecs-vecs.mean(axis=0)
+    cov = vecs.T.dot(vecs)
     evalues, bases = eigh(cov)
-    bases = bases[-new_dim:]
-    evalues = evalues[-new_dim:]
-    vecs = array(vecs)
-    vecs = vecs.dot(bases.transpose())
-    return vocab, vecs
+    evalues = sqrt(evalues)
+    bases = bases[evalues>eigval_threshold]
+    vecs = vecs.dot(bases.T)
+    return vecs
 

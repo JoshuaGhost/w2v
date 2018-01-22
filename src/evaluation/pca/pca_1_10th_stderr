@@ -3055,3 +3055,149 @@
 2018-01-19 15:25:10,557: INFO: Processing 17/80 batch
 2018-01-19 15:25:23,611: INFO: Processing 25/80 batch
 2018-01-19 15:25:37,578: INFO: Processing 33/80 batch
+2018-01-19 15:25:51,963: INFO: Processing 41/80 batch
+2018-01-19 15:26:06,348: INFO: Processing 49/80 batch
+2018-01-19 15:26:20,740: INFO: Processing 57/80 batch
+2018-01-19 15:26:35,219: INFO: Processing 65/80 batch
+2018-01-19 15:26:49,116: INFO: Processing 73/80 batch
+2018-01-19 15:27:05,229: INFO: Analogy prediction accuracy on MSR 0.332875
+2018-01-19 15:27:06,145: INFO: Analogy prediction accuracy on SemEval2012 0.145248925572
+2018-01-19 15:27:06,146: INFO: Calculating categorization benchmarks
+2018-01-19 15:27:06,767: INFO: Cluster purity on ESSLI_2c 0.555555555556
+2018-01-19 15:27:07,246: INFO: Cluster purity on ESSLI_2b 0.7
+2018-01-19 15:29:22,568: INFO: Cluster purity on Battig 0.417702160199
+2018-01-19 15:29:22,698: INFO: Cluster purity on ESSLI_1a 0.727272727273
+2018-01-19 15:29:23,290: INFO: Cluster purity on BLESS 0.77
+2018-01-19 15:29:24,309: INFO: Cluster purity on AP 0.592039800995
+2018-01-19 15:29:24,346: INFO: evaluation results for merging [0, 1, 2, 8, 4, 5, 6, 7]:
+        AP  BLESS    Battig  ESSLI_1a  ESSLI_2b  ESSLI_2c       MEN     MTurk  \
+0  0.59204   0.77  0.417702  0.727273       0.7  0.555556  0.706832  0.614333   
+
+       RG65        RW  SimLex999    WS353    WS353R    WS353S    Google  \
+0  0.723367  0.200786   0.304613  0.58461  0.538626  0.641185  0.581764   
+
+        MSR  SemEval2012_2  nsubs  
+0  0.332875       0.145249      8  
+2018-01-19 15:29:24,349: INFO: combination routine #9, combining [0, 1, 2, 3, 8, 5, 6, 9]
+2018-01-19 15:29:26,605: INFO: sub embeddings concatenated, start to reduce dimensions...
+2018-01-19 15:31:05,049: INFO: 8 sub models merged, new dim: 500
+2018-01-19 15:31:08,551: INFO: Calculating similarity benchmarks
+2018-01-19 15:31:08,625: WARNING: Missing 1 words. Will replace them with mean vector
+2018-01-19 15:31:08,795: INFO: Spearman correlation of scores on SimLex999 0.309329215515
+2018-01-19 15:31:08,806: WARNING: Missing 779 words. Will replace them with mean vector
+2018-01-19 15:31:09,107: INFO: Spearman correlation of scores on RW 0.191478660468
+2018-01-19 15:31:09,109: WARNING: Missing 24 words. Will replace them with mean vector
+2018-01-19 15:31:09,230: INFO: Spearman correlation of scores on WS353 0.591395208625
+2018-01-19 15:31:09,231: WARNING: Missing 11 words. Will replace them with mean vector
+2018-01-19 15:31:09,350: INFO: Spearman correlation of scores on WS353S 0.644865953854
+2018-01-19 15:31:09,351: WARNING: Missing 16 words. Will replace them with mean vector
+2018-01-19 15:31:09,473: INFO: Spearman correlation of scores on WS353R 0.561044787528
+2018-01-19 15:31:09,797: INFO: Spearman correlation of scores on MEN 0.690930622745
+2018-01-19 15:31:09,799: WARNING: Missing 2 words. Will replace them with mean vector
+2018-01-19 15:31:09,924: INFO: Spearman correlation of scores on MTurk 0.679051905411
+2018-01-19 15:31:10,030: INFO: Spearman correlation of scores on RG65 0.784474001455
+2018-01-19 15:31:10,031: INFO: Calculating analogy benchmarks
+2018-01-19 15:31:12,536: WARNING: Missing 90 words. Will replace them with mean vector
+2018-01-19 15:31:12,537: INFO: Processing 1/196 batch
+2018-01-19 15:31:37,594: INFO: Processing 20/196 batch
+2018-01-19 15:32:02,273: INFO: Processing 39/196 batch
+2018-01-19 15:32:24,609: INFO: Processing 58/196 batch
+2018-01-19 15:32:48,796: INFO: Processing 77/196 batch
+2018-01-19 15:33:16,487: INFO: Processing 96/196 batch
+2018-01-19 15:33:43,148: INFO: Processing 115/196 batch
+2018-01-19 15:34:08,273: INFO: Processing 134/196 batch
+2018-01-19 15:34:32,184: INFO: Processing 153/196 batch
+2018-01-19 15:34:54,785: INFO: Processing 172/196 batch
+2018-01-19 15:35:21,605: INFO: Processing 191/196 batch
+2018-01-19 15:35:30,483: INFO: Analogy prediction accuracy on Google 0.583043389275
+2018-01-19 15:35:31,095: WARNING: Missing 1048 words. Will replace them with mean vector
+2018-01-19 15:35:31,096: INFO: Processing 1/80 batch
+2018-01-19 15:35:41,649: INFO: Processing 9/80 batch
+2018-01-19 15:35:53,786: INFO: Processing 17/80 batch
+2018-01-19 15:36:06,093: INFO: Processing 25/80 batch
+2018-01-19 15:36:15,718: INFO: Processing 33/80 batch
+2018-01-19 15:36:26,215: INFO: Processing 41/80 batch
+2018-01-19 15:36:36,500: INFO: Processing 49/80 batch
+2018-01-19 15:36:48,701: INFO: Processing 57/80 batch
+2018-01-19 15:37:02,930: INFO: Processing 65/80 batch
+2018-01-19 15:37:12,191: INFO: Processing 73/80 batch
+2018-01-19 15:37:20,288: INFO: Analogy prediction accuracy on MSR 0.337875
+2018-01-19 15:37:20,613: INFO: Analogy prediction accuracy on SemEval2012 0.175445577924
+2018-01-19 15:37:20,613: INFO: Calculating categorization benchmarks
+2018-01-19 15:37:20,871: INFO: Cluster purity on ESSLI_2c 0.555555555556
+2018-01-19 15:37:21,013: INFO: Cluster purity on ESSLI_2b 0.75
+2018-01-19 15:39:01,924: INFO: Cluster purity on Battig 0.411967119098
+2018-01-19 15:39:02,110: INFO: Cluster purity on ESSLI_1a 0.795454545455
+2018-01-19 15:39:02,633: INFO: Cluster purity on BLESS 0.795
+2018-01-19 15:39:03,676: INFO: Cluster purity on AP 0.567164179104
+2018-01-19 15:39:03,714: INFO: evaluation results for merging [0, 1, 2, 3, 8, 5, 6, 9]:
+         AP  BLESS    Battig  ESSLI_1a  ESSLI_2b  ESSLI_2c       MEN  \
+0  0.567164  0.795  0.411967  0.795455      0.75  0.555556  0.690931   
+
+      MTurk      RG65        RW  SimLex999     WS353    WS353R    WS353S  \
+0  0.679052  0.784474  0.191479   0.309329  0.591395  0.561045  0.644866   
+
+     Google       MSR  SemEval2012_2  nsubs  
+0  0.583043  0.337875       0.175446      8  
+2018-01-19 15:39:03,719: INFO: count of sub-models to be combined: 10
+2018-01-19 15:39:03,719: INFO: combination routine #0, combining [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+2018-01-19 15:39:07,452: INFO: sub embeddings concatenated, start to reduce dimensions...
+2018-01-19 15:42:13,766: INFO: 10 sub models merged, new dim: 500
+2018-01-19 15:42:17,450: INFO: Calculating similarity benchmarks
+2018-01-19 15:42:17,530: WARNING: Missing 1 words. Will replace them with mean vector
+2018-01-19 15:42:17,732: INFO: Spearman correlation of scores on SimLex999 0.300806752484
+2018-01-19 15:42:17,744: WARNING: Missing 779 words. Will replace them with mean vector
+2018-01-19 15:42:18,041: INFO: Spearman correlation of scores on RW 0.198829013201
+2018-01-19 15:42:18,043: WARNING: Missing 24 words. Will replace them with mean vector
+2018-01-19 15:42:18,204: INFO: Spearman correlation of scores on WS353 0.588517955532
+2018-01-19 15:42:18,206: WARNING: Missing 11 words. Will replace them with mean vector
+2018-01-19 15:42:18,324: INFO: Spearman correlation of scores on WS353S 0.622865357063
+2018-01-19 15:42:18,325: WARNING: Missing 16 words. Will replace them with mean vector
+2018-01-19 15:42:18,486: INFO: Spearman correlation of scores on WS353R 0.56623066706
+2018-01-19 15:42:18,843: INFO: Spearman correlation of scores on MEN 0.70127970295
+2018-01-19 15:42:18,845: WARNING: Missing 2 words. Will replace them with mean vector
+2018-01-19 15:42:18,989: INFO: Spearman correlation of scores on MTurk 0.630778493113
+2018-01-19 15:42:19,108: INFO: Spearman correlation of scores on RG65 0.753461336161
+2018-01-19 15:42:19,108: INFO: Calculating analogy benchmarks
+2018-01-19 15:42:21,799: WARNING: Missing 90 words. Will replace them with mean vector
+2018-01-19 15:42:21,799: INFO: Processing 1/196 batch
+2018-01-19 15:42:47,455: INFO: Processing 20/196 batch
+2018-01-19 15:43:15,628: INFO: Processing 39/196 batch
+2018-01-19 15:43:41,698: INFO: Processing 58/196 batch
+2018-01-19 15:44:04,982: INFO: Processing 77/196 batch
+2018-01-19 15:44:31,990: INFO: Processing 96/196 batch
+2018-01-19 15:44:51,469: INFO: Processing 115/196 batch
+2018-01-19 15:45:09,259: INFO: Processing 134/196 batch
+2018-01-19 15:45:31,226: INFO: Processing 153/196 batch
+2018-01-19 15:45:55,400: INFO: Processing 172/196 batch
+2018-01-19 15:46:21,314: INFO: Processing 191/196 batch
+2018-01-19 15:46:30,968: INFO: Analogy prediction accuracy on Google 0.570661072452
+2018-01-19 15:46:31,708: WARNING: Missing 1048 words. Will replace them with mean vector
+2018-01-19 15:46:31,709: INFO: Processing 1/80 batch
+2018-01-19 15:46:44,209: INFO: Processing 9/80 batch
+2018-01-19 15:46:57,322: INFO: Processing 17/80 batch
+2018-01-19 15:47:07,722: INFO: Processing 25/80 batch
+2018-01-19 15:47:17,881: INFO: Processing 33/80 batch
+2018-01-19 15:47:27,808: INFO: Processing 41/80 batch
+2018-01-19 15:47:38,016: INFO: Processing 49/80 batch
+2018-01-19 15:47:47,828: INFO: Processing 57/80 batch
+2018-01-19 15:48:00,964: INFO: Processing 65/80 batch
+2018-01-19 15:48:11,131: INFO: Processing 73/80 batch
+2018-01-19 15:48:19,347: INFO: Analogy prediction accuracy on MSR 0.331125
+2018-01-19 15:48:19,692: INFO: Analogy prediction accuracy on SemEval2012 0.165983112902
+2018-01-19 15:48:19,693: INFO: Calculating categorization benchmarks
+2018-01-19 15:48:19,925: INFO: Cluster purity on ESSLI_2c 0.644444444444
+2018-01-19 15:48:20,092: INFO: Cluster purity on ESSLI_2b 0.7
+2018-01-19 15:50:07,715: INFO: Cluster purity on Battig 0.409290766584
+2018-01-19 15:50:07,849: INFO: Cluster purity on ESSLI_1a 0.795454545455
+2018-01-19 15:50:08,706: INFO: Cluster purity on BLESS 0.795
+2018-01-19 15:50:10,547: INFO: Cluster purity on AP 0.569651741294
+2018-01-19 15:50:10,582: INFO: evaluation results for merging [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+         AP  BLESS    Battig  ESSLI_1a  ESSLI_2b  ESSLI_2c      MEN     MTurk  \
+0  0.569652  0.795  0.409291  0.795455       0.7  0.644444  0.70128  0.630778   
+
+       RG65        RW  SimLex999     WS353    WS353R    WS353S    Google  \
+0  0.753461  0.198829   0.300807  0.588518  0.566231  0.622865  0.570661   
+
+        MSR  SemEval2012_2  nsubs  
+0  0.331125       0.165983     10  
