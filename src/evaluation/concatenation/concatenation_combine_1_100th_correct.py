@@ -22,34 +22,32 @@ logging.root.setLevel(level=logging.INFO)
 debug = False 
 cosine_similarity = False
 
-n_subs_total = 10
+n_subs_total = 100
 n_subs_step = 12
 n_subs_min = 2
 dim_sub = 500
 dim_merge = 500
-n_comb = 5
+n_comb = 6
 
 if debug:
     n_subs_step = 90
     n_comb = 1
 
-work_folder = Path('../../../models/sampling_10/').resolve()
-#work_folder = Path('../../../models/sampling_100/').resolve()
+work_folder = Path('../../../models/sampling_100/').resolve()
 subs_folder = (work_folder/Path('subs')).resolve()
-filename = 'sub_'
-#filename = 'part-'
+filename = 'part-'
 extension = ''
 
-out_fname = Path('./sampling_1_10th_concat_correct.csv').resolve()
+out_fname = Path('./sampling_1_100th_concat_correct.csv').resolve()
 
 logger.info('start to collect embeddings')
 try:
-    vocab = pickle.load(open('vocab_1_10th.pkl'))
-    vecs = pickle.load(open('vecs_1_10th.pkl'))
+    vocab = pickle.load(open('vocab_1_100th.pkl'))
+    vecs = pickle.load(open('vecs_1_100th.pkl'))
 except IOError:
-    vocab, vecs = load_embeddings(folder=str(subs_folder), filename=filename, extension=extension, norm=True, arch='local')
-    pickle.dump(vocab, open('vocab_1_10th.pkl', 'w+'))
-    pickle.dump(vecs, open('vecs_1_10th.pkl', 'w+'))
+    vocab, vecs = load_embeddings(folder=str(subs_folder), filename=filename, extension=extension, norm=True, arch='mapreduce')
+    pickle.dump(vocab, open('vocab_1_100th.pkl', 'w+'))
+    pickle.dump(vecs, open('vecs_1_100th.pkl', 'w+'))
 
 logger.info('embeddings collected, in total {} word vectors loaded'.format(len(vecs)))
 
@@ -70,15 +68,12 @@ pool = Pool(min(n_comb, 18))
 if __name__=='__main__':
     results_total = pd.DataFrame()
 
-    #n_subs_list = [i for i in xrange(n_subs_min, n_subs_total+1, n_subs_step)]
-    #n_subs_list = [1,] + n_subs_list
-    n_subs_list = [10,]
-    #n_subs_list += [i for i in xrange(10, 101, 10)]
-
+    n_subs_list = [70, 50, 20, 10, 5]
+    n_comb = 3
     for n_subs in n_subs_list:
         logger.info('count of sub-models to be combined: {}'.format(n_subs))
-        if n_subs == n_subs_total:
-            n_comb = 1
+        if n_subs == 5:
+            n_comb = 5
         idx_lists = [reservoir([idx for idx in range(n_subs_total)], n_subs) for i in xrange(n_comb)]
         argvs_list = zip(xrange(n_comb), idx_lists)
         results = pool.map(worker, argvs_list)
@@ -86,6 +81,7 @@ if __name__=='__main__':
         print results
         results_total = results_total.append(results)
         results_total.to_csv(str(out_fname))
+
 
     print results_total
     results_total.to_csv(str(out_fname))

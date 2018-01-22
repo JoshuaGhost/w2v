@@ -50,6 +50,9 @@ def read_wv(fname):
         word, vec = map(eval, line.split(':'))
         vocab.append(word)
         vecs.append(vec)
+    vecs = array(vecs)
+    for i in xrange(vecs.shape[0]):
+        vecs[i,:]/= sqrt((vecs[i,:]**2).sum(-1))
     return vocab, vecs
 
 def load_embeddings(folder, filename, extension, norm, arch):
@@ -63,9 +66,9 @@ def load_embeddings(folder, filename, extension, norm, arch):
         vocab = reduce(list.__add__, vocab)
         vecs = [wv[1] for wv in wvs]
         vecs = vstack(array(vecs))
-        if norm:
-            for i in xrange(vecs.shape[0]):
-                vecs[i,:] /= sqrt((vecs[i, :] ** 2).sum(-1))
+        #if norm:
+        #    for i in xrange(vecs.shape[0]):
+        #        vecs[i,:] /= sqrt((vecs[i, :] ** 2).sum(-1))
         return vocab, vecs
 
     elif arch == 'local':
