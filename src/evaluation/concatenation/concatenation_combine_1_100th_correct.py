@@ -23,10 +23,7 @@ debug = False
 cosine_similarity = False
 
 n_subs_total = 100
-n_subs_step = 12
-n_subs_min = 2
-dim_sub = 500
-dim_merge = 500
+dim_sub = 50
 n_comb = 6
 
 if debug:
@@ -38,7 +35,7 @@ subs_folder = (work_folder/Path('subs')).resolve()
 filename = 'part-'
 extension = ''
 
-out_fname = Path('./sampling_1_100th_concat_correct.csv').resolve()
+out_fname = Path('./sampling_1_100th_concat_correct_part3.csv').resolve()
 
 logger.info('start to collect embeddings')
 try:
@@ -68,12 +65,12 @@ pool = Pool(min(n_comb, 18))
 if __name__=='__main__':
     results_total = pd.DataFrame()
 
-    n_subs_list = [70, 50, 20, 10, 5]
-    n_comb = 3
+    n_subs_list = [100, 70, 50, 20, 10, 5]
     for n_subs in n_subs_list:
+        n_comb = 6
+        if n_subs == 100:
+            n_comb = 1
         logger.info('count of sub-models to be combined: {}'.format(n_subs))
-        if n_subs == 5:
-            n_comb = 5
         idx_lists = [reservoir([idx for idx in range(n_subs_total)], n_subs) for i in xrange(n_comb)]
         argvs_list = zip(xrange(n_comb), idx_lists)
         results = pool.map(worker, argvs_list)
@@ -81,7 +78,6 @@ if __name__=='__main__':
         print results
         results_total = results_total.append(results)
         results_total.to_csv(str(out_fname))
-
 
     print results_total
     results_total.to_csv(str(out_fname))
