@@ -1,7 +1,7 @@
 from sampling import reservoir
 from pathlib2 import Path
 from numpy import log, sqrt, exp
-from collections import Counter
+from utils import KL_divergence, smoothen, hist2dist
 from scipy.stats import norm
 
 from lognormal import KL_divergence, lognorm_para_estimate, smoothen
