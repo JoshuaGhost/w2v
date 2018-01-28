@@ -1,4 +1,5 @@
 from numpy import random
+
 def reservoir(population, nsamples):
     samples = []
     for idx, item in enumerate(population):

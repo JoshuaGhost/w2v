@@ -16,14 +16,17 @@ nsentences = 4227933
 fname_corpus = Path("../../original_corpus/article_4227933_lines.txt").resolve()
 tmp_folder = Path('/tmp/zzj/')
 bigram_sample_factor = 0.5
-
-debug = False 
+word_oname = 'part-kld_word.csv'
+bigram_oname = 'part-kld_bigram.csv'
+debug = True
 if debug:
     denominators = [5, 10, 100]
     nsentences = 10000
     fname_corpus = Path("../../original_corpus/test.txt").resolve()
     tmp_folder = Path('/tmp/zzjtest/')
     bigram_sample_factor = 0.75
+    word_oname = 'debug_' + word_oname
+    bigram_oname = 'debug_' + bigram_oname
 
 wlength = 10
 nsamples = 10
@@ -114,6 +117,8 @@ def worker(argvs):
             logger.info('partition index: {}, sample size: 1/{}th finished'.format(str(partition_idx), str(d)))
             partition_idx += 1
             partition = []
+            if partition_idx == 10:
+                break
         else:
             pass
     else:
@@ -195,5 +200,5 @@ if __name__ == '__main__':
     df_word = pd.concat([d[0] for d in dfs])
     df_bigram = pd.concat([d[1] for d in dfs])
 
-    df_word.to_csv('partitionsize-df_word.csv')
-    df_bigram.to_csv('partitionsize-df_bigram.csv')
+    df_word.to_csv(word_oname)
+    df_bigram.to_csv(bigram_oname)
