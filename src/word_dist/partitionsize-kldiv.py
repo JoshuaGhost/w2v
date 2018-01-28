@@ -189,7 +189,7 @@ if __name__ == '__main__':
                 
                 logger.info('partition index: {}, sample size: 1/{}th finished'.format(str(partition_idx), str(d)))
     '''
-    pool = Pool(3)
+    pool = Pool(32)
     dfs = pool.map(worker, enumerate(denominators))
     #dfs = map(worker, enumerate(denominators))
     df_word = pd.concat([d[0] for d in dfs])

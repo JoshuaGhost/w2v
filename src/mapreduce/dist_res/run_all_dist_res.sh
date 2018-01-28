@@ -1,12 +1,14 @@
 HOSTAME=$(uname -n)
 tempPath=$PATH
 
-EXP_NAME='dist_res'
+EXP_NAME='dist_res_100'
 INPUT='filenames_'${EXP_NAME}'.txt'
-MAPPER='mapper_'${EXP_NAME}'.py 100'
-REDUCER='reducer_'${EXP_NAME}'.py 100'
+MAPPER='mapper_'${EXP_NAME}'.py'
+REDUCER='reducer_'${EXP_NAME}'.py'
 OUTPUT_FOLDER='output_'${EXP_NAME}
 FILES_PREFIX='article_split'
+STD_OUT=${EXP_NAME}"_stdout"
+STD_ERR=${EXP_NAME}"_stderr"
 
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
@@ -45,14 +47,14 @@ echo $HADOOP_HOME
 echo $HADOOP_STREAM_JAR
 
 hadoop jar $HADOOP_STREAM_JAR\
-    -archives ./env.zip#env\
+    -Dmapreduce.job.maps=10 -Dmapreduce.job.reduces=1 -archives ./env.zip#env\
     -file $INPUT\
-    -file $MAPPER\
-    -file $REDUCER\
+    -file ${MAPPER}\
+    -file ${REDUCER}\
     -file ${FILE_PREFIX}*\
     -input $INPUT\
-    -mapper $MAPPER\
-    -reducer $REDUCER\
+    -mapper "${MAPPER} 422790"\
+    -reducer "${REDUCER} 422790"\
     -output $OUTPUT_FOLDER; 1>>$STD_OUT 2>>$STD_ERR
 
 if [ -d $OUTPUT_FOLDER ]; then

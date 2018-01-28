@@ -5,13 +5,11 @@ from gensim.models.word2vec import LineSentence
 import sys
 
 if __name__ == '__main__':
-    #nparts = int(sys.argv[1])
-    #min_count = 100
-    #sub_min_count = 100/nparts
+    nparts = int(sys.argv[1])
+    min_count = 100
+    sub_min_count = 100/nparts
     n_ns = 5
-    #dim = 500
-    dim = int(sys.argv[1])
-    sub_min_count = int(sys.argv[2])
+    dim = 5000/nparts
     for task in sys.stdin:
         idx, corpus = task.split('#')
         idx = idx.strip()
@@ -28,7 +26,7 @@ if __name__ == '__main__':
                     sample = 1e-4)
 
         for word in m.wv.vocab:
-            embedding = repr(word.strip()) #repr() is needed because of non-ascii chars in corpus, thus the word in output are all like u'word'
-            embedding += '?'+idx+'?'
+            embedding = repr(word.strip())+'\t' #repr() is needed because of non-ascii chars in corpus, thus the word in output are all like u'word'
+            embedding += idx+'#'
             embedding += str(m.wv[word].tolist())[1:-1]
             print embedding

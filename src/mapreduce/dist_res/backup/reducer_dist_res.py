@@ -10,8 +10,8 @@ for line in sys.stdin:
     l = line.strip()
     if len(l) == 0: #debug in localhost, sorting produces multiple empty lines
         continue
-    (key, val) = line.split('\t', 1)
-    print val,
+    (r, x) = line.split('\t', 1)
+    print x,
     c += 1
     if c == k:
         break

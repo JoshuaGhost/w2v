@@ -8,10 +8,10 @@ import time
 from pathlib2 import Path
 
 strategy = 'sampling'
-nparts = 50
-origin_corpus_folder = Path('corpus').resolve()
-origin_corpus_fname = origin_corpus_folder/Path('article.txt')
-work_path = Path('subcorpora').resolve()
+nparts = 10
+origin_corpus_folder = Path('../').resolve()
+origin_corpus_fname = origin_corpus_folder/Path('article_4227933_lines.txt')
+work_path = Path('../subcorpora').resolve()
 work_path = work_path/Path(strategy+'_'+str(nparts))
 fname_time = work_path/Path('time.csv')
 sub_corpora_path = work_path/Path('sub_corpora')
