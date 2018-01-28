@@ -18,7 +18,7 @@ def read_wv(fname):
         vecs.append(vec)
     return vocab, vecs
 
-def load_embeddings(folder, filename, extension, norm, arch):
+def load_embeddings(folder, filename, extension, norm, arch, selected=None):
     vocab = []
     vecs = []
     fnames = os.popen('ls '+folder+'/'+filename+"*"+extension+'|grep -v syn1neg|grep -v syn0').read().split()
@@ -46,6 +46,18 @@ def load_embeddings(folder, filename, extension, norm, arch):
         else:
             vecs = [[m.wv.syn0[m.wv.vocab[word].index] for word in vocab] for m in ms]
         return vocab, hstack(vecs)
+
+    elif arch == 'submodels':
+        p = Pool(10)
+        fnames = [folder+'/'+filename+str(i)+extension for i in selected]
+        wvs = p.map(read_wv, fnames)
+        vocab = wvs[0][0]
+        vecs = [wv[1] for wv in wvs]
+        vecs = hstack(array(vecs))
+        if norm:
+            for i in xrange(vecs.shape[0]):
+                vecs[i, :] /= sqrt((vecs[i, :] ** 2).sum(-1))
+        return vocab, vecs
 
 def dim_reduce(vecs, eigval_threshold, mean_corr):
     ms = None
