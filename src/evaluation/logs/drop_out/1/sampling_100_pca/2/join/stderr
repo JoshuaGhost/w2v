@@ -1,0 +1,121 @@
+2018-02-07 19:59:51,537: INFO: [NEW]Start to evaluate sampling_100_pca on vocabulary join
+2018-02-07 20:00:03,488: INFO: Calculating similarity benchmarks on words words_demanded
+2018-02-07 20:01:16,082: INFO: [WM]Failed to answer 1 questions.
+2018-02-07 20:01:16,088: WARNING: Missing 1 words. Will replace them with mean vector
+2018-02-07 20:01:18,106: INFO: Spearman correlation of scores of 998 out of 999 word pairs of SimLex999: 0.247998515673
+2018-02-07 20:04:34,162: INFO: [WM]Failed to answer 531 questions.
+2018-02-07 20:04:34,186: WARNING: Missing 428 words. Will replace them with mean vector
+/home/zijian/workspace/master_thesis/w2v/src/evaluation/web/evaluate.py:341: RuntimeWarning: divide by zero encountered in double_scalars
+  scores = np.array([1/np.sqrt((v**2).sum()) for v in (A-B)])
+2018-02-07 20:04:36,563: INFO: Spearman correlation of scores of 1503 out of 2034 word pairs of RW: 0.295143200249
+2018-02-07 20:05:08,124: INFO: [WM]Failed to answer 18 questions.
+2018-02-07 20:05:09,946: INFO: Spearman correlation of scores of 335 out of 353 word pairs of WS353: 0.562567939157
+2018-02-07 20:05:28,050: INFO: [WM]Failed to answer 7 questions.
+2018-02-07 20:05:29,021: INFO: Spearman correlation of scores of 196 out of 203 word pairs of WS353S: 0.655547073338
+2018-02-07 20:05:51,118: INFO: [WM]Failed to answer 14 questions.
+2018-02-07 20:05:51,666: INFO: Spearman correlation of scores of 238 out of 252 word pairs of WS353R: 0.508902218361
+2018-02-07 20:09:37,943: INFO: [WM]Failed to answer 0 questions.
+2018-02-07 20:09:37,954: WARNING: Missing 1 words. Will replace them with mean vector
+2018-02-07 20:09:39,798: INFO: Spearman correlation of scores of 3000 out of 3000 word pairs of MEN: 0.643433436567
+2018-02-07 20:10:01,118: INFO: [WM]Failed to answer 2 questions.
+2018-02-07 20:10:02,181: INFO: Spearman correlation of scores of 285 out of 287 word pairs of MTurk: 0.612736497133
+2018-02-07 20:10:07,559: INFO: [WM]Failed to answer 0 questions.
+2018-02-07 20:10:08,617: INFO: Spearman correlation of scores of 65 out of 65 word pairs of RG65: 0.743014504582
+2018-02-07 20:10:08,618: INFO: Calculating analogy benchmarks
+2018-02-07 20:14:37,115: INFO: [WM]Failed to answer 19544 questions.
+/home/zijian/workspace/master_thesis/w2v/env/lib/python2.7/site-packages/numpy/core/fromnumeric.py:2909: RuntimeWarning: Mean of empty slice.
+  out=out, **kwargs)
+/home/zijian/workspace/master_thesis/w2v/env/lib/python2.7/site-packages/numpy/core/_methods.py:80: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+2018-02-07 20:14:39,084: INFO: Analogy prediction accuracy on Google nan
+2018-02-07 20:16:30,895: INFO: [WM]Failed to answer 8000 questions.
+2018-02-07 20:16:33,061: INFO: Analogy prediction accuracy on MSR nan
+2018-02-07 20:16:33,797: INFO: [WM]Failed to answer 78 questions.
+2018-02-07 20:16:34,778: INFO: [WM]Failed to answer 77 questions.
+2018-02-07 20:16:35,512: INFO: [WM]Failed to answer 76 questions.
+2018-02-07 20:16:36,056: INFO: [WM]Failed to answer 75 questions.
+2018-02-07 20:16:36,477: INFO: [WM]Failed to answer 74 questions.
+2018-02-07 20:16:37,016: INFO: [WM]Failed to answer 73 questions.
+2018-02-07 20:16:37,528: INFO: [WM]Failed to answer 72 questions.
+2018-02-07 20:16:37,988: INFO: [WM]Failed to answer 71 questions.
+2018-02-07 20:16:38,313: INFO: [WM]Failed to answer 70 questions.
+2018-02-07 20:16:38,640: INFO: [WM]Failed to answer 69 questions.
+2018-02-07 20:16:39,179: INFO: [WM]Failed to answer 68 questions.
+2018-02-07 20:16:39,715: INFO: [WM]Failed to answer 67 questions.
+2018-02-07 20:16:40,225: INFO: [WM]Failed to answer 66 questions.
+2018-02-07 20:16:40,724: INFO: [WM]Failed to answer 65 questions.
+2018-02-07 20:16:41,380: INFO: [WM]Failed to answer 64 questions.
+2018-02-07 20:16:41,911: INFO: [WM]Failed to answer 63 questions.
+2018-02-07 20:16:42,463: INFO: [WM]Failed to answer 62 questions.
+2018-02-07 20:16:42,846: INFO: [WM]Failed to answer 61 questions.
+2018-02-07 20:16:43,403: INFO: [WM]Failed to answer 60 questions.
+2018-02-07 20:16:43,773: INFO: [WM]Failed to answer 59 questions.
+2018-02-07 20:16:44,153: INFO: [WM]Failed to answer 58 questions.
+2018-02-07 20:16:44,514: INFO: [WM]Failed to answer 57 questions.
+2018-02-07 20:16:44,745: INFO: [WM]Failed to answer 56 questions.
+2018-02-07 20:16:45,081: INFO: [WM]Failed to answer 55 questions.
+2018-02-07 20:16:45,352: INFO: [WM]Failed to answer 54 questions.
+2018-02-07 20:16:45,673: INFO: [WM]Failed to answer 53 questions.
+2018-02-07 20:16:45,997: INFO: [WM]Failed to answer 52 questions.
+2018-02-07 20:16:46,357: INFO: [WM]Failed to answer 51 questions.
+2018-02-07 20:16:46,704: INFO: [WM]Failed to answer 50 questions.
+2018-02-07 20:16:47,020: INFO: [WM]Failed to answer 49 questions.
+2018-02-07 20:16:47,405: INFO: [WM]Failed to answer 48 questions.
+2018-02-07 20:16:47,836: INFO: [WM]Failed to answer 47 questions.
+2018-02-07 20:16:48,243: INFO: [WM]Failed to answer 46 questions.
+2018-02-07 20:16:48,779: INFO: [WM]Failed to answer 45 questions.
+2018-02-07 20:16:49,380: INFO: [WM]Failed to answer 44 questions.
+2018-02-07 20:16:49,930: INFO: [WM]Failed to answer 43 questions.
+2018-02-07 20:16:50,352: INFO: [WM]Failed to answer 42 questions.
+2018-02-07 20:16:50,920: INFO: [WM]Failed to answer 41 questions.
+2018-02-07 20:16:51,445: INFO: [WM]Failed to answer 40 questions.
+2018-02-07 20:16:52,003: INFO: [WM]Failed to answer 39 questions.
+2018-02-07 20:16:52,705: INFO: [WM]Failed to answer 38 questions.
+2018-02-07 20:16:53,188: INFO: [WM]Failed to answer 37 questions.
+2018-02-07 20:16:53,765: INFO: [WM]Failed to answer 36 questions.
+2018-02-07 20:16:54,389: INFO: [WM]Failed to answer 35 questions.
+2018-02-07 20:16:55,028: INFO: [WM]Failed to answer 34 questions.
+2018-02-07 20:16:55,576: INFO: [WM]Failed to answer 33 questions.
+2018-02-07 20:16:56,177: INFO: [WM]Failed to answer 32 questions.
+2018-02-07 20:16:56,717: INFO: [WM]Failed to answer 31 questions.
+2018-02-07 20:16:57,247: INFO: [WM]Failed to answer 30 questions.
+2018-02-07 20:16:57,816: INFO: [WM]Failed to answer 29 questions.
+2018-02-07 20:16:58,380: INFO: [WM]Failed to answer 28 questions.
+2018-02-07 20:16:58,861: INFO: [WM]Failed to answer 27 questions.
+2018-02-07 20:16:59,324: INFO: [WM]Failed to answer 26 questions.
+2018-02-07 20:16:59,632: INFO: [WM]Failed to answer 25 questions.
+2018-02-07 20:16:59,941: INFO: [WM]Failed to answer 24 questions.
+2018-02-07 20:17:00,218: INFO: [WM]Failed to answer 23 questions.
+2018-02-07 20:17:00,542: INFO: [WM]Failed to answer 22 questions.
+2018-02-07 20:17:00,898: INFO: [WM]Failed to answer 21 questions.
+2018-02-07 20:17:01,297: INFO: [WM]Failed to answer 20 questions.
+2018-02-07 20:17:01,693: INFO: [WM]Failed to answer 19 questions.
+2018-02-07 20:17:02,148: INFO: [WM]Failed to answer 18 questions.
+2018-02-07 20:17:02,492: INFO: [WM]Failed to answer 17 questions.
+2018-02-07 20:17:03,051: INFO: [WM]Failed to answer 16 questions.
+2018-02-07 20:17:03,618: INFO: [WM]Failed to answer 15 questions.
+2018-02-07 20:17:04,156: INFO: [WM]Failed to answer 14 questions.
+2018-02-07 20:17:04,709: INFO: [WM]Failed to answer 13 questions.
+2018-02-07 20:17:05,333: INFO: [WM]Failed to answer 12 questions.
+2018-02-07 20:17:05,764: INFO: [WM]Failed to answer 11 questions.
+2018-02-07 20:17:06,201: INFO: [WM]Failed to answer 10 questions.
+2018-02-07 20:17:06,660: INFO: [WM]Failed to answer 9 questions.
+2018-02-07 20:17:07,341: INFO: [WM]Failed to answer 8 questions.
+2018-02-07 20:17:07,824: INFO: [WM]Failed to answer 7 questions.
+2018-02-07 20:17:08,309: INFO: [WM]Failed to answer 6 questions.
+2018-02-07 20:17:08,786: INFO: [WM]Failed to answer 5 questions.
+2018-02-07 20:17:09,347: INFO: [WM]Failed to answer 4 questions.
+2018-02-07 20:17:09,763: INFO: [WM]Failed to answer 3 questions.
+2018-02-07 20:17:10,204: INFO: [WM]Failed to answer 2 questions.
+2018-02-07 20:17:10,514: INFO: [WM]Failed to answer 1 questions.
+2018-02-07 20:17:10,879: INFO: [WM]Failed to answer 0 questions.
+/home/zijian/workspace/master_thesis/w2v/env/lib/python2.7/site-packages/scipy/stats/stats.py:245: RuntimeWarning: The input array could not be properly checked for nan values. nan values will be ignored.
+  "values. nan values will be ignored.", RuntimeWarning)
+2018-02-07 20:17:12,878: INFO: Analogy prediction accuracy on SemEval2012 0.136806881263
+2018-02-07 20:17:12,878: INFO: Calculating categorization benchmarks
+2018-02-07 20:22:14,454: INFO: [WM]Failed to answer 0 questions.
+2018-02-07 20:22:18,626: INFO: Cluster purity on BLESS 0.635
+2018-02-07 20:32:28,882: INFO: [WM]Failed to answer 2 questions.
+2018-02-07 20:32:34,482: INFO: Cluster purity on AP 0.515
+2018-02-07 20:40:10,342: INFO: [WM]Failed to answer 1114 questions.
+2018-02-07 20:43:20,805: INFO: Cluster purity on Battig 0.46271556959
