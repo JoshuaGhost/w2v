@@ -1,6 +1,7 @@
 HOSTAME=$(uname -n)
 tempPath=$PATH
 LOCAL_OUTPUT='output/sampling'
+NPART=10
 
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
@@ -39,14 +40,14 @@ echo $HADOOP_HOME
 echo $HADOOP_STREAM_JAR
 
 hadoop jar $HADOOP_STREAM_JAR\
-    -archives ./env.zip#env\
+    -Dmapreduce.job.maps=$NPART -Dmapreduce.job.reduces=100 -Dmapreduce.map.memory.mb=5120 -Dmapreduce.map.java.opts=-Xmx4096m -archives ./env.zip#env\
     -file filenames.txt\
     -file mapper.py\
     -file reducer.py\
     -file sampling.article.*.txt\
     -input filenames.txt\
-    -mapper mapper.py\
-    -reducer reducer.py\
+    -mapper "mapper.py $NPART"\
+    -reducer "reducer.py $NPART"\
     -output output; 1>>mapred_std_out.txt 2>>mapred_std_err.txt
 
 if [ -d output ]; then

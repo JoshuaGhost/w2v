@@ -38,3 +38,7 @@ env/
 *corpora*
 *csv#
 *ods#
+*part-*
+*submodel*
+*SUCCESS*
+*.tar.gz

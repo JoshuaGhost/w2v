@@ -1,27 +1,33 @@
 #!./env/bin/python
 from numpy import array
 import sys
+import logging
 
-NUM_SPLIT=50
+FORMAT = '%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger('reducer')
+logger.setLevel(logging.INFO)
 
 currentword = None
 
-buffer = {}
+vec_buffer = []
 
+npart = int(sys.argv[1])
 for line in sys.stdin:
-    word, vec = line.split('\t')
-    mapper_idx, vec = vec.split('#')
-
+    word, _, vec = line.split('?')
     word = word.strip()
-    mapper_idx = int(mapper_idx)
     vec = vec.strip()
     '''
         damn hadoop may feed a reducer with
         inputs with different keys
     '''
-    if not currentword or currentword != word:
-        if currentword and len(buffer)==NUM_SPLIT:
-            print currentword + ':' + ','.join([buffer[idx] for idx in buffer])
-            buffer = {}
+    if currentword is None or currentword != word:
+        if currentword and len(vec_buffer) == npart:
+            print currentword + ':' + ','.join(vec_buffer)
         currentword = word
-    buffer[mapper_idx] = vec
+        vec_buffer = []
+    vec_buffer.append(vec)
+else:
+    if len(vec_buffer) == npart:
+        print currentword + ':' + ','.join(vec_buffer)
+
