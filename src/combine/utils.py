@@ -4,8 +4,8 @@ from numpy import array
 from numpy import sqrt
 from numpy.linalg import eigh
 from gensim.models.word2vec import Word2Vec as w2v
-from pickle import load
 
+from scalable_learning.extrinsic_evaluation.web.embedding import Embedding
 from multiprocessing import Pool
 
 new_dim = 500
@@ -30,9 +30,9 @@ def load_embeddings(folder, filename, extension, norm, arch):
         vecs = [wv[1] for wv in wvs]
         vecs = vstack(array(vecs))
         if norm:
-            for i in xrange(vecs.shape[0]):
-                vecs[i,:] /= sqrt((vecs[i, :] ** 2).sum(-1))
-        return vocab, vecs
+            for i in range(vecs.shape[0]):
+                vecs[i, :] /= sqrt((vecs[i, :] ** 2).sum(-1))
+        return Embedding.from_dict(dict(zip(vocab, vecs)))
 
     elif arch == 'local':
         lsresult = os
@@ -45,7 +45,8 @@ def load_embeddings(folder, filename, extension, norm, arch):
             vecs = [[m.wv.syn0norm[m.wv.vocab[word].index] for word in vocab] for m in ms]
         else:
             vecs = [[m.wv.syn0[m.wv.vocab[word].index] for word in vocab] for m in ms]
-        return vocab, hstack(vecs)
+        return Embedding(zip(vocab, hstack(vecs)))
+
 
 def dim_reduce(vecs, eigval_threshold, mean_corr):
     ms = None
