@@ -1,0 +1,9 @@
+-test: Not enough arguments: expected 1 but got 0
+Usage: hadoop fs [generic options] -test -[defsz] <path>
+18/01/23 12:27:35 WARN streaming.StreamJob: -file option is deprecated, please use generic option -files instead.
+18/01/23 13:14:48 WARN security.UserGroupInformation: PriviledgedActionException as:zijian (auth:SIMPLE) cause:org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory hdfs://nameservice1/user/zijian/output_dist_res_100 already exists
+18/01/23 13:14:48 WARN security.UserGroupInformation: PriviledgedActionException as:zijian (auth:SIMPLE) cause:org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory hdfs://nameservice1/user/zijian/output_dist_res_100 already exists
+18/01/23 13:14:48 ERROR streaming.StreamJob: Error Launching job : Output directory hdfs://nameservice1/user/zijian/output_dist_res_100 already exists
+Streaming Command Failed!
+mkdir: 缺少操作数
+Try 'mkdir --help' for more information.

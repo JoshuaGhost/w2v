@@ -1,0 +1,274 @@
+18/01/27 11:43:11 INFO Configuration.deprecation: mapred.task.timeout is deprecated. Instead, use mapreduce.task.timeout
+18/01/27 11:43:11 WARN streaming.StreamJob: -file option is deprecated, please use generic option -files instead.
+18/01/27 12:06:58 WARN ipc.Client: Failed to connect to server: master.ib/10.12.0.1:8032: retries get failed due to exceeded maximum allowed retries number: 0
+java.net.ConnectException: 拒绝连接
+	at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:717)
+	at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:206)
+	at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:530)
+	at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:494)
+	at org.apache.hadoop.ipc.Client$Connection.setupConnection(Client.java:648)
+	at org.apache.hadoop.ipc.Client$Connection.setupIOstreams(Client.java:744)
+	at org.apache.hadoop.ipc.Client$Connection.access$3000(Client.java:396)
+	at org.apache.hadoop.ipc.Client.getConnection(Client.java:1557)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1480)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1441)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:230)
+	at com.sun.proxy.$Proxy13.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getNewApplication(ApplicationClientProtocolPBClientImpl.java:217)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:260)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:104)
+	at com.sun.proxy.$Proxy14.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.getNewApplication(YarnClientImpl.java:206)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.createApplication(YarnClientImpl.java:214)
+	at org.apache.hadoop.mapred.ResourceMgrDelegate.getNewJobID(ResourceMgrDelegate.java:187)
+	at org.apache.hadoop.mapred.YARNRunner.getNewJobID(YARNRunner.java:262)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:157)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1307)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1304)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1917)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1304)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:578)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:573)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1917)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:573)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:564)
+	at org.apache.hadoop.streaming.StreamJob.submitAndMonitorJob(StreamJob.java:1017)
+	at org.apache.hadoop.streaming.StreamJob.run(StreamJob.java:135)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:84)
+	at org.apache.hadoop.streaming.HadoopStreaming.main(HadoopStreaming.java:50)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+18/01/27 12:06:58 INFO client.ConfiguredRMFailoverProxyProvider: Failing over to rm1330
+18/01/27 12:12:52 INFO lzo.GPLNativeCodeLoader: Loaded native gpl library
+18/01/27 12:12:52 INFO lzo.LzoCodec: Successfully loaded & initialized native-lzo library [hadoop-lzo rev cd638c1072adb77be8289b18f7efcd140a2d515c]
+18/01/27 12:12:52 INFO mapred.FileInputFormat: Total input paths to process : 1
+18/01/27 12:12:52 INFO mapreduce.JobSubmitter: number of splits:100
+18/01/27 12:12:52 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1516212768025_0319
+18/01/27 12:12:53 INFO impl.YarnClientImpl: Submitted application application_1516212768025_0319
+18/01/27 12:12:53 INFO mapreduce.Job: The url to track the job: http://master02.ib:8088/proxy/application_1516212768025_0319/
+18/01/27 12:12:53 INFO mapreduce.Job: Running job: job_1516212768025_0319
+18/01/27 12:15:16 INFO mapreduce.Job: Job job_1516212768025_0319 running in uber mode : false
+18/01/27 12:15:16 INFO mapreduce.Job:  map 0% reduce 0%
+18/01/27 12:16:21 INFO mapreduce.Job:  map 1% reduce 0%
+18/01/27 12:24:54 INFO mapreduce.Job:  map 2% reduce 0%
+18/01/27 12:35:41 INFO mapreduce.Job:  map 3% reduce 0%
+18/01/27 12:35:47 INFO mapreduce.Job:  map 4% reduce 0%
+18/01/27 12:35:49 INFO mapreduce.Job:  map 5% reduce 0%
+18/01/27 12:35:51 INFO mapreduce.Job:  map 6% reduce 0%
+18/01/27 12:35:58 INFO mapreduce.Job:  map 7% reduce 0%
+18/01/27 12:36:00 INFO mapreduce.Job:  map 8% reduce 0%
+18/01/27 12:36:01 INFO mapreduce.Job:  map 9% reduce 0%
+18/01/27 12:36:05 INFO mapreduce.Job:  map 10% reduce 0%
+18/01/27 12:36:12 INFO mapreduce.Job:  map 11% reduce 0%
+18/01/27 12:36:13 INFO mapreduce.Job:  map 12% reduce 0%
+18/01/27 12:36:17 INFO mapreduce.Job:  map 13% reduce 0%
+18/01/27 12:36:27 INFO mapreduce.Job:  map 14% reduce 0%
+18/01/27 12:36:29 INFO mapreduce.Job:  map 15% reduce 0%
+18/01/27 12:36:36 INFO mapreduce.Job:  map 16% reduce 0%
+18/01/27 12:36:56 INFO mapreduce.Job:  map 17% reduce 0%
+18/01/27 12:36:59 INFO mapreduce.Job:  map 18% reduce 0%
+18/01/27 12:37:03 INFO mapreduce.Job:  map 19% reduce 0%
+18/01/27 12:37:08 INFO mapreduce.Job:  map 20% reduce 0%
+18/01/27 12:37:18 INFO mapreduce.Job:  map 21% reduce 0%
+18/01/27 12:37:35 INFO mapreduce.Job:  map 22% reduce 0%
+18/01/27 12:37:56 INFO mapreduce.Job:  map 23% reduce 0%
+18/01/27 12:38:42 INFO mapreduce.Job:  map 24% reduce 0%
+18/01/27 12:38:43 INFO mapreduce.Job:  map 25% reduce 0%
+18/01/27 12:38:49 INFO mapreduce.Job:  map 26% reduce 0%
+18/01/27 12:38:51 INFO mapreduce.Job:  map 27% reduce 0%
+18/01/27 12:39:23 INFO mapreduce.Job:  map 28% reduce 0%
+18/01/27 12:39:35 INFO mapreduce.Job:  map 29% reduce 0%
+18/01/27 12:39:47 INFO mapreduce.Job:  map 30% reduce 0%
+18/01/27 12:39:51 INFO mapreduce.Job:  map 34% reduce 0%
+18/01/27 12:40:33 INFO mapreduce.Job:  map 35% reduce 0%
+18/01/27 12:42:48 INFO mapreduce.Job:  map 36% reduce 0%
+18/01/27 12:42:49 INFO mapreduce.Job:  map 37% reduce 0%
+18/01/27 12:42:57 INFO mapreduce.Job:  map 38% reduce 0%
+18/01/27 12:44:19 INFO mapreduce.Job:  map 39% reduce 0%
+18/01/27 12:44:47 INFO mapreduce.Job:  map 40% reduce 0%
+18/01/27 12:44:48 INFO mapreduce.Job:  map 41% reduce 0%
+18/01/27 12:45:03 INFO mapreduce.Job:  map 42% reduce 0%
+18/01/27 12:45:13 INFO mapreduce.Job:  map 43% reduce 0%
+18/01/27 12:45:14 INFO mapreduce.Job:  map 44% reduce 0%
+18/01/27 12:45:26 INFO mapreduce.Job:  map 45% reduce 0%
+18/01/27 12:45:28 INFO mapreduce.Job:  map 46% reduce 0%
+18/01/27 12:45:36 INFO mapreduce.Job:  map 47% reduce 0%
+18/01/27 12:45:37 INFO mapreduce.Job:  map 48% reduce 0%
+18/01/27 12:45:38 INFO mapreduce.Job:  map 49% reduce 0%
+18/01/27 12:45:40 INFO mapreduce.Job:  map 51% reduce 0%
+18/01/27 12:45:41 INFO mapreduce.Job:  map 52% reduce 0%
+18/01/27 12:45:54 INFO mapreduce.Job:  map 53% reduce 0%
+18/01/27 12:45:57 INFO mapreduce.Job:  map 55% reduce 0%
+18/01/27 12:46:08 INFO mapreduce.Job:  map 56% reduce 0%
+18/01/27 12:46:17 INFO mapreduce.Job:  map 57% reduce 0%
+18/01/27 12:46:22 INFO mapreduce.Job:  map 58% reduce 0%
+18/01/27 12:46:25 INFO mapreduce.Job:  map 59% reduce 0%
+18/01/27 12:46:29 INFO mapreduce.Job:  map 60% reduce 0%
+18/01/27 12:46:34 INFO mapreduce.Job:  map 61% reduce 0%
+18/01/27 12:46:38 INFO mapreduce.Job:  map 62% reduce 0%
+18/01/27 12:46:39 INFO mapreduce.Job:  map 63% reduce 0%
+18/01/27 12:46:50 INFO mapreduce.Job:  map 64% reduce 0%
+18/01/27 12:46:57 INFO mapreduce.Job:  map 65% reduce 0%
+18/01/27 12:47:00 INFO mapreduce.Job:  map 66% reduce 0%
+18/01/27 12:47:02 INFO mapreduce.Job:  map 67% reduce 0%
+18/01/27 12:47:04 INFO mapreduce.Job:  map 68% reduce 0%
+18/01/27 12:47:05 INFO mapreduce.Job:  map 69% reduce 0%
+18/01/27 12:47:06 INFO mapreduce.Job:  map 70% reduce 0%
+18/01/27 12:47:12 INFO mapreduce.Job:  map 71% reduce 0%
+18/01/27 12:47:20 INFO mapreduce.Job:  map 72% reduce 0%
+18/01/27 12:47:22 INFO mapreduce.Job:  map 74% reduce 0%
+18/01/27 12:47:23 INFO mapreduce.Job:  map 75% reduce 0%
+18/01/27 12:47:32 INFO mapreduce.Job:  map 76% reduce 0%
+18/01/27 12:47:34 INFO mapreduce.Job:  map 77% reduce 0%
+18/01/27 12:47:59 INFO mapreduce.Job:  map 78% reduce 0%
+18/01/27 12:48:14 INFO mapreduce.Job:  map 79% reduce 0%
+18/01/27 12:54:07 INFO mapreduce.Job:  map 80% reduce 0%
+18/01/27 12:54:10 INFO mapreduce.Job:  map 81% reduce 0%
+18/01/27 12:54:59 INFO mapreduce.Job:  map 82% reduce 0%
+18/01/27 12:55:07 INFO mapreduce.Job:  map 83% reduce 0%
+18/01/27 12:55:08 INFO mapreduce.Job:  map 84% reduce 0%
+18/01/27 12:55:10 INFO mapreduce.Job:  map 85% reduce 0%
+18/01/27 12:55:17 INFO mapreduce.Job:  map 86% reduce 0%
+18/01/27 12:55:33 INFO mapreduce.Job:  map 87% reduce 0%
+18/01/27 12:55:41 INFO mapreduce.Job:  map 88% reduce 0%
+18/01/27 12:55:43 INFO mapreduce.Job:  map 89% reduce 0%
+18/01/27 12:55:46 INFO mapreduce.Job:  map 90% reduce 0%
+18/01/27 12:55:47 INFO mapreduce.Job:  map 91% reduce 0%
+18/01/27 12:55:54 INFO mapreduce.Job:  map 92% reduce 0%
+18/01/27 12:56:05 INFO mapreduce.Job:  map 93% reduce 0%
+18/01/27 12:56:11 INFO mapreduce.Job:  map 94% reduce 0%
+18/01/27 12:56:46 INFO mapreduce.Job:  map 95% reduce 0%
+18/01/27 12:57:04 INFO mapreduce.Job:  map 96% reduce 0%
+18/01/27 12:57:21 INFO mapreduce.Job:  map 97% reduce 0%
+18/01/27 12:57:43 INFO mapreduce.Job:  map 98% reduce 0%
+18/01/27 12:58:42 INFO mapreduce.Job:  map 99% reduce 0%
+18/01/27 13:03:49 INFO mapreduce.Job:  map 99% reduce 5%
+18/01/27 13:03:50 INFO mapreduce.Job:  map 99% reduce 6%
+18/01/27 13:03:52 INFO mapreduce.Job:  map 99% reduce 8%
+18/01/27 13:04:01 INFO mapreduce.Job:  map 99% reduce 9%
+18/01/27 13:04:04 INFO mapreduce.Job:  map 99% reduce 10%
+18/01/27 13:04:08 INFO mapreduce.Job:  map 99% reduce 12%
+18/01/27 13:04:09 INFO mapreduce.Job:  map 99% reduce 13%
+18/01/27 13:04:11 INFO mapreduce.Job:  map 99% reduce 15%
+18/01/27 13:04:12 INFO mapreduce.Job:  map 99% reduce 17%
+18/01/27 13:04:13 INFO mapreduce.Job:  map 99% reduce 19%
+18/01/27 13:04:14 INFO mapreduce.Job:  map 99% reduce 23%
+18/01/27 13:04:15 INFO mapreduce.Job:  map 99% reduce 24%
+18/01/27 13:04:17 INFO mapreduce.Job:  map 99% reduce 25%
+18/01/27 13:04:19 INFO mapreduce.Job:  map 99% reduce 26%
+18/01/27 13:04:20 INFO mapreduce.Job:  map 99% reduce 29%
+18/01/27 13:04:23 INFO mapreduce.Job:  map 99% reduce 30%
+18/01/27 13:04:25 INFO mapreduce.Job:  map 99% reduce 31%
+18/01/27 13:04:27 INFO mapreduce.Job:  map 99% reduce 32%
+18/01/27 13:04:56 INFO mapreduce.Job:  map 99% reduce 33%
+18/01/27 13:06:55 INFO mapreduce.Job:  map 100% reduce 33%
+18/01/27 13:07:09 INFO mapreduce.Job:  map 100% reduce 39%
+18/01/27 13:07:11 INFO mapreduce.Job:  map 100% reduce 40%
+18/01/27 13:07:12 INFO mapreduce.Job:  map 100% reduce 41%
+18/01/27 13:07:21 INFO mapreduce.Job:  map 100% reduce 42%
+18/01/27 13:07:24 INFO mapreduce.Job:  map 100% reduce 44%
+18/01/27 13:07:28 INFO mapreduce.Job:  map 100% reduce 47%
+18/01/27 13:07:29 INFO mapreduce.Job:  map 100% reduce 48%
+18/01/27 13:07:30 INFO mapreduce.Job:  map 100% reduce 49%
+18/01/27 13:07:31 INFO mapreduce.Job:  map 100% reduce 51%
+18/01/27 13:07:32 INFO mapreduce.Job:  map 100% reduce 54%
+18/01/27 13:07:33 INFO mapreduce.Job:  map 100% reduce 60%
+18/01/27 13:07:34 INFO mapreduce.Job:  map 100% reduce 63%
+18/01/27 13:07:35 INFO mapreduce.Job:  map 100% reduce 65%
+18/01/27 13:07:38 INFO mapreduce.Job:  map 100% reduce 67%
+18/01/27 13:07:39 INFO mapreduce.Job:  map 100% reduce 68%
+18/01/27 13:07:40 INFO mapreduce.Job:  map 100% reduce 73%
+18/01/27 13:07:42 INFO mapreduce.Job:  map 100% reduce 74%
+18/01/27 13:07:44 INFO mapreduce.Job:  map 100% reduce 76%
+18/01/27 13:07:47 INFO mapreduce.Job:  map 100% reduce 77%
+18/01/27 13:07:50 INFO mapreduce.Job:  map 100% reduce 78%
+18/01/27 13:07:55 INFO mapreduce.Job:  map 100% reduce 79%
+18/01/27 13:07:56 INFO mapreduce.Job:  map 100% reduce 80%
+18/01/27 13:07:57 INFO mapreduce.Job:  map 100% reduce 81%
+18/01/27 13:07:58 INFO mapreduce.Job:  map 100% reduce 82%
+18/01/27 13:07:59 INFO mapreduce.Job:  map 100% reduce 83%
+18/01/27 13:08:00 INFO mapreduce.Job:  map 100% reduce 84%
+18/01/27 13:08:01 INFO mapreduce.Job:  map 100% reduce 85%
+18/01/27 13:08:02 INFO mapreduce.Job:  map 100% reduce 87%
+18/01/27 13:08:03 INFO mapreduce.Job:  map 100% reduce 88%
+18/01/27 13:08:05 INFO mapreduce.Job:  map 100% reduce 91%
+18/01/27 13:08:08 INFO mapreduce.Job:  map 100% reduce 92%
+18/01/27 13:08:09 INFO mapreduce.Job:  map 100% reduce 93%
+18/01/27 13:08:10 INFO mapreduce.Job:  map 100% reduce 94%
+18/01/27 13:08:12 INFO mapreduce.Job:  map 100% reduce 95%
+18/01/27 13:08:13 INFO mapreduce.Job:  map 100% reduce 96%
+18/01/27 13:08:16 INFO mapreduce.Job:  map 100% reduce 99%
+18/01/27 13:08:21 INFO mapreduce.Job:  map 100% reduce 100%
+18/01/27 13:08:31 INFO mapreduce.Job: Job job_1516212768025_0319 completed successfully
+18/01/27 13:08:31 INFO mapreduce.Job: Counters: 50
+	File System Counters
+		FILE: Number of bytes read=844112303382
+		FILE: Number of bytes written=1260440187272
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=156950
+		HDFS: Number of bytes written=179278544286
+		HDFS: Number of read operations=600
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=200
+	Job Counters 
+		Launched map tasks=100
+		Launched reduce tasks=100
+		Data-local map tasks=11
+		Rack-local map tasks=89
+		Total time spent by all maps in occupied slots (ms)=902133065
+		Total time spent by all reduces in occupied slots (ms)=328964670
+		Total time spent by all map tasks (ms)=180426613
+		Total time spent by all reduce tasks (ms)=65792934
+		Total vcore-milliseconds taken by all map tasks=180426613
+		Total vcore-milliseconds taken by all reduce tasks=65792934
+		Total megabyte-milliseconds taken by all map tasks=1847568517120
+		Total megabyte-milliseconds taken by all reduce tasks=673719644160
+	Map-Reduce Framework
+		Map input records=100
+		Map output records=52672887
+		Map output bytes=576756840072
+		Map output materialized bytes=420219271168
+		Input split bytes=10500
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=6775836
+		Reduce shuffle bytes=420219271168
+		Reduce input records=52672887
+		Reduce output records=165192
+		Spilled Records=158018661
+		Shuffled Maps =10000
+		Failed Shuffles=0
+		Merged Map outputs=10000
+		GC time elapsed (ms)=269175
+		CPU time spent (ms)=759865590
+		Physical memory (bytes) snapshot=638998945792
+		Virtual memory (bytes) snapshot=1826092605440
+		Total committed heap usage (bytes)=638591696896
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=146450
+	File Output Format Counters 
+		Bytes Written=179278544286
+18/01/27 13:08:31 INFO streaming.StreamJob: Output directory: train_100_dim_500

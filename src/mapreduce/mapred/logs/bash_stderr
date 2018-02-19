@@ -1,0 +1,301 @@
+18/01/23 11:57:56 INFO fs.TrashPolicyDefault: Moved: 'hdfs://nameservice1/user/zijian/output' to trash at: hdfs://nameservice1/user/zijian/.Trash/Current/user/zijian/output
+18/01/23 11:57:58 WARN streaming.StreamJob: -file option is deprecated, please use generic option -files instead.
+18/01/23 12:21:20 WARN ipc.Client: Failed to connect to server: master.ib/10.12.0.1:8032: retries get failed due to exceeded maximum allowed retries number: 0
+java.net.ConnectException: 拒绝连接
+	at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:717)
+	at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:206)
+	at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:530)
+	at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:494)
+	at org.apache.hadoop.ipc.Client$Connection.setupConnection(Client.java:648)
+	at org.apache.hadoop.ipc.Client$Connection.setupIOstreams(Client.java:744)
+	at org.apache.hadoop.ipc.Client$Connection.access$3000(Client.java:396)
+	at org.apache.hadoop.ipc.Client.getConnection(Client.java:1557)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1480)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1441)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:230)
+	at com.sun.proxy.$Proxy13.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getNewApplication(ApplicationClientProtocolPBClientImpl.java:217)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:260)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:104)
+	at com.sun.proxy.$Proxy14.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.getNewApplication(YarnClientImpl.java:206)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.createApplication(YarnClientImpl.java:214)
+	at org.apache.hadoop.mapred.ResourceMgrDelegate.getNewJobID(ResourceMgrDelegate.java:187)
+	at org.apache.hadoop.mapred.YARNRunner.getNewJobID(YARNRunner.java:262)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:157)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1307)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1304)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1917)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1304)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:578)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:573)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1917)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:573)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:564)
+	at org.apache.hadoop.streaming.StreamJob.submitAndMonitorJob(StreamJob.java:1017)
+	at org.apache.hadoop.streaming.StreamJob.run(StreamJob.java:135)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:84)
+	at org.apache.hadoop.streaming.HadoopStreaming.main(HadoopStreaming.java:50)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+18/01/23 12:21:20 INFO client.ConfiguredRMFailoverProxyProvider: Failing over to rm1330
+18/01/23 12:23:06 INFO lzo.GPLNativeCodeLoader: Loaded native gpl library
+18/01/23 12:23:06 INFO lzo.LzoCodec: Successfully loaded & initialized native-lzo library [hadoop-lzo rev cd638c1072adb77be8289b18f7efcd140a2d515c]
+18/01/23 12:23:06 INFO mapred.FileInputFormat: Total input paths to process : 1
+18/01/23 12:23:07 INFO mapreduce.JobSubmitter: number of splits:100
+18/01/23 12:23:07 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1516212768025_0174
+18/01/23 12:23:08 INFO impl.YarnClientImpl: Submitted application application_1516212768025_0174
+18/01/23 12:23:08 INFO mapreduce.Job: The url to track the job: http://master02.ib:8088/proxy/application_1516212768025_0174/
+18/01/23 12:23:08 INFO mapreduce.Job: Running job: job_1516212768025_0174
+18/01/23 12:24:51 INFO mapreduce.Job: Job job_1516212768025_0174 running in uber mode : false
+18/01/23 12:24:51 INFO mapreduce.Job:  map 0% reduce 0%
+18/01/23 12:25:42 INFO mapreduce.Job:  map 1% reduce 0%
+18/01/23 12:26:27 INFO mapreduce.Job:  map 2% reduce 0%
+18/01/23 12:29:05 INFO mapreduce.Job:  map 3% reduce 0%
+18/01/23 12:29:07 INFO mapreduce.Job:  map 4% reduce 0%
+18/01/23 12:29:34 INFO mapreduce.Job:  map 5% reduce 0%
+18/01/23 12:29:36 INFO mapreduce.Job:  map 6% reduce 0%
+18/01/23 12:29:39 INFO mapreduce.Job:  map 7% reduce 0%
+18/01/23 12:29:41 INFO mapreduce.Job:  map 9% reduce 0%
+18/01/23 12:29:42 INFO mapreduce.Job:  map 12% reduce 0%
+18/01/23 12:29:44 INFO mapreduce.Job:  map 13% reduce 0%
+18/01/23 12:29:46 INFO mapreduce.Job:  map 14% reduce 0%
+18/01/23 12:29:47 INFO mapreduce.Job:  map 16% reduce 0%
+18/01/23 12:29:48 INFO mapreduce.Job:  map 18% reduce 0%
+18/01/23 12:29:52 INFO mapreduce.Job:  map 19% reduce 0%
+18/01/23 12:29:54 INFO mapreduce.Job:  map 20% reduce 0%
+18/01/23 12:29:58 INFO mapreduce.Job:  map 21% reduce 0%
+18/01/23 12:30:00 INFO mapreduce.Job:  map 22% reduce 0%
+18/01/23 12:30:01 INFO mapreduce.Job:  map 23% reduce 0%
+18/01/23 12:30:06 INFO mapreduce.Job:  map 24% reduce 0%
+18/01/23 12:30:07 INFO mapreduce.Job:  map 25% reduce 0%
+18/01/23 12:30:11 INFO mapreduce.Job:  map 26% reduce 0%
+18/01/23 12:30:24 INFO mapreduce.Job:  map 27% reduce 0%
+18/01/23 12:30:28 INFO mapreduce.Job:  map 28% reduce 0%
+18/01/23 12:30:55 INFO mapreduce.Job:  map 29% reduce 0%
+18/01/23 12:31:00 INFO mapreduce.Job:  map 30% reduce 0%
+18/01/23 12:31:11 INFO mapreduce.Job:  map 32% reduce 0%
+18/01/23 12:31:12 INFO mapreduce.Job:  map 33% reduce 0%
+18/01/23 12:31:13 INFO mapreduce.Job:  map 34% reduce 0%
+18/01/23 12:31:15 INFO mapreduce.Job:  map 36% reduce 0%
+18/01/23 12:31:17 INFO mapreduce.Job:  map 37% reduce 0%
+18/01/23 12:31:18 INFO mapreduce.Job:  map 38% reduce 0%
+18/01/23 12:31:19 INFO mapreduce.Job:  map 40% reduce 0%
+18/01/23 12:31:21 INFO mapreduce.Job:  map 41% reduce 0%
+18/01/23 12:31:22 INFO mapreduce.Job:  map 43% reduce 0%
+18/01/23 12:31:23 INFO mapreduce.Job:  map 44% reduce 0%
+18/01/23 12:31:24 INFO mapreduce.Job:  map 45% reduce 0%
+18/01/23 12:31:27 INFO mapreduce.Job:  map 46% reduce 0%
+18/01/23 12:31:29 INFO mapreduce.Job:  map 47% reduce 0%
+18/01/23 12:31:31 INFO mapreduce.Job:  map 49% reduce 0%
+18/01/23 12:31:36 INFO mapreduce.Job:  map 50% reduce 0%
+18/01/23 12:31:37 INFO mapreduce.Job:  map 51% reduce 0%
+18/01/23 12:31:38 INFO mapreduce.Job:  map 52% reduce 0%
+18/01/23 12:31:43 INFO mapreduce.Job:  map 53% reduce 0%
+18/01/23 12:31:52 INFO mapreduce.Job:  map 54% reduce 0%
+18/01/23 12:31:56 INFO mapreduce.Job:  map 55% reduce 0%
+18/01/23 12:32:01 INFO mapreduce.Job:  map 56% reduce 0%
+18/01/23 12:32:22 INFO mapreduce.Job:  map 57% reduce 0%
+18/01/23 12:32:28 INFO mapreduce.Job:  map 58% reduce 0%
+18/01/23 12:32:38 INFO mapreduce.Job:  map 59% reduce 0%
+18/01/23 12:32:58 INFO mapreduce.Job:  map 60% reduce 0%
+18/01/23 12:33:10 INFO mapreduce.Job:  map 61% reduce 0%
+18/01/23 12:35:26 INFO mapreduce.Job:  map 62% reduce 0%
+18/01/23 12:35:28 INFO mapreduce.Job:  map 64% reduce 0%
+18/01/23 12:35:34 INFO mapreduce.Job:  map 65% reduce 0%
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000034_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000034_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000000_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000000_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000009_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000009_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000018_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000018_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000032_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000032_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000012_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000012_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000026_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000026_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000029_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000029_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000024_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000024_0 Timed out after 600 secs
+18/01/23 12:35:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000006_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000006_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job:  map 64% reduce 0%
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000030_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000030_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000033_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000033_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000035_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000035_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000022_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000022_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000031_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000031_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000003_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000003_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000015_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000015_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000028_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000028_0 Timed out after 600 secs
+18/01/23 12:35:51 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000020_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000020_0 Timed out after 600 secs
+18/01/23 12:36:07 INFO mapreduce.Job:  map 65% reduce 0%
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000027_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000027_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000016_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000016_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000005_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000005_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000025_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000025_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000007_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000007_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000021_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000021_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000023_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000023_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000004_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000004_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000013_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000013_0 Timed out after 600 secs
+18/01/23 12:36:20 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000010_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000010_0 Timed out after 600 secs
+18/01/23 12:36:21 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000019_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000019_0 Timed out after 600 secs
+18/01/23 12:36:21 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000001_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000001_0 Timed out after 600 secs
+18/01/23 12:36:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000011_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000011_0 Timed out after 600 secs
+18/01/23 12:36:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000008_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000008_0 Timed out after 600 secs
+18/01/23 12:36:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000017_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000017_0 Timed out after 600 secs
+18/01/23 12:36:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000002_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000002_0 Timed out after 600 secs
+18/01/23 12:36:50 INFO mapreduce.Job: Task Id : attempt_1516212768025_0174_m_000014_0, Status : FAILED
+AttemptID:attempt_1516212768025_0174_m_000014_0 Timed out after 600 secs
+18/01/23 12:39:40 INFO mapreduce.Job:  map 66% reduce 0%
+18/01/23 12:39:42 INFO mapreduce.Job:  map 67% reduce 0%
+18/01/23 12:39:46 INFO mapreduce.Job:  map 68% reduce 0%
+18/01/23 12:39:53 INFO mapreduce.Job:  map 69% reduce 0%
+18/01/23 12:39:55 INFO mapreduce.Job:  map 70% reduce 0%
+18/01/23 12:39:59 INFO mapreduce.Job:  map 71% reduce 0%
+18/01/23 12:40:01 INFO mapreduce.Job:  map 72% reduce 0%
+18/01/23 12:40:06 INFO mapreduce.Job:  map 74% reduce 0%
+18/01/23 12:40:07 INFO mapreduce.Job:  map 75% reduce 0%
+18/01/23 12:40:13 INFO mapreduce.Job:  map 78% reduce 0%
+18/01/23 12:40:19 INFO mapreduce.Job:  map 81% reduce 0%
+18/01/23 12:40:25 INFO mapreduce.Job:  map 84% reduce 0%
+18/01/23 12:40:31 INFO mapreduce.Job:  map 85% reduce 0%
+18/01/23 12:40:41 INFO mapreduce.Job:  map 86% reduce 0%
+18/01/23 12:40:47 INFO mapreduce.Job:  map 87% reduce 0%
+18/01/23 12:40:49 INFO mapreduce.Job:  map 88% reduce 0%
+18/01/23 12:40:50 INFO mapreduce.Job:  map 89% reduce 0%
+18/01/23 12:40:53 INFO mapreduce.Job:  map 90% reduce 0%
+18/01/23 12:40:59 INFO mapreduce.Job:  map 91% reduce 0%
+18/01/23 12:41:07 INFO mapreduce.Job:  map 92% reduce 0%
+18/01/23 12:41:13 INFO mapreduce.Job:  map 93% reduce 0%
+18/01/23 12:41:15 INFO mapreduce.Job:  map 94% reduce 0%
+18/01/23 12:41:26 INFO mapreduce.Job:  map 95% reduce 0%
+18/01/23 12:41:32 INFO mapreduce.Job:  map 96% reduce 0%
+18/01/23 12:41:38 INFO mapreduce.Job:  map 97% reduce 0%
+18/01/23 12:41:48 INFO mapreduce.Job:  map 97% reduce 7%
+18/01/23 12:41:49 INFO mapreduce.Job:  map 97% reduce 18%
+18/01/23 12:41:55 INFO mapreduce.Job:  map 98% reduce 18%
+18/01/23 12:41:57 INFO mapreduce.Job:  map 98% reduce 19%
+18/01/23 12:41:58 INFO mapreduce.Job:  map 98% reduce 24%
+18/01/23 12:41:59 INFO mapreduce.Job:  map 98% reduce 30%
+18/01/23 12:42:00 INFO mapreduce.Job:  map 98% reduce 31%
+18/01/23 12:42:01 INFO mapreduce.Job:  map 98% reduce 32%
+18/01/23 12:42:03 INFO mapreduce.Job:  map 99% reduce 32%
+18/01/23 12:42:07 INFO mapreduce.Job:  map 99% reduce 33%
+18/01/23 12:43:30 INFO mapreduce.Job:  map 100% reduce 33%
+18/01/23 12:44:14 INFO mapreduce.Job:  map 100% reduce 35%
+18/01/23 12:44:16 INFO mapreduce.Job:  map 100% reduce 36%
+18/01/23 12:44:17 INFO mapreduce.Job:  map 100% reduce 41%
+18/01/23 12:44:18 INFO mapreduce.Job:  map 100% reduce 45%
+18/01/23 12:44:19 INFO mapreduce.Job:  map 100% reduce 61%
+18/01/23 12:44:20 INFO mapreduce.Job:  map 100% reduce 72%
+18/01/23 12:44:21 INFO mapreduce.Job:  map 100% reduce 73%
+18/01/23 12:44:22 INFO mapreduce.Job:  map 100% reduce 80%
+18/01/23 12:44:23 INFO mapreduce.Job:  map 100% reduce 89%
+18/01/23 12:44:24 INFO mapreduce.Job:  map 100% reduce 97%
+18/01/23 12:44:25 INFO mapreduce.Job:  map 100% reduce 100%
+18/01/23 12:44:29 INFO mapreduce.Job: Job job_1516212768025_0174 completed successfully
+18/01/23 12:44:29 INFO mapreduce.Job: Counters: 52
+	File System Counters
+		FILE: Number of bytes read=83634759908
+		FILE: Number of bytes written=124372230443
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=156150
+		HDFS: Number of bytes written=20839555894
+		HDFS: Number of read operations=600
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=200
+	Job Counters 
+		Failed map tasks=36
+		Launched map tasks=136
+		Launched reduce tasks=100
+		Other local map tasks=36
+		Data-local map tasks=36
+		Rack-local map tasks=64
+		Total time spent by all maps in occupied slots (ms)=115909822
+		Total time spent by all reduces in occupied slots (ms)=50914497
+		Total time spent by all map tasks (ms)=57954911
+		Total time spent by all reduce tasks (ms)=16971499
+		Total vcore-milliseconds taken by all map tasks=57954911
+		Total vcore-milliseconds taken by all reduce tasks=16971499
+		Total megabyte-milliseconds taken by all map tasks=178037486592
+		Total megabyte-milliseconds taken by all reduce tasks=104272889856
+	Map-Reduce Framework
+		Map input records=100
+		Map output records=25695234
+		Map output bytes=55357981663
+		Map output materialized bytes=41508824330
+		Input split bytes=9700
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=2301918
+		Reduce shuffle bytes=41508824330
+		Reduce input records=25695234
+		Reduce output records=98038
+		Spilled Records=77085702
+		Shuffled Maps =10000
+		Failed Shuffles=0
+		Merged Map outputs=10000
+		GC time elapsed (ms)=45678
+		CPU time spent (ms)=228295450
+		Physical memory (bytes) snapshot=267506335744
+		Virtual memory (bytes) snapshot=1203290124288
+		Total committed heap usage (bytes)=435881508864
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=146450
+	File Output Format Counters 
+		Bytes Written=20839555894
+18/01/23 12:44:29 INFO streaming.StreamJob: Output directory: output
