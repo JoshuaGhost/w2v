@@ -4,6 +4,7 @@ import pickle
 import os
 import sys
 import pandas as pd
+import time
 
 from sampling import reservoir
 from numpy import array
@@ -24,7 +25,7 @@ debug = False
 n_subs_total = 100
 cosine_similarity = False
 n_subs_step = 1
-n_subs_min = 4
+n_subs_min = 9
 dim_sub = 500
 extension = ''
 filename = 'submodel-'
@@ -46,14 +47,14 @@ results_total_concat = pd.DataFrame()
 
 for n_subs in n_subs_list:
     logger.info('count of sub-models to be combined: {}'.format(str(n_subs)))
-    if n_subs == 4:
-        n_comb = 3
+    if n_subs == 9:
+        n_comb = 1
     else:
         n_comb = 5
     if debug:
         logger.info('debuging, n_comb={}, n_subs={}, n_subs_list={}'.format(n_comb, n_subs, str(n_subs_list)))
     for i in xrange(n_comb):
-        sub_idx_list = reservoir([sub_idx for sub_idx in range(n_subs_total)], n_subs)
+        sub_idx_list = reservoir([sub_idx for sub_idx in range(n_subs_total-1)], n_subs)
         if debug:
             logger.info(str(sub_idx_list))
             continue
@@ -70,13 +71,19 @@ for n_subs in n_subs_list:
             eigval_threshold = 2.
         else:
             eigval_threshold = 2.
+        telapse = -time.time()
         vecs_merge = dim_reduce(vecs_merge, eigval_threshold, True)
+        telapse += time.time()
         logger.info('{} sub models merged, new dim: {}'.format(n_subs, vecs_merge.shape[1]))
         results = evaluate_on_all(dict(zip(vocab, vecs_merge)), cosine_similarity)
         results['nsubs'] = n_subs
+        if n_subs == 10:
+            results['time(sec)'] = telapse
         logger.info('evaluation results for merging {}:\n{}'.format(sub_idx_list, results))
         results_total_pca = results_total_pca.append(results)
         results_total_pca.to_csv(str(out_fname_pca))
+        vocab = None
+        vecs_merge = None
 
     print results_total_pca
     print results_total_concat
