@@ -19,7 +19,6 @@ from functools import partial
 from .utils import standardize_string, to_utf8
 
 from sklearn.metrics import pairwise_distances
-from pdb import set_trace as bp
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +147,7 @@ class Embedding(object):
             return self
         return Embedding(vectors=vectors.T, vocabulary=self.vocabulary)
 
-    def join(self, w2):
+    def append(self, w2):
         self.vocabulary += w2.vocabulary
         self.vectors = np.hstack(self.vectors, w2.vectors)
 
@@ -156,8 +155,8 @@ class Embedding(object):
         v1 = set(self.vocabulary)
         v2 = set(w2.vocabulary)
         vocab = list(v1.intersection(v2))
-        vecs = np.vstack(np.hstack((self.vectors[word], w2.vectors[word])) for word in vocab)
-        self.vocabulary = vocab
+        vecs = np.vstack(np.hstack((self[word], w2[word])) for word in vocab)
+        self.vocabulary = OrderedVocabulary(vocab)
         self.vectors = vecs
 
     def nearest_neighbors(self, word, k=1, exclude=[], metric="cosine"):

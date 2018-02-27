@@ -14,16 +14,16 @@ def missing_fix_2_subs(ms, interpolation_method):
     return m1, m2
 
 
-def eval_intrinsic(ms, interpolate_method, merge_method=None, intersection_only=False):
-    m1, m2 = missing_fix_2_subs(ms, interpolate_method)
+def eval_intrinsic(webs, interpolate_method, merge_method=None, intersection_only=False):
+    web1, web2 = webs
     if intersection_only:
-        v1 = set(m1.keys())
-        v2 = set(m2.keys())
+        v1 = set(web1.vocabulary)
+        v2 = set(web2.vocabulary)
         vocab = list(v1.intersection(v2))
     else:
-        vocab = [word for word in m1.keys()]
-    vecs1, vecs2 = np.array([m1[word] for word in vocab]), np.array([m2[word] for word in vocab])
-    diff = vecs1 - vecs2
+        vocab = [word for word in web1.vocabulary]
+    web1, web2 = missing_fix_2_subs(webs, interpolate_method)
+    diff = np.array([web1[word] for word in vocab]) - np.array([web2[word] for word in vocab])
     diff = diff.dot(diff.T)
     dist = diff.sum(axis=-1)
     return np.sqrt(dist).sum()

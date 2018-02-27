@@ -1,25 +1,25 @@
-from scipy.linalg import eigh
-from scipy import sqrt
 import numpy as np
+from .utils import low_rank_align, dim_reduce
 
 
 def pca(wvs, eigval_threshold, mean_corr):
-    vocab = list(wvs[0].keys())
-    vecs = np.hstack(np.array(wv[word] for word in vocab) for wv in wvs)
-    if mean_corr:
-        vecs = vecs-vecs.mean(axis=0)
-    cov = vecs.T.dot(vecs)
-    evalues, bases = eigh(cov)
-    evalues = sqrt(evalues)
-    bases = bases[evalues>eigval_threshold]
-    vecs = vecs.dot(bases.T)
-    return dict(zip(vocab, vecs))
+    embedding = concat(wvs)
+    embedding.vectors = dim_reduce(embedding.vectors, eigval_threshold, mean_corr)
+    return embedding
 
 
-def lra():
-    pass
+def lra(wvs):
+    embedding = wvs[0]
+    vocab = wvs[0].vocabulary
+    vec = wvs[0].vectors
+    for i, e in enumerate(wvs[1:]):
+        fx, fy = low_rank_align(embedding.vectors, e.vectors, np.ones((embedding.vectors.shape[0], e.vectors.shape[0])))
+        embedding.vectors = (fx * i + fy) / (i + 1)
+    return embedding
 
 
 def concat(wvs):
-    vocab = list(wvs[0].keys())
-    vecs = np.hstack(np.array(wv[word] for word in vocab) for wv in wvs)
+    embedding = wvs[0]
+    for e in wvs[1:]:
+        embedding.concat(e)
+    return embedding
