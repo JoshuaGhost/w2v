@@ -1,0 +1,74 @@
+[Cover]
+Good afternoon ladies and gentlemen, welcome to pay attention to my master thesis defense and my name is zhangzijian. The title of my master thesis is Scalable approach for Learning Word Representation. This master thesis is supervised and examined by Avishek and the second examiner is Wolfgang
+
+[2]51s
+At the beginning of my presentation i would like to go through quickly the agenda of my representation. It is naturally separated into three parts, We will begin with the motivation of our research topic, then the problems is stated and some recently related approaches are introduced. Then we will turn to our approach by at first identifying our contribution and then introduce the detail of each phase of our approach. At the end we will see the performance of our final result on some state of art word embedding benchmarks and the timing important timing factor of them. The presentation will be end with the lessons learned from the approach and some notice on our ongoing work.
+
+[3]17s
+Before all, please allow me to ask you two questions, the first of which is, what is Hannover minus Berlin plus Hamburg? Well according to the time limit, i would to answer it my own, 
+
+[4]21s
+according to the map, Hannover - Berlin + Hamburg should be somewhere near Neubrandenburg, quite intuitive, isn't it? But what about King minus Man plus Woman? On which map this equation can be solved?
+
+[5]57s
+To solve this question, we have to know what is a 'map'. A map, i mean the one on a paper or in an App, is a map, mathematical jargon, from the cities in an area of Earth surface into a 2 dimensional local Euclidean space. Where each city can be represented by latitude and longitude. Well congratulations, even Einstein is bothered by this question for years and we just solve it in seconds! So what if we change 'cities' to 'words' and the 'surface of Earth' to 'language'? Then the semantic information of words could be expressed using their 'latitude' and 'longitude', and this numerical representation can be get by the machines. The question seems solvable!
+
+[6]22s
+The word vector representation framework is one of the approaches to draw this map. We feed the model some copora in natural language, and it spit the vector representation of each words.
+
+[7]30s
+it is a low dimensional representation of sparse word usage, and we can express the similarity of words using the cosine of their vectors, one of the nearest neighbors of man is woman because the are semantically near with each other. The word2vec can also helps to recognize the categories of words with clustering. And also the not-so-simple task like "which word is related to woman in the same way king relates to man" is solvable according to the parallelism. The result is the Queen! Problems are solved, world seems beautiful, right?
+
+[8]40s
+Well, not quite. Roughly speaking, the larger the corpus is, the more expressive it should be, and the training time is also longer. Training on a 14 Gigabyte snapshot of English wikidump takes already 36 hours. what about we want to focus on the temporal variation of wikidump? What about we have to train though different sources, like web archive? The vanilla Word2Vec is simply not scalable with respect to large corpus
+
+[9]
+Because the word2vec fundamentally uses stochastic gradient descent as the optimizing framework, one direct approach to accelerate it is make SGD run faster. Therefore the strategies like Hogwilds! blas-3 sgns, cache optimized hierarchical softmax and even column-wise distribution of training were been considered. Not to mention the adaptive learning rate, like sgdm, adagrad and rmsprop which make sgd converge faster. But these methods are either tided to hardware, or are synchronized approach. The approaches combining heterogeneous embedding or corpora together are more similar to ours, they try to combine the word2vec, glove vectors and improve them using WordNet and ConceptNet. But focusing merely on improving the performance on already trained embeddings, their objective is different from ours.
+
+[10]
+Therefore what we have found another way around, namely a scalable, hardware independent, asynchronous, distributional paradigm, using which the word vector representation can be trained and the performance of our approach is comparable with the baseline. On the right hand side of this slide we decided to release the first glance to the time performance of our approaches. The baseline represents the training time of vanilla SGNS word2vec model, and we will introduce our five approaches in the following slides.
+
+[11]
+Here is the big picture of our approach. First of all, the original corpus is divided into several sub-corpora, then for each sub-corpus we train the individual model asynchronously and in parallel. Then we merge all the representations from sub-models into a merged model. At last we run the test for merged model and compare it to the baseline, which at the end is shown that it is comparable with the baseline and some approaches are even better.
+
+[12]
+Given this big pictures of our approaches, two obvious questions jump immediately in front of us, the first of them is how should we divide the corpus? and the second of them is how should we merge the sub-models into single merged model?
+
+[13]
+To solve these questions, we need to get known of how does word2vec framework calculate the word vectors. We concern about one algorithm in this framework, namely Skip Gram Negative Sampling. It is literally divided into two part, skip gram and negative sampling. In skip gram, within each sentence a window slide through. The word in the center of the each window is called the central word w, and the other words in the same window are called the context c. For negative sampling we draw several negative sample words c_N s different from w and c, according to their frequency. Then we have to raise the possibility that given w and c is predicted, and lower the possibility that cN s are predicted.
+
+[14]
+According to the work from Levy and Goldberg in 2014, the result of SGNS is nothing more but an implicit factorization of Point-wise mutual information matrix, and this final result simply depends on the distribution of words w or c and there skipgrams only. Since the skip grams are bounded by the sentences boundary, we model the words and skip grams as balls contained by the boxes named sentences. Then we perform sentence-wise reservoir sampling to divide the original corpus into sub-corpus uniformly, preserving the word/skip gram distribution.
+
+[15]
+So we tried to sample the corpus from 1 one hundred thousandth to one tenth, here is the result of word and skip grams Kl-divergence from sub-corpus to the original corpus. The blue line is our approach and the yellow line is the trivial block-wise partitioning for the contrast. It's clear that the both words and skip grams distribution of samples KL converge all the way to that of original corpus. When the size of each sub-corpus is around 1 three hundredth both words and skip gram KL-divergence are nearly zero. While yellow lines are either vibrate or too high to converge. Therefore our approach preserves the distribution better than the trivial one. The performance differences between partitioning and sampling will be shown later on in details.
+
+[16]
+Since we have solved the first question, the sub-models can be trained on those samples. After that, we can gather several different word representations from individual sub-models. For each sub-representations, the gradient of it consists of the correlation with all of other sub-models, some significant features which supported by several sub-models and some noise caused by corpus division maybe. Then our goal is to identify all the correlation parts, weighted average the significance features part and filter out the noise.
+
+[17]
+As the first combination approach we chose the principal component analysis. The PCA find a bunch of orthogonal principal components from the covariation matrix as the new basis. On each of which the variation of projections of formal data points is maximized. For instance consider a 1-d embedding in both sub-model A and B, in the sub-model A the word "queen" is more affiliate to 'jack' maybe because the sub-corpus A consists little bit more sentences about poker cards, and the queen B is more similar to woman b. But on the first principal component the queen merge is, as we expected similar to both jack merge and woman merge.
+
+[18]
+Since the PCA is only a kind of global linear transformation, we consider there should be some non-linear local information can be lost. Therefore we decided to use the second approach called low rank alignment. In low rank alignment we first find a low rank reconstruction of each sub-representation, which is to reduce the dimension of each sub-representation so that they are into a common space with some information loss. Then we perform a non-linear alignment to both manifold, which take both low-rank reconstruction and inter-manifold correlation into consideration, with respect to a weight parameter mu and find a proper low-rank reconstruction of both sub-representation up to an orthogonal matrix. Then finally we average the both low-rank reconstruction and use that as our merged model. But this approach, as will be shown later, does not perform so well and is very slow.
+
+[19]
+Then we come to our experimental setup. As mentioned before, the original corpus we used is the 14 GB English wikidump in 2016. The implementation of word2vec framework is gensim. The cleaner of the corpus is the wikipedia linesentence cleaner built in gensim, which texifies all urls and delete all symbols and arabic numbers. Each sentence takes up one line. For our approach we used the reservoir sampling and in comparison with trivial block-wise sampling, they are both sentence-bounded and each sub-corpus is 1% and 10% of the original corpus respectively. For the baseline model we follow the suggestion given by Levy in 2015, word frequency threshold is 100, dimension of embedded vectors are 500. And the final training time was 36 hours on the prometheus server of kbs. To evaluate the performance of merged model we performed word similarity, analogy and categorization tasks, all of which uses state of arts dataset for instance men, rare words, WS3, Google for google word2vec and so on. The criterion of the tasks are correlation or cluster purity. The higher the better.
+
+[20]
+We have used the same merging approach, namely the concatenation and pca to merge and to compare the division approach and the size of sub corpora. It is showed on the table that random sampling of size 1/10 of the original corpus performs overall the best, and sometimes it outperforms the baseline. Even for the 1/100 sub-corpora the random sampling is more robust and yields better results. There are two things interesting is that sometime our 1/10 sampling even outperforms the baseline. And second of which is that 1/10 sampling is worse than partitioning on rare words dataset. The reason why is when we concatenate all the sub-representations, we used the intersection of all vocabulary, which can the loss of some words. Especially when the words are too rare. Therefore it is less possible that this word may occur in the merged model.
+
+[21]
+Then we hold the division approach still and vary the combination approach and size of sub-corpora, it is showed that the pca is over all the best and can be done in minutes, LRA is the slowest and perform not so well. As we know PCA introduce some loss of information, so we add two line for the concatenation alone and the results shows the concatenation is indeed robust. But not so good as pca due to its sparsity
+
+[22]
+The count of combined sub-models is also a factor that may affect the performance. So we did another experiments to combine one or two or ten sub-models and have seen that even less number of sub-models suffices. Means sometimes we can hit the plateau before combine all the sub-models. This may eventually save the training resource and get the basically the same results. The division approach are all random sampling and pca for combination. Here is the result for 1/10 sub-models and 
+
+[23]
+Here is for 1/100 sub-models.
+
+[24]
+Last but not the least. As we showed before. The total time of all approaches. basically am m-fold division leads to an m-times speed up. It takes 36 hour for the baseline for training and 3.6 hours for the 1/10 corpus and less than 1 hour for the 1/100 corpus. The LRA approach performs not so well by evaluation nor timing, The sampling and PCA approach is the winner.
+
+[25]
+As conclusion, we introduced an approach of scalable learning of word representation. At first sentence-wise sample the sub-corpora and train on them individually, at last combine them using pca. Our approach can speed up the training process by M-times speed up by M-fold dividing of original corpus. And surprisingly our approach sometimes outperforms the baseline. As for the ongoing work, as you noticed, we used the intersection of vocabularies in all sub-models by model merging. And we have done the experiment, where only the words occurring in the combined model are evaluated, to see whether the performance decreasing is due to lost of words by intersecting. The result of experiment confirmed our hypothesis and the evaluation shows the better result than that on all words. Therefore one of our ongoing work is to inflate the missing vocabulary while merging the sub-models. Which increases the recall of the merged model and keeps the accuracy of the words that already exist.
