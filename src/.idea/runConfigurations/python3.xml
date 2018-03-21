@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="python3" type="PythonConfigurationType" factoryName="Python" show_console_on_std_out="true" show_console_on_std_err="true">
+    <output_file path="/tmp/pycharm" is_save="true" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="/usr/bin/python3.6" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="IS_MODULE_SDK" value="false" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <module name="src" />
+    <option name="SCRIPT_NAME" value="main.py" />
+    <option name="PARAMETERS" value="e 2 ../subs_test/ m csv z i c eval.log" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="true" />
+    <option name="MODULE_MODE" value="false" />
+    <method />
+  </configuration>
+</component>

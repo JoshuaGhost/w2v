@@ -38,6 +38,10 @@ class Embedding(object):
             logger.warning("Vocabulary has duplicates.")
 
     def __getitem__(self, k):
+        if isinstance(k, list):
+            vocabulary = k
+            vectors = [self[word] for word in k]
+            return Embedding(vocabulary=vocabulary, vectors=vectors)
         return self.vectors[self.vocabulary[k]]
 
     def __setitem__(self, k, v):
@@ -156,6 +160,12 @@ class Embedding(object):
         v2 = set(w2.vocabulary)
         vocab = list(v1.intersection(v2))
         vecs = np.vstack(np.hstack((self[word], w2[word])) for word in vocab)
+        self.vocabulary = OrderedVocabulary(vocab)
+        self.vectors = vecs
+
+    def filter(self, vocab):
+        vocab = list(set(self.vocabulary).intersection(set(vocab)))
+        vecs = np.vstack([self[word] for word in vocab])
         self.vocabulary = OrderedVocabulary(vocab)
         self.vectors = vecs
 
