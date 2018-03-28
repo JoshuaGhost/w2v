@@ -2,7 +2,7 @@ import numpy as np
 from .utils import low_rank_align, dim_reduce
 
 
-def pca(wvs, eigval_threshold, mean_corr):
+def pca(wvs, eigval_threshold=0.01, mean_corr=True):
     embedding = concat(wvs)
     embedding.vectors = dim_reduce(embedding.vectors, eigval_threshold, mean_corr)
     return embedding

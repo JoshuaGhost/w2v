@@ -157,6 +157,20 @@ class OrderedVocabulary(Vocabulary):
         self.word_id = {w: i for i, w in enumerate(words)}
         self.id_word = {i: w for w, i in iteritems(self.word_id)}
 
+    def __add__(self, other):
+        """ Add new (if any) words to the current vocabulary, the new index starts with len(current)+1.
+
+        Args:
+            other (list or Vocabulary): new (if any) words to be added.
+        """
+
+        words = [w for w in other if w not in self]
+        for i, w, in enumerate(words):
+            idx = i + len(self.word_id)
+            self.word_id[w] = i + idx
+            self.id_word[idx] = w
+        return self
+
     def most_frequent(self, k):
         """ Returns a vocabulary with the most frequent `k` words.
 

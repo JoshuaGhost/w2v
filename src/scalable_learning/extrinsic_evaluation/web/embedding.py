@@ -153,7 +153,7 @@ class Embedding(object):
 
     def append(self, w2):
         self.vocabulary += w2.vocabulary
-        self.vectors = np.hstack(self.vectors, w2.vectors)
+        self.vectors = np.vstack((self.vectors, w2.vectors))
 
     def concat(self, w2):
         v1 = set(self.vocabulary)

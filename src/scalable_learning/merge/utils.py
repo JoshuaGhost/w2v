@@ -8,9 +8,9 @@ def dim_reduce(vecs, eigval_threshold, mean_corr):
         vecs = vecs-vecs.mean(axis=0)
     cov = vecs.T.dot(vecs)
     evalues, bases = eigh(cov)
-    evalues = sqrt(evalues)
+    evalues = np.sqrt(evalues)
     bases = bases[evalues>eigval_threshold]
-    vecs = vecs.dot(bases.T)
+    return vecs.dot(bases.T)
 
 
 def low_rank_repr(x):

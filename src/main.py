@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from scalable_learning.missing_fix.interpolate import global_transformation, fill_zero, orthogonal_procrustes, gcca
+from scalable_learning.missing_fix.interpolate import affine_transform, fill_zero, orthogonal_procrustes, cca
 from scalable_learning.missing_fix.evaluate_pair import eval_extrinsic, eval_intrinsic
 from scalable_learning.merge import pca, concat, lra
 from scalable_learning.utils import load_embeddings
@@ -12,7 +12,7 @@ def eval_interpolate(argvs):
     subs = load_embeddings(subs_folder, filename=filename, extension=extension, norm=True, arch='csv')
     count_subs = int(count_subs)
     eval_methods = {'i': eval_intrinsic, 'e': eval_extrinsic}
-    interpolate_methods = {'l': global_transformation, 'p':orthogonal_procrustes, 'g': gcca, 'z': fill_zero}
+    interpolate_methods = {'a': affine_transform, 'p': orthogonal_procrustes, 'c': cca, 'z': fill_zero}
     merge_methods = {'p': pca, 'c': concat, 'l': lra}
     try:
         assert count_subs == 2
