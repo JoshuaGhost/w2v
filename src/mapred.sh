@@ -2,6 +2,8 @@ HOSTAME=$(uname -n)
 tempPath=$PATH
 LOCAL_OUTPUT='output/sampling'
 NPART=100
+NDIM=500
+TIMEOUT=10000000
 
 if [ $HOSTNAME == "Watchdog" ]; then
     HADOOP_HOME=/usr/local/hadoop/
@@ -24,11 +26,15 @@ if [ ! -f env.zip ]; then
     cd ..
 fi
 
-for file in {filenames.txt,sampling.article.*.txt,mapper.py,reducer.py}; do
+for file in {input.txt,env.zip}; do
     hdfs dfs -test -e $file
     if [ $? -ne 0 ]; then
         hdfs dfs -put $file;
     fi;
+done
+
+for file in {mapper.py,reducer.py}; do
+    hdfs dfs -put $file;
 done
 
 hdfs dfs -test -e output
@@ -40,22 +46,20 @@ echo $HADOOP_HOME
 echo $HADOOP_STREAM_JAR
 
 hadoop jar $HADOOP_STREAM_JAR\
-    -Dmapreduce.job.maps=$NPART -Dmapreduce.job.reduces=100 -Dmapreduce.map.memory.mb=5120 -Dmapreduce.map.java.opts=-Xmx4096m -archives ./env.zip#env\
-    -file filenames.txt\
+    -Dmapreduce.job.maps=$NPART -Dmapreduce.job.reduces=100 -Dmapreduce.map.memory.mb=10240\
+    -Dmapreduce.map.java.opts=-Xmx8192m -Dmapreduce.task.timeout=$TIMEOUT\
+    -archives ./env.zip#env\
+    -files hdfs:///user/zijian/input.txt#input.txt\
     -file mapper.py\
-    -file reducer.py\
-    -file sampling.article.*.txt\
-    -input filenames.txt\
-    -mapper "mapper.py $NPART"\
-    -reducer "reducer.py $NPART"\
-    -output output; 1>>mapred_std_out.txt 2>>mapred_std_err.txt
-
-if [ -d output ]; then
-    rm -r output;
-fi
+    -input input.txt\
+    -mapper "mapper.py $NPART $NDIM"\
+    -output output 1>>mapred_std_out.txt 2>>mapred_std_err.txt
 
 hdfs dfs -test -e output
 if [ $? -eq 0 ]; then
+    if [ -d output ]; then
+        rm -r output;
+    fi
     mkdir -pv $LOCAL_OUTPUT
     hdfs dfs -get output $LOCAL_OUTPUT
 fi
