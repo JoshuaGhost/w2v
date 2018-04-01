@@ -33,7 +33,6 @@ env/
 *.pkl
 *csv#
 *test.txt
-*corpus*
 *corpora*
 *csv#
 *ods#
