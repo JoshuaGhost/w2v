@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
 from scalable_learning.missing_fix.interpolate import affine_transform, fill_zero, orthogonal_procrustes, cca
-from scalable_learning.missing_fix.evaluate_pair import eval_extrinsic, eval_intrinsic
+from scalable_learning.missing_fix.evaluate_pair import eval_extrinsic, eval_intrinsicy
 from scalable_learning.merge import pca, concat, lra
 from scalable_learning.utils import load_embeddings
 from scalable_learning.corpus_divider import DividedLineSentence
 
+import argparse
 import sys, logging
 from time import localtime, strftime
 
@@ -14,8 +15,7 @@ logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
 logging.root.setLevel(level = logging.INFO)
 logger.info("running %s" % ' '.join(sys.argv))
 
-def eval_interpolate(argvs):
-    count_subs, subs_folder, filename, extension, im, em, mm = argvs
+def eval_interpolate(count_subs, subs_folder, filename, extension, im, em, mm):
     logger.info("loadding {} embeddings from {}".format(count_subs, subs_folder))
     subs = load_embeddings(subs_folder, filename=filename, extension=extension, norm=True, arch='csv')
     count_subs = int(count_subs)
@@ -34,7 +34,7 @@ def eval_interpolate(argvs):
         return -1
     logger.info('begin to run {} evaluation for interpolation method {}, the merging method is {}'.format(
                 eval_methods[em].__name__, interpolate_methods[im], merge_methods[mm]))
-    ret = eval_methods[em](subs[:2], interpolate_methods[im], merge_methods[mm], )
+    ret = eval_methods[em](subs[:2], interpolate_methods[im], merge_methods[mm])
     return ret
 
 def interpolate(argvs):
@@ -68,8 +68,25 @@ if __name__ == '__main__':
         interpolation_method evaluation_method merge_method 
         log_file_name
     '''
-    op = sys.argv[1]
-    work = {'evaluate_interpolation': eval_interpolate, 'interpolate': interpolate, 'divide':divide_corpus}
-    result = work[op](sys.argv[2:-1])
-    with open(sys.argv[-1], 'a+') as fout:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', help='type of task')
+    parser.add_argument('-l', help='logging file', default='./log.txt')
+    parser.add_argument('-c', help='count of the sub models', type=int, default=2)
+    parser.add_argument('-d', help='input directory')
+    parser.add_argument('-f', help='(prefix of) filenames')
+    parser.add_argument('-e', help='extention of the filenames', default='')
+    parser.add_argument('--im', help='interpolation method', default='z')
+    parser.add_argument('--em', help='evaluation method', default='i')
+    parser.add_argument('--mm', help='merging method', default='c')
+    args = parser.parse_args()
+    task = args.w
+    log_fname = args.l
+    if task == "evaluate_interpolation":
+        count_subs, subs_folder, filename, extension, im, em, mm = args.c, args.d, args.f, args.e, args.im, args.em, args.mm
+        result = eval_interpolate(cout_subs, subs_folder, filename, extension, im, em, mm)
+    else:
+        tasks = {'interpolate': interpolate, 'divide':divide_corpus}
+        result = tasks[t](sys.argv[2:-1])
+    with open(log_fname, 'a+') as fout:
         fout.write('configuration:\n{}\nresult:{}\n'.format(sys.argv, result))
+
