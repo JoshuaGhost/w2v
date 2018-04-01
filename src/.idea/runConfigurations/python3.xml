@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <module name="src" />
     <option name="SCRIPT_NAME" value="main.py" />
-    <option name="PARAMETERS" value="e 2 ../subs_test/ m csv z i c eval.log" />
+    <option name="PARAMETERS" value="e 2 ../subs_test_extrinsic/ m csv a e p eval.log" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />
     <option name="MODULE_MODE" value="false" />
