@@ -4,13 +4,26 @@ from scalable_learning.missing_fix.interpolate import affine_transform, fill_zer
 from scalable_learning.missing_fix.evaluate_pair import eval_extrinsic, eval_intrinsic
 from scalable_learning.merge import pca, concat, lra
 from scalable_learning.utils import load_embeddings
-import sys
+from scalable_learning.corpus_divider import DividedLineSentence
 
+import sys, logging
+from time import localtime, strftime
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
+logging.root.setLevel(level = logging.INFO)
+logger.info("running %s" % ' '.join(sys.argv))
 
 def eval_interpolate(argvs):
     count_subs, subs_folder, filename, extension, im, em, mm = argvs
+    logger.info("loadding {} embeddings from {}".format(count_subs, subs_folder))
     subs = load_embeddings(subs_folder, filename=filename, extension=extension, norm=True, arch='csv')
     count_subs = int(count_subs)
+    try:
+        assert count_subs==subs
+    except AssertionError:
+        logger.error('No. embedding loaded is not the same with designated count!')
+        retur -1
     eval_methods = {'i': eval_intrinsic, 'e': eval_extrinsic}
     interpolate_methods = {'a': affine_transform, 'p': orthogonal_procrustes, 'c': cca, 'z': fill_zero}
     merge_methods = {'p': pca, 'c': concat, 'l': lra}
@@ -18,14 +31,35 @@ def eval_interpolate(argvs):
         assert count_subs == 2
     except AssertionError:
         print("not implemented!")
-        return - 1
+        return -1
+    logger.info('begin to run {} evaluation for interpolation method {}, the merging method is {}'.format(
+                eval_methods[em].__name__, interpolate_methods[im], merge_methods[mm]))
     ret = eval_methods[em](subs[:2], interpolate_methods[im], merge_methods[mm], )
     return ret
-
 
 def interpolate(argvs):
     pass
 
+def divide_corpus(argvs):
+    input_fname, strategy, npart, output_folder, output_fname = argvs
+    try:
+        assert strategy in {'sampling', 'partitioning'}
+    except AssertionError:
+        logger.error('dividing strategy should be either "sampling" or "partitioning"')
+    output_fname = '/'.join((output_folder, strategy, npart, output_fname))
+    npart = int(npart)
+    
+    logger.info('start to divide corpora')
+    logger.info('divide corpus file [{}] into [{}] part(s) with strategy [{}]'.format(input_fname, npart, strategy))
+    logger.info('divided sub_corpora saved as [{}]'.format(output_fname))
+
+    lineSentences = DividedLineSentence(input_fname, strategy, npart)
+    with open(output_fname, 'w+') as fout:
+        for idx, part in enumerate(lineSentences):
+            output_lines = [line for line in part]
+            fout.write('?'.join(output_lines)+'\n')
+            logger.info('sub-corpus No. {} saved'.format(idx))
+    return output_fname 
 
 if __name__ == '__main__':
     '''
@@ -35,7 +69,7 @@ if __name__ == '__main__':
         log_file_name
     '''
     op = sys.argv[1]
-    work = {'e': eval_interpolate, 'i': interpolate}
+    work = {'evaluate_interpolation': eval_interpolate, 'interpolate': interpolate, 'divide':divide_corpus}
     result = work[op](sys.argv[2:-1])
     with open(sys.argv[-1], 'a+') as fout:
         fout.write('configuration:\n{}\nresult:{}\n'.format(sys.argv, result))

@@ -362,14 +362,14 @@ def evaluate_on_all(w, cosine_similarity):
     # Calculate results on similarity
     logger.info("Calculating similarity benchmarks")
     similarity_tasks = {
-        "MEN": fetch_MEN(),
-        "WS353": fetch_WS353(),
-        "WS353R": fetch_WS353(which="relatedness"),
-        "WS353S": fetch_WS353(which="similarity"),
-        "SimLex999": fetch_SimLex999(),
-        "RW": fetch_RW(),
-        "RG65": fetch_RG65(),
-        "MTurk": fetch_MTurk(),
+        #"MEN": fetch_MEN(),
+        #"WS353": fetch_WS353(),
+        #"WS353R": fetch_WS353(which="relatedness"),
+        #"WS353S": fetch_WS353(which="similarity"),
+        #"SimLex999": fetch_SimLex999(),
+        #"RW": fetch_RW(),
+        #"RG65": fetch_RG65(),
+        #"MTurk": fetch_MTurk(),
     }
 
     similarity_results = {}
@@ -396,9 +396,9 @@ def evaluate_on_all(w, cosine_similarity):
     # Calculate results on categorization
     logger.info("Calculating categorization benchmarks")
     categorization_tasks = {
-        "AP": fetch_AP(),
-        "BLESS": fetch_BLESS(),
-        "Battig": fetch_battig(),
+        #"AP": fetch_AP(),
+        #"BLESS": fetch_BLESS(),
+        #"Battig": fetch_battig(),
         #"ESSLI_2c": fetch_ESSLI_2c(),
         #"ESSLI_2b": fetch_ESSLI_2b(),
         #"ESSLI_1a": fetch_ESSLI_1a()

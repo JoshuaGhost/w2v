@@ -3,6 +3,7 @@ import sys
 import os
 import pickle
 from web.evaluate_on_demand import evaluate_words_demanded_on_all
+from web.embeddings import load_embedding
 
 program = os.path.basename(sys.argv[0])
 logger = logging.getLogger(program)
@@ -21,7 +22,7 @@ else:
 
 cosine_similarity = False
 
-w = pickle.load(open(sys.argv[1], 'r'))
+w = load_embedding(sys.argv[1], format='dict', normalize=True, lower=False, clean_words=False)
 logger.info('[NEW]Start to evaluate {} on vocabulary {}'.format(model_name, vocab_name))
 result = evaluate_words_demanded_on_all(w, cosine_similarity, words_demanded)
 

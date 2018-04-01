@@ -44,15 +44,16 @@ def evaluate_on_semeval_2012_2_on_demand(w, words_demanded):
             for word in question:
                 if word not in words_demanded:
                     break
+                    pass
                 else:
                     pass
             else:
                 q.append(question)
                 s.append(data.y[category][idx])
         X[category] = np.array(q)
-        vacancy = len(data.X)-len(X)
-        logger.info('[WM]Failed to answer {} questions.'.format(vacancy))
         y[category] = np.array(s)
+    vacancy = len(data.X)-len(X)
+    logger.info('[WM]Failed to answer {} questions.'.format(vacancy))
 
     data = Bunch(X_prot=data.X_prot, X=X, y=y,
                  categories_names=data.categories_names,
@@ -96,14 +97,14 @@ def evaluate_words_demanded_on_all(w, cosine_similarity, words_demanded=None):
     # Calculate results on similarity
     logger.info("Calculating similarity benchmarks on words words_demanded")
     similarity_tasks = {
-        "MEN": fetch_MEN(),
-        "WS353": fetch_WS353(),
-        "WS353R": fetch_WS353(which="relatedness"),
-        "WS353S": fetch_WS353(which="similarity"),
-        "SimLex999": fetch_SimLex999(),
-        "RW": fetch_RW(),
-        "RG65": fetch_RG65(),
-        "MTurk": fetch_MTurk(),
+        #"MEN": fetch_MEN(),
+        #"WS353": fetch_WS353(),
+        #"WS353R": fetch_WS353(which="relatedness"),
+        #"WS353S": fetch_WS353(which="similarity"),
+        #"SimLex999": fetch_SimLex999(),
+        #"RW": fetch_RW(),
+        #"RG65": fetch_RG65(),
+        #"MTurk": fetch_MTurk(),
     }
 
     similarity_results = {}
@@ -137,9 +138,10 @@ def evaluate_words_demanded_on_all(w, cosine_similarity, words_demanded=None):
     for name, data in iteritems(analogy_tasks):
         X, y = [], []
         for question, answer in zip(data.X, data.y):
-            for word in question + answer:
+            for word in question.tolist() + [answer]:
                 if word not in words_demanded:
                     break
+                    pass
                 else:
                     pass
             else:
@@ -158,9 +160,9 @@ def evaluate_words_demanded_on_all(w, cosine_similarity, words_demanded=None):
     # Calculate results on categorization
     logger.info("Calculating categorization benchmarks")
     categorization_tasks = {
-        "AP": fetch_AP(),
-        "BLESS": fetch_BLESS(),
-        "Battig": fetch_battig(),
+        #"AP": fetch_AP(),
+        #"BLESS": fetch_BLESS(),
+        #"Battig": fetch_battig(),
     }
 
     categorization_results = {}

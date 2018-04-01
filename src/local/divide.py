@@ -8,8 +8,8 @@
     python divide_corpus.py <strategy> <num of parts> <dir/to/corpus_fileument> <dir/saving/partial/documents>
 
     For the strategy, it can be:
-        skip: divide corpus so that every <num of parts> document is saved into one part
-        bootstrap: divide corpus using bootstrap
+        partitioning: divide corpus so that every <num of parts> document is saved into one part
+        sampling: divide corpus using sampling
 '''
 
 import logging
@@ -48,7 +48,7 @@ def part_wrt_hit_table(source, hit):
             yield line
 
 
-def divide_skip(source, nparts):
+def divide_partitioning(source, nparts):
     import itertools
     step = nparts
     for start in range(nparts):
@@ -56,7 +56,7 @@ def divide_skip(source, nparts):
         yield itertools.islice(lines, start, None, step)
 
 
-def divide_bootstrap(source, nparts):
+def divide_sampling(source, nparts):
     source.seek(0)
     nline = sum(1 for line in source)
     for i in range(nparts):
@@ -71,12 +71,12 @@ class DividedLineSentence(object):
         self.strategy = strategy
         self.npart = npart
         self.source_doc = open(source, 'r')
-        if strategy=='skip':
-            self.all_parts = divide_skip(self.source_doc, self.npart)
-            self.sub_folder='skip/'
-        elif strategy=='bootstrap':
-            self.all_parts = divide_bootstrap(self.source_doc, self.npart)
-            self.sub_folder='bootstrap/'
+        if strategy=='partitioning':
+            self.all_parts = divide_partitioning(self.source_doc, self.npart)
+            self.sub_folder='partitioning/'
+        elif strategy=='sampling':
+            self.all_parts = divide_sampling(self.source_doc, self.npart)
+            self.sub_folder='sampling/'
 
     def __iter__(self):
         self.source_doc.seek(0)
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         print globals()['__doc__'] %locals()
         sys.exit(1)
     
-    strategy, npart, corpus_file, parts_dir = sys.argv[1:5] #strategy = {bootstrap, skip}
+    strategy, npart, corpus_file, parts_dir = sys.argv[1:5] #strategy = {sampling, partitioning}
     npart = int(npart)
     corpus_name = '.'.join(os.path.basename(corpus_file).split('.')[:-1])
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
         sub_folder = lineSentences.sub_folder
         filename = parts_dir+'/'+sub_folder+'/'+corpus_name+'.'+str(idx)+'.txt'
         if os.path.exists(filename):
-            logger.info('part %d exists, skip it' % idx)
+            logger.info('part %d exists, skipped' % idx)
             continue
         else:
             output = open(filename, 'w+')
