@@ -2,6 +2,7 @@ import numpy as np
 from scalable_learning.extrinsic_evaluation.web.embedding import Embedding
 from scalable_learning.extrinsic_evaluation.web.vocabulary import OrderedVocabulary
 from scipy.linalg import svd, inv, eigh
+from copy import deepcopy
 
 
 def cca(webs_train, webs_test, webs_predict):
@@ -95,8 +96,10 @@ def affine_transform(webs_train, webs_test, webs_predict):
 
 def fill_zero(webs_train, webs_test, webs_predict):
     web0, web1 = webs_train
-    web_predict1 = Embedding(vocabulary=webs_predict[0].vocabulary, vectors=np.zeros_like(webs_predict[0].vectors))
-    web_predict0 = Embedding(vocabulary=webs_predict[1].vocabulary, vectors=np.zeros_like(webs_predict[1].vectors))
+    web_predict1 = Embedding(vocabulary=deepcopy(webs_predict[0].vocabulary),
+                             vectors=np.zeros_like(webs_predict[0].vectors))
+    web_predict0 = Embedding(vocabulary=deepcopy(webs_predict[1].vocabulary),
+                             vectors=np.zeros_like(webs_predict[1].vectors))
 
     web0.append(webs_test[0])
     web0.append(webs_predict[0])
