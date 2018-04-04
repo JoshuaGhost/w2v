@@ -1,7 +1,7 @@
 from scipy.linalg import svd, block_diag, eigh
 from scipy.sparse.csgraph import laplacian
 import numpy as np
-
+from scalable_learning.extrinsic_evaluation.web.embedding import Embedding, OrderedVocabulary
 
 def dim_reduce(vecs, eigval_threshold, mean_corr):
     if mean_corr:
@@ -41,3 +41,5 @@ def low_rank_align(x, y, cxy, d=None, miu=0.8):
     xembed = f[:nx]
     yembed = f[nx:]
     return xembed, yembed
+
+

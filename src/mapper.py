@@ -27,4 +27,4 @@ if __name__ == '__main__':
         for word in m.wv.vocab:
             #wv = repr(word.strip()) #repr() is needed because of non-ascii chars in corpus, thus the word in output are all like u'word'
             wv = word + ', '+str(m.wv[word].tolist())[1:-1]  # from 1 to -1 because the string representation of array contains pair of squared brackets
-            print mapper_id + '\t' + wv
+            print (mapper_id + '\t' + wv)

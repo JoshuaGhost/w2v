@@ -1,15 +1,21 @@
 from scalable_learning.extrinsic_evaluation.web import evaluate_on_all
-from scalable_learning.extrinsic_evaluation.web.embedding import Embedding
+from scalable_learning.extrinsic_evaluation.web.datasets.similarity import fetch_MEN, fetch_WS353, fetch_SimLex999, fetch_MTurk, fetch_RG65, fetch_RW
+from scalable_learning.extrinsic_evaluation.web.datasets.categorization import fetch_AP, fetch_battig, fetch_BLESS
+from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_analogy, evaluate_categorization, evaluate_similarity, evaluate_on_semeval_2012_2
+from scalable_learning.extrinsic_evaluation.web.analogy import *
 from copy import deepcopy
 from numpy import linalg
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def prep_cross_validation(webs, pct_train=0.6, pct_test=0.4):
     web0, web1 = webs
     v0, v1 = set(web0.vocabulary), set(web1.vocabulary)
     vocab_intersection = list(v0.intersection(v1))
-    print "size of v0: {}, size of v1: {}, sizeof intersection: {}".format(len(v0), len(v1), len(vocab_intersection))
+    print ("size of v0: {}, size of v1: {}, sizeof intersection: {}".format(len(v0), len(v1), len(vocab_intersection)))
     len_train = int(len(vocab_intersection) * pct_train)
     len_test = int(len(vocab_intersection) * (pct_train + pct_test)) - len_train
     vocab_train = vocab_intersection[:len_train]
@@ -58,23 +64,68 @@ def missing_fix_2_subs(webs_train, interpolation_method, webs_test=None, webs_va
 def eval_intrinsic(webs, interpolate_method, merge_method=None, pct_train=0.6, pct_test=0.2):
     webs_train, webs_test, webs_validation = prep_cross_validation(webs, pct_train, pct_test)
     webs_predict = missing_fix_2_subs(webs_train, interpolate_method, webs_test, webs_validation)
-    try:
-        diff = np.asarray([webs_predict[0][w] - webs[0][w] for w in webs_validation[1].vocabulary])
-    except IndexError:
-        print repr(w)
+    diff = np.asarray([webs_predict[0][w] - webs[0][w] for w in webs_validation[1].vocabulary])
     err = linalg.norm(diff, 'fro')
-
-    try:
-        diff = np.asarray([webs_predict[1][w] - webs[1][w] for w in webs_validation[0].vocabulary])
-    except IndexError:
-        print repr(w)
+    diff = np.asarray([webs_predict[1][w] - webs[1][w] for w in webs_validation[0].vocabulary])
     return err + linalg.norm(diff, 'fro')  # bad evaluation metric for CCA based method. Because CCA transforms both.
 
 
-def eval_extrinsic(webs, interpolation_method, merge_method, pct_train=0.8, pct_test=0.2):
+def interpolate_combine(webs, interpolation_method, merge_method, pct_train=0.8, pct_test=0.2):
     webs_train, webs_test, webs_validation = prep_cross_validation(webs, pct_train, pct_test)
     webs_predict = missing_fix_2_subs(webs_train, interpolation_method, webs_test, webs_validation)
     m_combined = merge_method(webs_predict)
+    return m_combined
+
+
+def eval_extrinsic(m_combined):
     result = evaluate_on_all(m_combined, cosine_similarity=False)
     return result
 
+
+def eval_demand(m_combined, dataset='MEN'):
+    similarity_tasks = {
+        "MEN": fetch_MEN(),
+        "WS353": fetch_WS353(),
+        "WS353R": fetch_WS353(which="relatedness"),
+        "WS353S": fetch_WS353(which="similarity"),
+        "SimLex999": fetch_SimLex999(),
+        "RW": fetch_RW(),
+        "RG65": fetch_RG65(),
+        "MTurk": fetch_MTurk(),
+    }
+
+    analogy_tasks = {
+        "Google": fetch_google_analogy(),
+        "MSR": fetch_msr_analogy()
+    }
+
+    categorization_tasks = {
+        "AP": fetch_AP(),
+        "BLESS": fetch_BLESS(),
+        "Battig": fetch_battig(),
+        #"ESSLI_2c": fetch_ESSLI_2c(),
+        #"ESSLI_2b": fetch_ESSLI_2b(),
+        #"ESSLI_1a": fetch_ESSLI_1a()
+    }
+
+    if dataset in {'MEN', 'RW', 'WS353', 'WS353S', 'WS353R'}:
+        logger.info("Calculating similarity benchmarks")
+        data = similarity_tasks[dataset]
+        result = evaluate_similarity(m_combined, data.X, data.y, cosine_similarity=False)
+        logger.info("Spearman correlation of scores on {} {}".format(dataset, result))
+    elif dataset in {'Google'}:
+        logger.info("Calculating analogy benchmarks")
+        data = analogy_tasks[dataset]
+        result = evaluate_analogy(m_combined, data.X, data.y)
+        logger.info("Analogy prediction accuracy on {} {}".format(dataset, result))
+    elif dataset == 'SemEval2012':
+        logger.info("Calculating analogy benchmarks")
+        result = evaluate_on_semeval_2012_2(m_combined)['all']
+        logger.info("Analogy prediction accuracy on {} {}".format("SemEval2012", result))
+    else:
+        logger.info("Calculating categorization benchmarks")
+        data = categorization_tasks[dataset]
+        result = evaluate_categorization(m_combined, data.X, data.y)
+        logger.info("Cluster purity on {} {}".format(dataset, result))
+
+    return result

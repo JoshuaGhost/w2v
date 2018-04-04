@@ -43,9 +43,9 @@ def read_wv_csv(fname):
         vocab.append(word)
         vecs.append(vec)
         if idx % 10000 == 0:
-            print "{}: len(word) = {}, len(vecs) = {}".format(idx, len(vocab), len(vecs))
+            print("{}: len(word) = {}, len(vecs) = {}".format(idx, len(vocab), len(vecs)))
     vecs = np.asarray(vecs, dtype=float)
-    print "len(vocab) = {}, len(vecs) = {}".format(len(vocab), len(vecs))
+    print("len(vocab) = {}, len(vecs) = {}".format(len(vocab), len(vecs)))
     for i in range(vecs.shape[0]):
         vecs[i, :] /= sqrt((vecs[i, :]**2).sum(-1)) # normalization
     vocab = OrderedVocabulary(words=vocab)
@@ -87,3 +87,13 @@ def load_embeddings(folder, filename, extension, norm, arch, selected=None):
         p = Pool(10)
         wvs = p.map(read_wv_csv, fnames)
         return wvs
+
+def gensim2web(model):
+    vocabulary = []
+    vectors = []
+    for word in model.wv.vocab.keys():
+        vocabulary.append(word)
+        vectors.append(model.wv.word_vec(word, use_norm=True))
+    vocabulary = OrderedVocabulary(vocabulary)
+    vectors = np.asarray(vectors)
+    return Embedding(vocabulary=vocabulary, vectors=vectors)
