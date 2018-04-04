@@ -84,9 +84,8 @@ def load_embeddings(folder, filename, extension, norm, arch, selected=None):
         wvs = p.map(read_wv_hadoop, fnames)
         return wvs
     elif arch == 'csv':
-        #p = Pool(10)
-        #wvs = p.map(read_wv_csv, fnames)
-        wvs = list(map(read_wv_csv, fnames))
+        p = Pool(10)
+        wvs = list(p.map(read_wv_csv, fnames))
         return wvs
 
 
