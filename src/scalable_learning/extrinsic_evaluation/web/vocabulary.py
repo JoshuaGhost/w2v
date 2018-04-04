@@ -163,12 +163,8 @@ class OrderedVocabulary(Vocabulary):
         Args:
             other (list or Vocabulary): new (if any) words to be added.
         """
-
-        words = [w for w in other if w not in self]
-        for i, w, in enumerate(words):
-            idx = i + len(self.word_id)
-            self.word_id[w] = i + idx
-            self.id_word[idx] = w
+        for word in other:
+            self.add(word)
         return self
 
     def most_frequent(self, k):

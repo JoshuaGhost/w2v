@@ -33,9 +33,8 @@ for file in {input.txt,env.zip}; do
     fi;
 done
 
-for file in {mapper.py,reducer.py}; do
-    hdfs dfs -put $file;
-done
+hdfs dfs -rm mapper.py
+hdfs dfs -put mapper.py
 
 hdfs dfs -test -e output
 if [ $? -eq 0 ]; then
@@ -49,10 +48,10 @@ hadoop jar $HADOOP_STREAM_JAR\
     -Dmapreduce.job.maps=$NPART -Dmapreduce.job.reduces=100 -Dmapreduce.map.memory.mb=10240\
     -Dmapreduce.map.java.opts=-Xmx8192m -Dmapreduce.task.timeout=$TIMEOUT\
     -archives ./env.zip#env\
-    -files hdfs:///user/zijian/input.txt#input.txt\
-    -file mapper.py\
+    -files hdfs:///user/zijian/input.txt#input.txt,hdfs:///user/zijian/mapper.py#mapper.py\
     -input input.txt\
     -mapper "mapper.py $NPART $NDIM"\
+    -reducer /bin/cat\
     -output output 1>>mapred_std_out.txt 2>>mapred_std_err.txt
 
 hdfs dfs -test -e output

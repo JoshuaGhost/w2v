@@ -6,6 +6,7 @@ from functools import reduce
 
 from multiprocessing import Pool
 
+import codecs
 import numpy as np
 
 from scalable_learning.extrinsic_evaluation.web.embedding import Embedding
@@ -29,15 +30,24 @@ def read_wv_hadoop(fname):
 
 def read_wv_csv(fname):
     vocab, vecs = [], []
-    for line in open(fname, 'r'):
+    vocab_set = set()
+    for idx, line in enumerate(codecs.open(fname, 'r', buffering=(2<<16+8), encoding='utf-8')):
         if len(line.strip()) == 0:
             break
         word, vec = line.split(',', 1)
+
+        if word[0] == '0':
+            word = word[4:]# this is set when the first field is index of mapper
+
+        vec = eval(vec)
         vocab.append(word)
-        vecs.append(eval(vec))
-    vecs = np.array(vecs, dtype=float)
+        vecs.append(vec)
+        if idx % 10000 == 0:
+            print "{}: len(word) = {}, len(vecs) = {}".format(idx, len(vocab), len(vecs))
+    vecs = np.asarray(vecs, dtype=float)
+    print "len(vocab) = {}, len(vecs) = {}".format(len(vocab), len(vecs))
     for i in range(vecs.shape[0]):
-        vecs[i, :] /= sqrt((vecs[i, :]**2).sum(-1))
+        vecs[i, :] /= sqrt((vecs[i, :]**2).sum(-1)) # normalization
     vocab = OrderedVocabulary(words=vocab)
     return Embedding(vocabulary=vocab, vectors=vecs)
 
@@ -71,7 +81,7 @@ def load_embeddings(folder, filename, extension, norm, arch, selected=None):
     elif arch == 'submodels':
         p = Pool(10)
         fnames = [folder+'/'+filename+str(i)+extension for i in selected]
-        wvs = p.map(read_wv_hadoop, fnames, arch)
+        wvs = p.map(read_wv_hadoop, fnames)
         return wvs
     elif arch == 'csv':
         p = Pool(10)
