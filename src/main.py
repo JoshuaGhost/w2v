@@ -3,7 +3,7 @@
 from scalable_learning.missing_fix.interpolate import affine_transform, fill_zero, orthogonal_procrustes, cca
 from scalable_learning.missing_fix.evaluate_pair import interpolate_combine, eval_intrinsic, eval_extrinsic, eval_demand
 from scalable_learning.merge import pca, concat, lra
-from scalable_learning.utils import load_embeddings, read_wv_csv, gensim2web
+from scalable_learning.utils import load_embeddings, read_wv_csv, gensim2web, web2csv
 from scalable_learning.corpus_divider import DividedLineSentence
 from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_on_all
 
@@ -14,6 +14,7 @@ import argparse
 import sys
 import logging
 import codecs
+import os.path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
@@ -100,6 +101,7 @@ if __name__ == '__main__':
     parser.add_argument('--mmethod', help='merging method', default='c')
     parser.add_argument('--cfolder', help='the folder where the sub-corpora file is saved', default='')
     parser.add_argument('--cname_source', help='filename of source sub-corpus', default='')
+    parser.add_argument('--source_dump', help='directory where the source embedding is dumped', default='')
     parser.add_argument('--cname_target', help='filename of target sub-corpus', default='')
     parser.add_argument('--vbfolder', help='folder where vocabularies of benchmarks are saved', default='')
     parser.add_argument('--vbname', help='filename of benchmark vocabulary', default='')
@@ -128,19 +130,24 @@ if __name__ == '__main__':
             fout.write(result.to_csv())
 
     elif task == 'mask_benchmark':
-        model_source = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
-                                min_count=SUB_MIN_COUNT, sample=1e-4)
+        source_dump = args.source_dump
         model_target2 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
                                  min_count=SUB_MIN_COUNT, sample=1e-4)
-        cname_source = args.cfolder + '/' + args.cname_source
-        source_corpus = codecs.open(cname_source, 'r', encoding='utf8', buffering=1)
-        model_source.build_vocab(word.split() for word in source_corpus)
-        source_corpus.seek(0)
-        model_source.train((word.split() for word in source_corpus), total_examples=model_source.corpus_count,
-                           epochs=model_source.epochs)
-        model_source.init_sims()
-        model_source = gensim2web(model_source)
-        source_corpus.close()
+        if os.path.isfile(source_dump):
+            model_source = load_embeddings('/', source_dump, '', norm=True, arch='csv')[0]
+        else:
+            cname_source = args.cfolder + '/' + args.cname_source
+            model_source = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+                                    min_count=SUB_MIN_COUNT, sample=1e-4)
+            source_corpus = codecs.open(cname_source, 'r', encoding='utf8', buffering=1)
+            model_source.build_vocab(word.split() for word in source_corpus)
+            source_corpus.seek(0)
+            model_source.train((word.split() for word in source_corpus), total_examples=model_source.corpus_count,
+                               epochs=model_source.epochs)
+            model_source.init_sims()
+            model_source = gensim2web(model_source)
+            source_corpus.close()
+            web2csv(model_source, source_dump)
 
         vbname = args.vbfolder + '/' + args.vbname
         with codecs.open(vbname, 'r', encoding='utf8', buffering=1) as fvb:

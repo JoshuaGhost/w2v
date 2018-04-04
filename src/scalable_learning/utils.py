@@ -84,9 +84,11 @@ def load_embeddings(folder, filename, extension, norm, arch, selected=None):
         wvs = p.map(read_wv_hadoop, fnames)
         return wvs
     elif arch == 'csv':
-        p = Pool(10)
-        wvs = p.map(read_wv_csv, fnames)
+        #p = Pool(10)
+        #wvs = p.map(read_wv_csv, fnames)
+        wvs = list(map(read_wv_csv, fnames))
         return wvs
+
 
 def gensim2web(model):
     vocabulary = []
@@ -97,3 +99,9 @@ def gensim2web(model):
     vocabulary = OrderedVocabulary(vocabulary)
     vectors = np.asarray(vectors)
     return Embedding(vocabulary=vocabulary, vectors=vectors)
+
+
+def web2csv(web, filename):
+    with codecs.open(filename, 'w+', encoding='utf8') as fout:
+        for word in web.vocabulary:
+            fout.write('{}, {}\n'.format(word, repr(web[word].tolist()[1:-1])))
