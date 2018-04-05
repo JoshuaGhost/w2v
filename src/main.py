@@ -7,7 +7,7 @@ from scalable_learning.utils import load_embeddings, read_wv_csv, gensim2web, we
 from scalable_learning.corpus_divider import DividedLineSentence
 from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_on_all
 
-from gensim.models.word2vec import Word2Vec, Word2VecVocab
+from gensim.models.word2vec import Word2Vec, Word2VecVocab, LineSentence
 from gensim.utils import RULE_DISCARD, RULE_KEEP
 
 import argparse
@@ -21,12 +21,12 @@ logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
 logging.root.setLevel(level = logging.INFO)
 logger.info("running %s" % ' '.join(sys.argv))
 
-#DIM = 500
-DIM = 5
+DIM = 500
+#DIM = 5
 N_NS = 5
 MIN_COUNT = 100
-#NPARTS = 10
-NPARTS = 100
+NPARTS = 10
+#NPARTS = 100
 SUB_MIN_COUNT = 100/NPARTS
 
 
@@ -131,43 +131,38 @@ if __name__ == '__main__':
 
     elif task == 'mask_benchmark':
         source_dump = args.source_dump
-        model_target2 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
-                                 min_count=SUB_MIN_COUNT, sample=1e-4)
         if os.path.isfile(source_dump):
             model_source = load_embeddings('/', source_dump, '', norm=True, arch='csv')[0]
         else:
             cname_source = args.cfolder + '/' + args.cname_source
             model_source = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
                                     min_count=SUB_MIN_COUNT, sample=1e-4)
-            source_corpus = codecs.open(cname_source, 'r', encoding='utf8', buffering=1)
-            model_source.build_vocab(word.split() for word in source_corpus)
-            source_corpus.seek(0)
-            model_source.train((word.split() for word in source_corpus), total_examples=model_source.corpus_count,
+            source_corpus = LineSentence(cname_source)
+            model_source.build_vocab(source_corpus)
+            model_source.train(source_corpus, total_examples=model_source.corpus_count,
                                epochs=model_source.epochs)
             model_source.init_sims()
             model_source = gensim2web(model_source)
-            source_corpus.close()
+            source_corpus = None
             web2csv(model_source, source_dump)
 
         vbname = args.vbfolder + '/' + args.vbname
         with codecs.open(vbname, 'r', encoding='utf8', buffering=1) as fvb:
             vocab_benchmark = set(word for word in fvb)
         cname_target = args.cfolder + '/' + args.cname_target
-        target_corpus = codecs.open(cname_target, 'r', encoding='utf8', buffering=1)
+        target_corpus = LineSentence(cname_target)
         model_target1 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
                                  min_count=SUB_MIN_COUNT, sample=1e-4)
-        model_target1.build_vocab((word.split() for word in target_corpus),
+        model_target1.build_vocab(target_corpus,
                                   trim_rule=(lambda word, count, min_count:
                                              RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
-        target_corpus.seek(0)
-        model_target1.train((word.split() for word in target_corpus), total_examples=model_target1.corpus_count,
+        model_target1.train(target_corpus, total_examples=model_target1.corpus_count,
                             epochs=model_target1.epochs)
         model_target1.init_sims()
         model_target1 = gensim2web(model_target1)
 
-        target_corpus.seek(0)
         vocab_target = Word2VecVocab(min_count=1, null_word=1)
-        vocab_target.scan_vocab(word.split() for word in target_corpus)
+        vocab_target.scan_vocab(target_corpus)
         vocab_target_sorted = list(vocab_target.raw_vocab.keys())
         vocab_benchmark = vocab_benchmark.intersection(set(vocab_target_sorted))
         vocab_target_sorted.sort(key=(lambda x: vocab_target.raw_vocab[x]), reverse=True)
@@ -177,12 +172,13 @@ if __name__ == '__main__':
                 vocab_benchmark.remove(word)
             if len(vocab_benchmark) <= size_benchmark//2:
                 break
-        target_corpus.seek(0)
-        model_target2.build_vocab((word.split() for word in target_corpus),
+        model_target2 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+                                 min_count=SUB_MIN_COUNT, sample=1e-4)
+        model_target2.build_vocab(target_corpus,
                                   trim_rule=(lambda word, count, min_count:
                                              RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
         target_corpus.seek(0)
-        model_target2.train((word.split() for word in target_corpus), total_examples=model_target2.corpus_count,
+        model_target2.train(target_corpus, total_examples=model_target2.corpus_count,
                             epochs=model_target2.epochs)
         model_target2.init_sims()
         model_target2 = gensim2web(model_target2)

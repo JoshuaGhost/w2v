@@ -101,6 +101,6 @@ def gensim2web(model):
 
 
 def web2csv(web, filename):
-    with codecs.open(filename, 'w+', encoding='utf8') as fout:
+    with codecs.open(filename, 'w+', encoding='utf-8') as fout:
         for word in web.vocabulary:
-            fout.write('{}, {}\n'.format(word, repr(web[word].tolist()[1:-1])))
+            fout.write(u'{}, {}\n'.format(word, repr(web[word].tolist())[1:-1]))
