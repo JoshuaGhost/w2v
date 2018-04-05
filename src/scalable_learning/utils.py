@@ -101,6 +101,7 @@ def gensim2web(model):
 
 
 def web2csv(web, filename):
+    print("dumping word embedding under {}".format(filename))
     with codecs.open(filename, 'w+', encoding='utf-8') as fout:
         for word in web.vocabulary:
             fout.write(u'{}, {}\n'.format(word, repr(web[word].tolist())[1:-1]))

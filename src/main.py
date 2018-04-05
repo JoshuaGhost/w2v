@@ -22,13 +22,14 @@ logging.root.setLevel(level = logging.INFO)
 logger.info("running %s" % ' '.join(sys.argv))
 
 DIM = 500
-#DIM = 5
 N_NS = 5
 MIN_COUNT = 100
 NPARTS = 10
-#NPARTS = 100
-SUB_MIN_COUNT = 100/NPARTS
 
+#DIM = 5
+#NPARTS = 100
+
+SUB_MIN_COUNT = 100/NPARTS
 
 def eval_interpolate(webs, im, em, mm, dataset=None):
     count_subs = len(webs)
