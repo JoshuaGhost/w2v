@@ -177,7 +177,6 @@ if __name__ == '__main__':
         model_target2.build_vocab(target_corpus,
                                   trim_rule=(lambda word, count, min_count:
                                              RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
-        target_corpus.seek(0)
         model_target2.train(target_corpus, total_examples=model_target2.corpus_count,
                             epochs=model_target2.epochs)
         model_target2.init_sims()
