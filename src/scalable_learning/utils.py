@@ -1,13 +1,12 @@
+import codecs
 import os
-from numpy import hstack, vstack
-from numpy import sqrt
-from gensim.models.word2vec import Word2Vec
 from functools import reduce
-
 from multiprocessing import Pool
 
-import codecs
 import numpy as np
+from gensim.models.word2vec import Word2Vec
+from numpy import sqrt
+from numpy import vstack
 
 from scalable_learning.extrinsic_evaluation.web.embedding import Embedding
 from scalable_learning.extrinsic_evaluation.web.vocabulary import OrderedVocabulary
@@ -23,7 +22,7 @@ def read_wv_hadoop(fname):
         vecs.append(vec)
     vecs = np.array(vecs, dtype=float)
     for i in range(vecs.shape[0]):
-        vecs[i, :] /= sqrt((vecs[i, :]**2).sum(-1))
+        vecs[i, :] /= sqrt((vecs[i, :] ** 2).sum(-1))
     vocab = OrderedVocabulary(words=vocab)
     return Embedding(vocabulary=vocab, vectors=vecs)
 
@@ -31,13 +30,13 @@ def read_wv_hadoop(fname):
 def read_wv_csv(fname):
     vocab, vecs = [], []
     vocab_set = set()
-    for idx, line in enumerate(codecs.open(fname, 'r', buffering=(2<<16+8), encoding='utf-8')):
+    for idx, line in enumerate(codecs.open(fname, 'r', buffering=(2 << 16 + 8), encoding='utf-8')):
         if len(line.strip()) == 0:
             break
         word, vec = line.split(',', 1)
 
         if word[0] == '0':
-            word = word[4:]# this is set when the first field is index of mapper
+            word = word[4:]  # this is set when the first field is index of mapper
 
         vec = eval(vec)
         vocab.append(word)
@@ -47,13 +46,14 @@ def read_wv_csv(fname):
     vecs = np.asarray(vecs, dtype=float)
     print("len(vocab) = {}, len(vecs) = {}".format(len(vocab), len(vecs)))
     for i in range(vecs.shape[0]):
-        vecs[i, :] /= sqrt((vecs[i, :]**2).sum(-1)) # normalization
+        vecs[i, :] /= sqrt((vecs[i, :] ** 2).sum(-1))  # normalization
     vocab = OrderedVocabulary(words=vocab)
     return Embedding(vocabulary=vocab, vectors=vecs)
 
 
 def load_embeddings(folder, filename, extension, norm, arch, selected=None):
-    fnames = os.popen('ls '+folder+'/'+filename+"*"+extension+'|grep -v syn1neg|grep -v syn0').read().split()
+    fnames = os.popen(
+        'ls ' + folder + '/' + filename + "*" + extension + '|grep -v syn1neg|grep -v syn0').read().split()
     dim_sub = 50
     if arch == 'hadoop':
         p = Pool(18)
@@ -62,7 +62,7 @@ def load_embeddings(folder, filename, extension, norm, arch, selected=None):
         vecs = [embedding.vectors for embedding in ebs]
         vocab = reduce(lambda x, y: x + y, vocab)
         vecs = vstack(vecs)
-        wvs = [Embedding(vocabulary=OrderedVocabulary(vocab), vectors=vecs[:, offset:offset+dim_sub])
+        wvs = [Embedding(vocabulary=OrderedVocabulary(vocab), vectors=vecs[:, offset:offset + dim_sub])
                for offset in range(0, vecs.shape[-1], dim_sub)]
         return wvs
     elif arch == 'local':
@@ -80,7 +80,7 @@ def load_embeddings(folder, filename, extension, norm, arch, selected=None):
         return wvs
     elif arch == 'submodels':
         p = Pool(10)
-        fnames = [folder+'/'+filename+str(i)+extension for i in selected]
+        fnames = [folder + '/' + filename + str(i) + extension for i in selected]
         wvs = p.map(read_wv_hadoop, fnames)
         return wvs
     elif arch == 'csv':

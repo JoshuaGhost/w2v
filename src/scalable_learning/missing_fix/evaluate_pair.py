@@ -1,23 +1,30 @@
-from scalable_learning.extrinsic_evaluation.web import evaluate_on_all
-from scalable_learning.extrinsic_evaluation.web.datasets.similarity import fetch_MEN, fetch_WS353, fetch_SimLex999, fetch_MTurk, fetch_RG65, fetch_RW
-from scalable_learning.extrinsic_evaluation.web.datasets.categorization import fetch_AP, fetch_battig, fetch_BLESS
-from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_analogy, evaluate_categorization, evaluate_similarity, evaluate_on_semeval_2012_2
-from scalable_learning.extrinsic_evaluation.web.analogy import *
-from copy import deepcopy
-from numpy import linalg
-import numpy as np
 import logging
+from copy import deepcopy
+
+import numpy as np
+from numpy import linalg
+
+from scalable_learning.extrinsic_evaluation.web import evaluate_on_all
+from scalable_learning.extrinsic_evaluation.web.analogy import *
+from scalable_learning.extrinsic_evaluation.web.datasets.categorization import fetch_AP, fetch_battig, fetch_BLESS
+from scalable_learning.extrinsic_evaluation.web.datasets.similarity import fetch_MEN, fetch_WS353, fetch_SimLex999, \
+    fetch_MTurk, fetch_RG65, fetch_RW
+from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_analogy, evaluate_categorization, \
+    evaluate_similarity, evaluate_on_semeval_2012_2
 
 logger = logging.getLogger(__name__)
 
 
 def prep_cross_validation(webs, pct_train=0.6, pct_test=0.4):
+    logger.info('preparing dataset for cross validation, %train={}, %test={}'.format(pct_train, pct_test))
     web0, web1 = webs
     v0, v1 = set(web0.vocabulary), set(web1.vocabulary)
     vocab_intersection = list(v0.intersection(v1))
-    print ("size of v0: {}, size of v1: {}, sizeof intersection: {}".format(len(v0), len(v1), len(vocab_intersection)))
-    len_train = int(len(vocab_intersection) * pct_train)
-    len_test = int(len(vocab_intersection) * (pct_train + pct_test)) - len_train
+    intersection_size = len(vocab_intersection)
+    logger.info("size of v0: {}, size of v1: {}, sizeof intersection: {}".format(len(v0), len(v1),
+                                                                                 intersection_size))
+    len_train = int(intersection_size * pct_train)
+    len_test = int(intersection_size * (pct_train + pct_test)) - len_train
     vocab_train = vocab_intersection[:len_train]
     vocab_test = vocab_intersection[len_train:len_train+len_test]
     if pct_train + pct_test == 1:   # for extrinsic evaluation, the 'evaluation' part is for real missing word
@@ -54,9 +61,9 @@ def missing_fix_2_subs(webs_train, interpolation_method, webs_test=None, webs_va
     try:
         assert len(webs_prediction[0].vectors) == len(webs_prediction[1].vectors)
     except AssertionError:
-        print('Error: size of m1 and m2 are not equal, perhapse \
+        logger.error(f"Error: size of m1 and m2 are not equal, perhaps \
                 some problems occur in the interpolation approach \
-                {}'.format(interpolation_method.__name__))
+                {interpolation_method.__name__}")
         return -1
     return webs_prediction
 
@@ -67,7 +74,9 @@ def eval_intrinsic(webs, interpolate_method, merge_method=None, pct_train=0.6, p
     diff = np.asarray([webs_predict[0][w] - webs[0][w] for w in webs_validation[1].vocabulary])
     err = linalg.norm(diff, 'fro')
     diff = np.asarray([webs_predict[1][w] - webs[1][w] for w in webs_validation[0].vocabulary])
-    return err + linalg.norm(diff, 'fro')  # bad evaluation metric for CCA based method. Because CCA transforms both.
+    err += linalg.norm(diff, 'fro')
+    logger.info(f"Intrinsic evaluation completed. Frobenius error: {err}")
+    return err # bad evaluation metric for CCA based method. Because CCA transforms both.
 
 
 def interpolate_combine(webs, interpolation_method, merge_method, pct_train=0.8, pct_test=0.2):
