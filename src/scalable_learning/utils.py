@@ -13,6 +13,10 @@ from scalable_learning.extrinsic_evaluation.web.vocabulary import OrderedVocabul
 
 new_dim = 500
 
+import logging
+
+logger = logging.getLogger()
+
 
 def read_wv_hadoop(fname):
     vocab, vecs = [], []
@@ -42,9 +46,9 @@ def read_wv_csv(fname):
         vocab.append(word)
         vecs.append(vec)
         if idx % 10000 == 0:
-            print("{}: len(word) = {}, len(vecs) = {}".format(idx, len(vocab), len(vecs)))
+            logger.info("{}: len(word) = {}, len(vecs) = {}".format(idx, len(vocab), len(vecs)))
     vecs = np.asarray(vecs, dtype=float)
-    print("len(vocab) = {}, len(vecs) = {}".format(len(vocab), len(vecs)))
+    logger.info("loading finished, {} word vectors loaded".format(len(vocab)))
     for i in range(vecs.shape[0]):
         vecs[i, :] /= sqrt((vecs[i, :] ** 2).sum(-1))  # normalization
     vocab = OrderedVocabulary(words=vocab)

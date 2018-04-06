@@ -27,7 +27,7 @@ MIN_COUNT = 100
 NPARTS = 10
 SUB_MIN_COUNT = 100 // NPARTS
 
-
+NUM_WORKERS = 33
 def eval_interpolate(webs, im, em, mm, dataset=None):
     count_subs = len(webs)
     eval_methods = {'i': eval_intrinsic, 'e': eval_extrinsic, 'd': eval_demand}
@@ -145,12 +145,12 @@ if __name__ == '__main__':
             os.makedirs(dump_folder)
         source_dump = args.dump_folder + '/' + 'source.csv'
         if os.path.isfile(source_dump):
-            logger.info(f'loading dumped source model: {source_dump}')
+            logger.info('loading dumped source model: {}'.format(source_dump))
             model_source = load_embeddings(folder='/', filename=source_dump, extension='', norm=True, arch='csv')[0]
         else:
-            logger.info(f'training new source model')
+            logger.info('training new source model')
             cname_source = args.cfolder + '/' + args.cname_source
-            model_source = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+            model_source = Word2Vec(size=DIM, negative=N_NS, workers=NUM_WORKERS, window=10, sg=1, null_word=1,
                                     min_count=SUB_MIN_COUNT, sample=1e-4)
             source_corpus = LineSentence(cname_source)
             model_source.build_vocab(source_corpus)
@@ -160,38 +160,41 @@ if __name__ == '__main__':
             model_source = gensim2web(model_source)
             source_corpus = None
             web2csv(model_source, source_dump)
-            logger.info(f'dumped source model as {source_dump}')
+            logger.info('dumped source model as {source_dump}')
         dataset = args.vbname
         vbname = args.vbfolder + '/' + dataset
-        logger.info(f'loading words from dataset {dataset}')
+        logger.info('loading words from dataset {}'.format(dataset))
         with codecs.open(vbname, 'r', encoding='utf8', buffering=1) as fvb:
-            vocab_benchmark = set(word for word in fvb)
+            vocab_benchmark = set(word.strip() for word in fvb)
+        print vocab_benchmark
 
         cname_target = args.cfolder + '/' + args.cname_target
         target_corpus = LineSentence(cname_target)
 
-        target0_dump = dump_folder + '/' + f'target0-{dataset}.csv'
+        target0_dump = dump_folder + '/' + 'target0-{}.csv'.format(dataset)
         if os.path.isfile(target0_dump):
-            logger.info(f'loading dumped target0 model: {target0_dump}')
+            logger.info('loading dumped target0 model: {}'.format(target0_dump))
             model_target0 = load_embeddings(folder='/', filename=target0_dump, extension='', norm=True, arch='csv')[0]
         else:
-            logger.info(f'training new source model')
-            model_target0 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+            logger.info('training new target0 model')
+            model_target0 = Word2Vec(size=DIM, negative=N_NS, workers=NUM_WORKERS, window=10, sg=1, null_word=1,
                                      min_count=SUB_MIN_COUNT, sample=1e-4)
-            model_target0.build_vocab(target_corpus, trim_rule=(lambda word, count, min_count:
-                                                                RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
+            model_target0.build_vocab(target_corpus,
+                                      trim_rule=(lambda word, count, min_count:
+                                                 RULE_DISCARD if word in vocab_benchmark or count < min_count
+                                                              else RULE_KEEP))
             model_target0.train(target_corpus, total_examples=model_target0.corpus_count, epochs=model_target0.epochs)
             model_target0.init_sims()
             model_target0 = gensim2web(model_target0)
             web2csv(model_target0, target0_dump)
-            logger.info(f'dumped target0 model as {target0_dump}')
+            logger.info('dumped target0 model as {}'.format(target0_dump))
 
-        target1_dump = dump_folder + '/' + f'target1-{dataset}.csv'
+        target1_dump = dump_folder + '/' + 'target1-{}.csv'.format(dataset)
         if os.path.isfile(target1_dump):
-            logger.info(f'loading dumped target1 model: {target1_dump}')
+            logger.info('loading dumped target1 model: {}'.format(target1_dump))
             model_target1 = load_embeddings(folder='/', filename=target1_dump, extension='', norm=True, arch='csv')[0]
         else:
-            logger.info(f'training new source model')
+            logger.info('training new target1 model')
             vocab_target = Word2VecVocab(min_count=SUB_MIN_COUNT, null_word=1)
             vocab_target.scan_vocab(target_corpus)
             vocab_target_sorted = list(vocab_target.raw_vocab.keys())
@@ -203,15 +206,17 @@ if __name__ == '__main__':
                     vocab_benchmark.remove(word)
                 if len(vocab_benchmark) <= size_benchmark // 2:
                     break
-            model_target1 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+            model_target1 = Word2Vec(size=DIM, negative=N_NS, workers=NUM_WORKERS, window=10, sg=1, null_word=1,
                                      min_count=SUB_MIN_COUNT, sample=1e-4)
-            model_target1.build_vocab(target_corpus, trim_rule=(lambda word, count, min_count:
-                                                                RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
+            model_target1.build_vocab(target_corpus,
+                                      trim_rule=(lambda word, count, min_count:
+                                                 RULE_DISCARD if word in vocab_benchmark or count < min_count
+                                                              else RULE_KEEP))
             model_target1.train(target_corpus, total_examples=model_target1.corpus_count, epochs=model_target1.epochs)
             model_target1.init_sims()
             model_target1 = gensim2web(model_target1)
             web2csv(model_target1, target1_dump)
-            logger.info(f'dumped target1 model as {target1_dump}')
+            logger.info('dumped target1 model as {}'.format(target1_dump))
 
         models_target = [model_target0, model_target1]
         with open('source-target.csv', 'a+') as fout:
@@ -225,9 +230,9 @@ if __name__ == '__main__':
                     for im in 'acpz':
                         result = eval_interpolate((model_source, models_target[model_idx]), im=im, mm='c', em=em,
                                                   dataset=dataset)
-                        logger.info(f'result of {ems[em]} evaluation using approach {ims[im]} is: {result}')
-                        fout.write(f'{result}, ')
-            fout.write(f'{dataset}\n')
+                        logger.info('result of {} evaluation using approach {} is: {}'.format(ems[em], ims[im], result))
+                        fout.write('{}, '.format(result))
+            fout.write('{}\n'.format(dataset))
 
         result = 'written in source-target.csv'
     else:

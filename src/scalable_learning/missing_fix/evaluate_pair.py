@@ -61,9 +61,9 @@ def missing_fix_2_subs(webs_train, interpolation_method, webs_test=None, webs_va
     try:
         assert len(webs_prediction[0].vectors) == len(webs_prediction[1].vectors)
     except AssertionError:
-        logger.error(f"Error: size of m1 and m2 are not equal, perhaps \
+        logger.error("Error: size of m1 and m2 are not equal, perhaps \
                 some problems occur in the interpolation approach \
-                {interpolation_method.__name__}")
+                {}".format(interpolation_method.__name__))
         return -1
     return webs_prediction
 
@@ -75,7 +75,7 @@ def eval_intrinsic(webs, interpolate_method, merge_method=None, pct_train=0.6, p
     err = linalg.norm(diff, 'fro')
     diff = np.asarray([webs_predict[1][w] - webs[1][w] for w in webs_validation[0].vocabulary])
     err += linalg.norm(diff, 'fro')
-    logger.info(f"Intrinsic evaluation completed. Frobenius error: {err}")
+    logger.info("Intrinsic evaluation completed. Frobenius error: {}".format(err))
     return err # bad evaluation metric for CCA based method. Because CCA transforms both.
 
 
