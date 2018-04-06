@@ -27,7 +27,7 @@ MIN_COUNT = 100
 NPARTS = 10
 SUB_MIN_COUNT = 100 // NPARTS
 
-
+NUM_WORKERS = 33
 def eval_interpolate(webs, im, em, mm, dataset=None):
     count_subs = len(webs)
     eval_methods = {'i': eval_intrinsic, 'e': eval_extrinsic, 'd': eval_demand}
@@ -150,7 +150,7 @@ if __name__ == '__main__':
         else:
             logger.info('training new source model')
             cname_source = args.cfolder + '/' + args.cname_source
-            model_source = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+            model_source = Word2Vec(size=DIM, negative=N_NS, workers=NUM_WORKERS, window=10, sg=1, null_word=1,
                                     min_count=SUB_MIN_COUNT, sample=1e-4)
             source_corpus = LineSentence(cname_source)
             model_source.build_vocab(source_corpus)
@@ -165,7 +165,8 @@ if __name__ == '__main__':
         vbname = args.vbfolder + '/' + dataset
         logger.info('loading words from dataset {}'.format(dataset))
         with codecs.open(vbname, 'r', encoding='utf8', buffering=1) as fvb:
-            vocab_benchmark = set(word for word in fvb)
+            vocab_benchmark = set(word.strip() for word in fvb)
+        print vocab_benchmark
 
         cname_target = args.cfolder + '/' + args.cname_target
         target_corpus = LineSentence(cname_target)
@@ -175,11 +176,13 @@ if __name__ == '__main__':
             logger.info('loading dumped target0 model: {}'.format(target0_dump))
             model_target0 = load_embeddings(folder='/', filename=target0_dump, extension='', norm=True, arch='csv')[0]
         else:
-            logger.info('training new source model')
-            model_target0 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+            logger.info('training new target0 model')
+            model_target0 = Word2Vec(size=DIM, negative=N_NS, workers=NUM_WORKERS, window=10, sg=1, null_word=1,
                                      min_count=SUB_MIN_COUNT, sample=1e-4)
-            model_target0.build_vocab(target_corpus, trim_rule=(lambda word, count, min_count:
-                                                                RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
+            model_target0.build_vocab(target_corpus,
+                                      trim_rule=(lambda word, count, min_count:
+                                                 RULE_DISCARD if word in vocab_benchmark or count < min_count
+                                                              else RULE_KEEP))
             model_target0.train(target_corpus, total_examples=model_target0.corpus_count, epochs=model_target0.epochs)
             model_target0.init_sims()
             model_target0 = gensim2web(model_target0)
@@ -191,7 +194,7 @@ if __name__ == '__main__':
             logger.info('loading dumped target1 model: {}'.format(target1_dump))
             model_target1 = load_embeddings(folder='/', filename=target1_dump, extension='', norm=True, arch='csv')[0]
         else:
-            logger.info('training new source model')
+            logger.info('training new target1 model')
             vocab_target = Word2VecVocab(min_count=SUB_MIN_COUNT, null_word=1)
             vocab_target.scan_vocab(target_corpus)
             vocab_target_sorted = list(vocab_target.raw_vocab.keys())
@@ -203,10 +206,12 @@ if __name__ == '__main__':
                     vocab_benchmark.remove(word)
                 if len(vocab_benchmark) <= size_benchmark // 2:
                     break
-            model_target1 = Word2Vec(size=DIM, negative=N_NS, workers=18, window=10, sg=1, null_word=1,
+            model_target1 = Word2Vec(size=DIM, negative=N_NS, workers=NUM_WORKERS, window=10, sg=1, null_word=1,
                                      min_count=SUB_MIN_COUNT, sample=1e-4)
-            model_target1.build_vocab(target_corpus, trim_rule=(lambda word, count, min_count:
-                                                                RULE_DISCARD if word in vocab_benchmark else RULE_KEEP))
+            model_target1.build_vocab(target_corpus,
+                                      trim_rule=(lambda word, count, min_count:
+                                                 RULE_DISCARD if word in vocab_benchmark or count < min_count
+                                                              else RULE_KEEP))
             model_target1.train(target_corpus, total_examples=model_target1.corpus_count, epochs=model_target1.epochs)
             model_target1.init_sims()
             model_target1 = gensim2web(model_target1)
