@@ -8,15 +8,15 @@ from pathlib2 import Path
 from sampling import reservoir
 import logging
 
-original_corpus_folder = Path('../subcorpora/').resolve()
-original_corpus_path = original_corpus_folder/Path('part.article.0.txt')
+original_corpus_folder = Path('../').resolve()
+original_corpus_path = original_corpus_folder/Path('article.txt')
 sub_corpora_folder = Path('./').resolve()
 nsub_corpora = 10
 sub_name = 'part.article'
 sub_ext = 'txt'
 strategy = 'sampling'
 #nlines_origin = int(os.popen('wc '+str(original_corpus_path)).read().split()[0])
-nlines_origin = 422794
+nlines_origin = 4227933
 
 FORMAT = '%(asctime)-15s %(message)s'
 logging.basicConfig(format=FORMAT)

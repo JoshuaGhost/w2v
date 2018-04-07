@@ -27,7 +27,7 @@ MIN_COUNT = 100
 NPARTS = 10
 SUB_MIN_COUNT = 100 // NPARTS
 
-NUM_WORKERS = 33
+NUM_WORKERS =18 
 def eval_interpolate(webs, im, em, mm, dataset=None):
     count_subs = len(webs)
     eval_methods = {'i': eval_intrinsic, 'e': eval_extrinsic, 'd': eval_demand}
