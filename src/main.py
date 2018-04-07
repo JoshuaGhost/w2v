@@ -22,6 +22,7 @@ logging.root.setLevel(level=logging.INFO)
 logger.info("running %s" % ' '.join(sys.argv))
 
 DIM = 500
+DIM = 50
 N_NS = 5
 MIN_COUNT = 100
 NPARTS = 10
@@ -143,7 +144,7 @@ if __name__ == '__main__':
         dump_folder = args.dump_folder
         if not os.path.isdir(dump_folder):
             os.makedirs(dump_folder)
-        source_dump = args.dump_folder + '/' + 'source.csv'
+        source_dump = args.dump_folder + '/' + 'source-dim50.csv'
         if os.path.isfile(source_dump):
             logger.info('loading dumped source model: {}'.format(source_dump))
             model_source = load_embeddings(folder='/', filename=source_dump, extension='', norm=True, arch='csv')[0]
@@ -170,7 +171,7 @@ if __name__ == '__main__':
         cname_target = args.cfolder + '/' + args.cname_target
         target_corpus = LineSentence(cname_target)
 
-        target0_dump = dump_folder + '/' + 'target0-{}.csv'.format(dataset)
+        target0_dump = dump_folder + '/' + 'target0-{}-dim50.csv'.format(dataset)
         if os.path.isfile(target0_dump):
             logger.info('loading dumped target0 model: {}'.format(target0_dump))
             model_target0 = load_embeddings(folder='/', filename=target0_dump, extension='', norm=True, arch='csv')[0]
@@ -188,7 +189,7 @@ if __name__ == '__main__':
             web2csv(model_target0, target0_dump)
             logger.info('dumped target0 model as {}'.format(target0_dump))
 
-        target1_dump = dump_folder + '/' + 'target1-{}.csv'.format(dataset)
+        target1_dump = dump_folder + '/' + 'target1-{}-dim50.csv'.format(dataset)
         if os.path.isfile(target1_dump):
             logger.info('loading dumped target1 model: {}'.format(target1_dump))
             model_target1 = load_embeddings(folder='/', filename=target1_dump, extension='', norm=True, arch='csv')[0]
@@ -216,7 +217,7 @@ if __name__ == '__main__':
             model_target1 = gensim2web(model_target1)
             web2csv(model_target1, target1_dump)
             logger.info('dumped target1 model as {}'.format(target1_dump))
-
+        '''
         models_target = [model_target0, model_target1]
         with open('source-target.csv', 'a+') as fout:
             head = [em + im + t for t in '12' for em in 'ie' for im in 'acpz'] + \
@@ -232,7 +233,7 @@ if __name__ == '__main__':
                         logger.info('result of {} evaluation using approach {} is: {}'.format(ems[em], ims[im], result))
                         fout.write('{}, '.format(result))
             fout.write('{}\n'.format(dataset))
-
+        '''
         result = 'written in source-target.csv'
     else:
         tasks = {'interpolate': interpolate, 'divide': divide_corpus}
