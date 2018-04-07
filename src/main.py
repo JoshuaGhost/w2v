@@ -166,7 +166,6 @@ if __name__ == '__main__':
         logger.info('loading words from dataset {}'.format(dataset))
         with codecs.open(vbname, 'r', encoding='utf8', buffering=1) as fvb:
             vocab_benchmark = set(word.strip() for word in fvb)
-        print vocab_benchmark
 
         cname_target = args.cfolder + '/' + args.cname_target
         target_corpus = LineSentence(cname_target)
