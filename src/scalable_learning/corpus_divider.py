@@ -12,13 +12,10 @@
         sampling: divide corpus using sampling
 '''
 
-import logging
-import os,sys
-import os.path
-from gensim.models.word2vec import LineSentence
-from time import time as ctime
-from scipy.sparse import lil_matrix
 from random import randint
+
+from scipy.sparse import lil_matrix
+
 
 def sample_table(ntotal, nparts):
     num_per_part = ntotal/nparts
@@ -33,10 +30,12 @@ def sample_table(ntotal, nparts):
         i += 1
     return ret
 
+
 def part_wrt_hit_table(lines, hit):
     for i, line in enumerate(lines):
         if hit[0, i] != 0:
             yield line
+
 
 def divide_partitioning(source, nparts):
     import itertools
@@ -44,6 +43,7 @@ def divide_partitioning(source, nparts):
     for start in range(nparts):
         lines = source.readlines()
         yield itertools.islice(lines, start, None, step)
+
 
 def divide_sampling(source, nparts):
     lines = source.readlines()
@@ -70,4 +70,25 @@ class DividedLineSentence(object):
             
     def __del__(self):
         self.source_doc.close()
-   
+
+
+def divide_corpus(argvs):
+    input_fname, strategy, npart, output_folder, output_fname = argvs
+    try:
+        assert strategy in {'sampling', 'partitioning'}
+    except AssertionError:
+        logger.error('dividing strategy should be either "sampling" or "partitioning"')
+    output_fname = '/'.join((output_folder, strategy, npart, output_fname))
+    npart = int(npart)
+
+    logger.info('start to divide corpora')
+    logger.info('divide corpus file [{}] into [{}] part(s) with strategy [{}]'.format(input_fname, npart, strategy))
+    logger.info('divided sub_corpora saved as [{}]'.format(output_fname))
+
+    lineSentences = DividedLineSentence(input_fname, strategy, npart)
+    with open(output_fname, 'w+') as fout:
+        for idx, part in enumerate(lineSentences):
+            output_lines = [line for line in part]
+            fout.write('?'.join(output_lines) + '\n')
+            logger.info('sub-corpus No. {} saved'.format(idx))
+    return output_fname

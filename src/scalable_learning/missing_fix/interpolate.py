@@ -1,45 +1,61 @@
 import numpy as np
-from scalable_learning.extrinsic_evaluation.web.embedding import Embedding
-from scalable_learning.extrinsic_evaluation.web.vocabulary import OrderedVocabulary
-from scipy.linalg import svd, inv, eigh
-from copy import deepcopy
+import scipy
+from scipy.linalg import inv, eigh
 
 
-def cca(webs_train, webs_test, webs_predict):
-    web0, web1 = webs_train
-    web0.append(webs_test[0])
-    web1.append(webs_test[1])
-    vecs0 = np.asarray(web0.vectors)
-    vecs1 = np.asarray(web1.vectors)
+def cca(source_train, source_test, target_train):
+    cov_ss = source_train.T.dot(source_train)
+    cov_tt = target_train.T.dot(target_train)
+    cov_st = source_train.T.dot(target_train)
+    cov_ss_i = inv(cov_ss)
+    cov_tt_i = inv(cov_tt)
+    cov_A = cov_ss_i.dot(cov_st.dot(cov_tt_i.dot(cov_st.T)))  # cov_st.T == cov_ts
+    cov_B = cov_tt_i.dot(cov_st.T.dot(cov_ss_i.dot(cov_st)))
 
-    sigma_00 = vecs0.T.dot(vecs0)
-    sigma_11 = vecs1.T.dot(vecs1)
-    sigma_01 = vecs0.T.dot(vecs1)
-    sigma_00_i = inv(sigma_00)
-    sigma_11_i = inv(sigma_11)
-    sigma_A = sigma_00_i.dot(sigma_01.dot(sigma_11_i.dot(sigma_01.T)))
-    sigma_B = sigma_11_i.dot(sigma_01.T.dot(sigma_00_i.dot(sigma_01)))
+    _, A = eigh(cov_A)
+    _, B = eigh(cov_B)
 
-    _, A = eigh(sigma_A)  # A, B are orthogonal matrix thus multiplication of them is a basis-change
-    _, B = eigh(sigma_B)  # A, B are orthogonal matrix thus multiplication of them is a basis-change
+    target_test = source_test.dot(A).dot(inv(B))
 
-    vecs0 = vecs0.dot(A)
-    vecs1 = vecs1.dot(B)
-    vecs_predict0 = np.asarray(webs_predict[0].vectors).dot(A)
-    vecs_predict1 = np.asarray(webs_predict[1].vectors).dot(B)
-
-    web0.vectors = vecs0
-    web1.vectors = vecs1
-    web_predict0 = Embedding(vocabulary=webs_predict[0].vocabulary, vectors=vecs_predict0)
-    web_predict1 = Embedding(vocabulary=webs_predict[1].vocabulary, vectors=vecs_predict1)
-
-    web0.append(web_predict0)
-    web0.append(web_predict1)
-    web1.append(web_predict0)
-    web1.append(web_predict1)
-    return web0, web1
+    return np.vstack((source_train, source_test)), np.vstack((target_train, target_test))
 
 
+def orthogonal_procrustes(source_train, source_test, target_train):
+    R, _ = scipy.linalg.orthogonal_procrustes(source_train, target_train)
+    target_test = source_test.dot(R)
+    return np.vstack((source_train, source_test)), np.vstack((target_train, target_test))
+
+
+def sols(source, target):
+    cov = source.T.dot(source) + np.eye(source.shape[1])*1e-10
+    cov_inv = inv(cov)
+    R = cov_inv.dot(source.T.dot(target))
+    return R
+
+
+def global_transform(source_train, source_test, target_train):
+    R = sols(source_train, target_train)
+    target_test = source_test.dot(R)
+    return np.vstack((source_train, source_test)), np.vstack((target_train, target_test))
+
+
+def fill_zero(source_train, source_test, target_train):
+    target_test = np.zeros_like(source_test)
+    return np.vstack((source_train, source_test)), np.vstack((target_train, target_test))
+
+
+def ordinary_least_square(source, target):
+    R = sols(source, target)
+    predict = source.dot(R)
+    return predict, np.linalg.norm(predict - target, 'fro')
+
+
+def orthogonal_procrustes_regression(source, target):
+    R, _ = scipy.linalg.orthogonal_procrustes(source, target)
+    predict = source.dot(R)
+    return R, np.linalg.norm(predict - target, 'fro')
+
+'''
 def orthogonal_procrustes(webs_train, webs_test, webs_predict):
     web0, web1 = webs_train
     web0.append(webs_test[0])
@@ -110,3 +126,39 @@ def fill_zero(webs_train, webs_test, webs_predict):
     web1.append(web_predict1)
 
     return web0, web1
+
+    
+def cca(webs_train, webs_test, webs_predict):
+    web0, web1 = webs_train
+    web0.append(webs_test[0])
+    web1.append(webs_test[1])
+    vecs0 = np.asarray(web0.vectors)
+    vecs1 = np.asarray(web1.vectors)
+
+    sigma_00 = vecs0.T.dot(vecs0)
+    sigma_11 = vecs1.T.dot(vecs1)
+    sigma_01 = vecs0.T.dot(vecs1)
+    sigma_00_i = inv(sigma_00)
+    sigma_11_i = inv(sigma_11)
+    sigma_A = sigma_00_i.dot(sigma_01.dot(sigma_11_i.dot(sigma_01.T)))
+    sigma_B = sigma_11_i.dot(sigma_01.T.dot(sigma_00_i.dot(sigma_01)))
+
+    _, A = eigh(sigma_A)  # A, B are orthogonal matrix thus multiplication of them is a basis-change
+    _, B = eigh(sigma_B)  # A, B are orthogonal matrix thus multiplication of them is a basis-change
+
+    vecs0 = vecs0.dot(A)
+    vecs1 = vecs1.dot(B)
+    vecs_predict0 = np.asarray(webs_predict[0].vectors).dot(A)
+    vecs_predict1 = np.asarray(webs_predict[1].vectors).dot(B)
+
+    web0.vectors = vecs0
+    web1.vectors = vecs1
+    web_predict0 = Embedding(vocabulary=webs_predict[0].vocabulary, vectors=vecs_predict0)
+    web_predict1 = Embedding(vocabulary=webs_predict[1].vocabulary, vectors=vecs_predict1)
+
+    web0.append(web_predict0)
+    web0.append(web_predict1)
+    web1.append(web_predict0)
+    web1.append(web_predict1)
+    return web0, web1
+'''
