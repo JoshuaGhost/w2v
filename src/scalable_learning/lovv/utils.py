@@ -16,7 +16,7 @@ def gensim2lovv(model, use_norm):
     if use_norm:
         model.init_sims()
     for word in model.wv.vocab.keys():
-        assert isinstance(word, str)
+        assert isinstance(word, str) or isinstance(word, unicode)
         vocab.append(word)
         vectors.append(model.wv.word_vec(word, use_norm=use_norm))
     vvs = sorted(zip(vocab, vectors), key=(lambda x: x[0]))
