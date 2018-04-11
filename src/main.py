@@ -44,14 +44,28 @@ def eval_interpolate(lovvs, interpolate, evaluate, merging_method, benchmark=Non
 
 
 def make_index_table(part, vocab):
-    """
-
-    :rtype: object
-    """
     index_tabel = np.asarray([0 for w in part])
     for part_idx, vocab_idx in enumerate(common_words_index(part, vocab)):
         index_tabel[part_idx] = vocab_idx
     return index_tabel
+
+
+def find_union(lovvs):
+    if os.path.isfile(vocab_union_file):
+        with codecs.open(vocab_union_file, 'r', encoding='utf-8') as fdump:
+            vocab_union = [word.strip() for word in fdump]
+    else:
+        vocab_sets = map(set, [vv[0] for vv in lovvs])
+        vocab_union = functools.reduce(lambda a, b: a.union(b), vocab_sets)
+        vocab_union = sorted(list(vocab_union))
+        with codecs.open(vocab_union_file, 'w+', encoding='utf-8') as fdump:
+            for word in vocab_union:
+                fdump.write(word+'\n')
+    lovvs = [[lovv[0], lovv[1], make_index_table(lovv[0], vocab_union)] for lovv in lovvs]
+    vocab_count = np.zeros((len(vocab_union), 1))
+    for lovv in lovvs:
+        vocab_count[lovv[2]] += 1
+    return lovvs, vocab_union, vocab_count
 
 
 if __name__ == '__main__':
@@ -198,51 +212,55 @@ if __name__ == '__main__':
                                                                                           result))
                     fout.write('{}, '.format(result))
             for model in (model_source, model_target0, model_target1):
-                result = eval_one_dataset(lovv2web(model_source), merge=concat, dataset=dataset)
+                result = eval_one_dataset(lovv2web(model), merge=concat, dataset=dataset)
                 fout.write('{}, '.format(result))
             fout.write('\n')
         result = 'written in source-target.csv'
 
     elif task == 'interpolate_all':
         subs_folder, filename, extension, input_type = args.d, args.f, args.e, args.T
-        imethod, emethod, mmethod = args.imethod, args.emethod, args.mmethod
         lovvs = load_embeddings(folder=subs_folder, filename=filename, extension=extension, use_norm=True,
                                 input_format=input_type, output_format='lovv')
         dump_folder = args.dump_folder
         vocab_union_file = dump_folder + '/' + args.vocab_union_file
-        vocab_union = []
-        if os.path.isfile(vocab_union_file):
-            with codecs.open(vocab_union_file, 'r', encoding='utf-8') as fdump:
-                vocab_union = [word.strip() for word in fdump]
-        else:
-            vocab_sets = map(set, [vv[1] for vv in lovvs])
-            vocab_intersection = functools.reduce(lambda a, b: a.intersection(b), vocab_sets)
-            vocab_union = functools.reduce(lambda a, b: a.union(b), vocab_sets)
-            vocab_union = sorted(list(vocab_union))
-            with codecs.open(vocab_union_file, 'w+', encoding='utf-8') as fdump:
-                for word in vocab_union:
-                    fdump.write(word+'\n')
-        for lovv in lovvs:
-            lovv.append(make_index_table(lovv[0], vocab_union))
-        vocab_count = functools.reduce(lambda a, b: a + b, [lovv[2].astype(int) for lovv in lovvs])
-        vocab_count = np.asarray(vocab_count).reshape(len(vocab_union, 1))
-        regress = ordinary_least_square if args.r == 'sols' else orthogonal_procrustes_regression
-        err_total = 1000000.
-        dim_sub = lovvs[0][1].shape[-1]
-        y = np.random.random((len(vocab_union), dim_sub))
-        predict = [np.zeros((dim_sub, dim_sub)) for i in lovvs]
-        while err_total > ERR_THRESHOLD:
-            err_total = 0
-            for idx, lovv in enumerate(lovvs):
-                predict[idx], err = regress(lovv[1], y[lovv[2]])
-                err_total += err
-            y = np.zeros_like(y)
-            for idx, _ in enumerate(lovvs):
-                y[lovv[2]] += predict[idx]
-            y = y / vocab_count
-            y = y / np.linalg.norm(y, axis=0)
-            err_total = err_total / np.sqrt(len(vocab_union) * dim_sub)
-        result = err_total
+
+        lovvs, vocab_union, vocab_count = find_union(lovvs)
+
+        fout = open('final-approach.csv', 'a+')
+        for regress in (ordinary_least_square, orthogonal_procrustes_regression):
+            # regress = ordinary_least_square if args.r == 'sols' else orthogonal_procrustes_regression
+            err_total = 1e100
+            dim_sub = lovvs[0][1].shape[-1]
+            y = np.random.random((len(vocab_union), dim_sub))
+            predict = [np.zeros((len(vocab_union), dim_sub)) for i in lovvs]
+            i = 0
+            while err_total > ERR_THRESHOLD:
+                cached_error = err_total
+                err_total = 0
+                for idx, lovv in enumerate(lovvs):
+                    predict[idx], err = regress(lovv[1], y[lovv[2]])
+                    err_total += err
+                y = np.zeros_like(y)
+                for idx, _ in enumerate(lovvs):
+                    y[lovv[2]] += predict[idx]
+                y = y / vocab_count  # averaging the sum of vectors
+                y = y / np.linalg.norm(y, axis=0)  # normalization, preventing from getting degenerate results
+                err_total = err_total / np.sqrt(len(vocab_union) * dim_sub)
+                print(abs(err_total-cached_error))
+                if abs(err_total-cached_error) < 1e-15:
+                    logger.info('error stabilizes, exit iteration.')
+                    logger.info('current iteration: #{}, total normalized frobenius error is{}'.format(i, err_total))
+                    break
+                logger.info('current iteration: #{}, total normalized frobenius error is {}.'.format(i, err_total))
+                i += 1
+            result = evaluate_on_all(lovv2web((vocab_union, y)), cosine_similarity=False)
+            fout.write('dataset, approach, ')
+            fout.write('{}\n'.format(','.join(result.columns.tolist())))
+            fout.write('MEN, '+regress.__name__+', ')
+            fout.write('{}\n'.format(result.to_csv(header=False, index=False)))
+        fout.close()
+        result = 'written in {}\n'.format('final-approach.csv')
+
     else:
         tasks = {'divide': divide_corpus}
         result = tasks[task](sys.argv[2:-1])

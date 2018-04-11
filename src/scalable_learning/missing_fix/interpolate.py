@@ -57,7 +57,7 @@ def ordinary_least_square(source, target):
 def orthogonal_procrustes_regression(source, target):
     R, _ = scipy.linalg.orthogonal_procrustes(source, target)
     predict = source.dot(R)
-    return R, np.linalg.norm(predict - target, 'fro')
+    return predict, np.linalg.norm(predict - target, 'fro')
 
 '''
 def orthogonal_procrustes(webs_train, webs_test, webs_predict):
