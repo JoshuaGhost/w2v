@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from scipy.linalg import inv, eigh
+from scipy.linalg import inv, eigh, LinAlgError
 
 
 def cca(source_train, source_test, target_train):
@@ -27,9 +27,13 @@ def orthogonal_procrustes(source_train, source_test, target_train):
 
 
 def sols(source, target):
-    cov = source.T.dot(source) + np.eye(source.shape[1])*1e-10
-    cov_inv = inv(cov)
-    R = cov_inv.dot(source.T.dot(target))
+    cov = source.T.dot(source)
+    try:
+        cov_inv = inv(cov)
+    except LinAlgError:
+        cov += np.eye(cov.shape[0])*1e-13
+        cov_inv = inv(cov)
+    R = cov_inv.dot(source.T).dot(target)
     return R
 
 

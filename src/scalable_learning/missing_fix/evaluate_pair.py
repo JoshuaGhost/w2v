@@ -4,12 +4,7 @@ from numpy import linalg
 
 from scalable_learning.extrinsic_evaluation.web import evaluate_on_all
 from scalable_learning.extrinsic_evaluation.web.analogy import *
-from scalable_learning.extrinsic_evaluation.web.datasets.categorization import fetch_AP, fetch_battig, fetch_BLESS
-from scalable_learning.extrinsic_evaluation.web.datasets.similarity import fetch_MEN, fetch_WS353, fetch_SimLex999, \
-    fetch_MTurk, fetch_RG65, fetch_RW
-from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_analogy, evaluate_categorization, \
-    evaluate_similarity, evaluate_on_semeval_2012_2
-from scalable_learning.lovv.utils import lovv2web
+
 
 logger = logging.getLogger(__name__)
 
@@ -201,58 +196,12 @@ def interpolate_combine(lovvs, interpolate_method, merge, pct_train=0.6, pct_tes
 
 
 def eval_extrinsic(embeddings, merge, dataset=None):
-    lovv_combined = merge(embeddings)
-    web_combined = lovv2web(lovv_combined)
+    if isinstance(embeddings, tuple) or isinstance(embeddings, list):
+        web_combined = merge(embeddings)
+    else:
+        web_combined = embeddings
     result = evaluate_on_all(web_combined, cosine_similarity=False)
     return result
 
 
-def eval_demand(embeddings, merge, dataset):
-    web_combined = merge(embeddings)
 
-    similarity_tasks = {
-        "MEN": fetch_MEN(),
-        "WS353": fetch_WS353(),
-        "WS353R": fetch_WS353(which="relatedness"),
-        "WS353S": fetch_WS353(which="similarity"),
-        "SimLex999": fetch_SimLex999(),
-        "RW": fetch_RW(),
-        "RG65": fetch_RG65(),
-        "MTurk": fetch_MTurk(),
-    }
-
-    analogy_tasks = {
-        "Google": fetch_google_analogy(),
-        "MSR": fetch_msr_analogy()
-    }
-
-    categorization_tasks = {
-        "AP": fetch_AP(),
-        "BLESS": fetch_BLESS(),
-        "Battig": fetch_battig(),
-        # "ESSLI_2c": fetch_ESSLI_2c(),
-        # "ESSLI_2b": fetch_ESSLI_2b(),
-        # "ESSLI_1a": fetch_ESSLI_1a()
-    }
-
-    if dataset in {'MEN', 'RW', 'WS353', 'WS353S', 'WS353R'}:
-        logger.info("Calculating similarity benchmarks")
-        data = similarity_tasks[dataset]
-        result = evaluate_similarity(web_combined, data.X, data.y, cosine_similarity=False)
-        logger.info("Spearman correlation of scores on {} {}".format(dataset, result))
-    elif dataset in {'Google'}:
-        logger.info("Calculating analogy benchmarks")
-        data = analogy_tasks[dataset]
-        result = evaluate_analogy(web_combined, data.X, data.y)
-        logger.info("Analogy prediction accuracy on {} {}".format(dataset, result))
-    elif dataset == 'SemEval2012':
-        logger.info("Calculating analogy benchmarks")
-        result = evaluate_on_semeval_2012_2(web_combined)['all']
-        logger.info("Analogy prediction accuracy on {} {}".format("SemEval2012", result))
-    else:
-        logger.info("Calculating categorization benchmarks")
-        data = categorization_tasks[dataset]
-        result = evaluate_categorization(web_combined, data.X, data.y)
-        logger.info("Cluster purity on {} {}".format(dataset, result))
-
-    return result

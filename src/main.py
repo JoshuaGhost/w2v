@@ -9,12 +9,14 @@ import gensim.models.word2vec
 from scalable_learning.corpus_divider import divide_corpus
 from scalable_learning.extrinsic_evaluation.web.evaluate import evaluate_on_all
 from scalable_learning.merge import pca, concat, lra
-from scalable_learning.missing_fix.evaluate_pair import eval_intrinsic, eval_extrinsic, eval_demand, extrinsic_cv_split
+from scalable_learning.missing_fix.evaluate_pair import eval_intrinsic, eval_extrinsic, extrinsic_cv_split
 from scalable_learning.missing_fix.interpolate import global_transform, fill_zero, orthogonal_procrustes, \
     cca, orthogonal_procrustes_regression, ordinary_least_square
+from scalable_learning.extrinsic_evaluation.evaluate_on_demand import eval_one_dataset
 from scalable_learning.utils import read_wv_csv
 from utils import *
 from config import SUB_MIN_COUNT, DIM, NUM_WORKERS, ERR_THRESHOLD
+from scalable_learning.lovv.utils import lovv2web
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
@@ -42,6 +44,10 @@ def eval_interpolate(lovvs, interpolate, evaluate, merging_method, benchmark=Non
 
 
 def make_index_table(part, vocab):
+    """
+
+    :rtype: object
+    """
     index_tabel = np.asarray([0 for w in part])
     for part_idx, vocab_idx in enumerate(common_words_index(part, vocab)):
         index_tabel[part_idx] = vocab_idx
@@ -151,12 +157,25 @@ if __name__ == '__main__':
 
         models_target = [model_target0, model_target1]
         with open('source-target.csv', 'a+') as fout:
-            head = [em + im + t for t in '12' for em in 'ie' for im in 'acpz'] + \
-                   ['source', 'target0', 'target1', 'dataset']
-            fout.write(','.join(head) + '\n')
+            eval_names = {'i': 'intrinsic',
+                          'd': 'dataset-shadowed extrinsic'}
+            interpolation_names = {'g': 'global transformation',
+                                   'c': 'CCA',
+                                   'p': 'orthogonal Procrustes',
+                                   'z': 'trivial filling zeros'}
+            target_names = {'0': 'mask 100% dataset',
+                           '1': 'mask 50% dataset'}
+
+            head = ['dataset']
+            head += [interpolation_names[im] + '/ ' + target_names[t]
+                     for t in '01' for im in 'gcpz']
+            head += ['source', 'target0', 'target1']
+            fout.write(', '.join(head) + '\n')
+            fout.write(dataset + ', ')
+
             eval_methods = {'i': eval_intrinsic,
                             'e': eval_extrinsic,
-                            'd': eval_demand}
+                            'd': eval_one_dataset}
             interpolation_methods = {'g': global_transform,
                                      'c': cca,
                                      'p': orthogonal_procrustes,
@@ -164,27 +183,26 @@ if __name__ == '__main__':
             merging_methods = {'p': pca,
                                'c': concat,
                                'l': lra}
-            eval_names = {'i': 'intrinsic',
-                          'd': 'dataset-shadowed extrinsic'}
-            interpolation_names = {'g': 'global transformation',
-                                   'c': 'CCA',
-                                   'p': 'orthogonal Procrustes',
-                                   'z': 'trivial filling zeros'}
+
             for model_idx in (0, 1):
-                for em in 'd':
-                    for im in 'gcpz':
-                        result = eval_interpolate((model_source, models_target[model_idx]),
-                                                  interpolate=interpolation_methods[im],
-                                                  merging_method=merging_methods['c'],
-                                                  evaluate=eval_methods[em],
-                                                  benchmark=dataset,
-                                                  sorted_vocab=True)
-                        logger.info('result of {} evaluation using approach {} is: {}'.format(eval_names[em],
-                                                                                              interpolation_names[im],
-                                                                                              result))
-                        fout.write('{}, '.format(result))
-            fout.write('{}\n'.format(dataset))
+                em = 'd'
+                for im in 'gcpz':
+                    result = eval_interpolate((model_source, models_target[model_idx]),
+                                              interpolate=interpolation_methods[im],
+                                              merging_method=merging_methods['c'],
+                                              evaluate=eval_methods[em],
+                                              benchmark=dataset,
+                                              sorted_vocab=True)
+                    logger.info('result of {} evaluation using approach {} is: {}'.format(eval_names[em],
+                                                                                          interpolation_names[im],
+                                                                                          result))
+                    fout.write('{}, '.format(result))
+            for model in (model_source, model_target0, model_target1):
+                result = eval_one_dataset(lovv2web(model_source), merge=concat, dataset=dataset)
+                fout.write('{}, '.format(result))
+            fout.write('\n')
         result = 'written in source-target.csv'
+
     elif task == 'interpolate_all':
         subs_folder, filename, extension, input_type = args.d, args.f, args.e, args.T
         imethod, emethod, mmethod = args.imethod, args.emethod, args.mmethod
