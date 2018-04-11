@@ -1,0 +1,21 @@
+dataset, global transformation/ mask 100% dataset, CCA/ mask 100% dataset, orthogonal Procrustes/ mask 100% dataset, trivial filling zeros/ mask 100% dataset, global transformation/ mask 50% dataset, CCA/ mask 50% dataset, orthogonal Procrustes/ mask 50% dataset, trivial filling zeros/ mask 50% dataset, source
+MEN,0.678496660922,0.683246318588,0.683246318588,0.683246318588,0.675255696335,0.580450545189,0.678708575696,0.541772651886,0.683246318588
+dataset, global transformation/ mask 100% dataset, CCA/ mask 100% dataset, orthogonal Procrustes/ mask 100% dataset, trivial filling zeros/ mask 100% dataset, global transformation/ mask 50% dataset, CCA/ mask 50% dataset, orthogonal Procrustes/ mask 50% dataset, trivial filling zeros/ mask 50% dataset, source
+RW,0.285363853455,0.304031569015,0.287128344306,0.300325457469,0.260327260124,0.234654519458,0.290993647954,0.135257747043,0.287169097832
+dataset, global transformation/ mask 100% dataset, CCA/ mask 100% dataset, orthogonal Procrustes/ mask 100% dataset, trivial filling zeros/ mask 100% dataset, global transformation/ mask 50% dataset, CCA/ mask 50% dataset, orthogonal Procrustes/ mask 50% dataset, trivial filling zeros/ mask 50% dataset, source
+Google,0.165882112157,0.485264019648,0.423761768318,0.381293491609,0.24933483422,0.27665779779,0.405341792878,0.256753990995,0.381344658207
+dataset, global transformation/ mask 100% dataset, CCA/ mask 100% dataset, orthogonal Procrustes/ mask 100% dataset, trivial filling zeros/ mask 100% dataset, global transformation/ mask 50% dataset, CCA/ mask 50% dataset, orthogonal Procrustes/ mask 50% dataset, trivial filling zeros/ mask 50% dataset, source
+WS353,0.594066212883,0.606300369969,0.60634442974,0.606214978587,0.57139234542,0.515609947212,0.60052799434,0.40056770268,0.60634442974
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,dataset,MEN,RW,Google,WS353,,,,
+source,,.683,.287,.381,.606,,,,
+mask 100% dataset,global,.678,.285,.166,.594,,,,
+,cca,.683,.304,.485,.606,,,,
+,orthogonal procrustes,.683,.287,.424,.606,,,,
+,filling zeros,.683,.300,.381,.606,,,,
+mask 50% dataset,global,.675,.260,.249,.571,,,,
+,cca,.580,.235,.277,.516,,,,
+,orthogonal procrustes,.679,.291,.405,.601,,,,
+,filling zeros,.542,.135,.257,.401,,,,

@@ -1,0 +1,10 @@
+,dataset,MEN,RW,Google,WS353
+source,,.683,.287,.381,.606
+mask 100% dataset,global,.678,.285,.166,.594
+,cca,.683,.304,.485,.606
+,orthogonal procrustes,.683,.287,.424,.606
+,filling zeros,.683,.300,.381,.606
+mask 50% dataset,global,.675,.260,.249,.571
+,cca,.580,.235,.277,.516
+,orthogonal procrustes,.679,.291,.405,.601
+,filling zeros,.542,.135,.257,.401
