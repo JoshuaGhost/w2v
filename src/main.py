@@ -39,7 +39,8 @@ def eval_interpolate(lovvs, interpolate, evaluate, merging_method, benchmark=Non
     vocabulary = lovvs_train[0][0] + lovvs_validation[0][0]
     source_web = Embedding(vocabulary=OrderedVocabulary(vocabulary), vectors=source_predict)
     target_web = Embedding(vocabulary=OrderedVocabulary(vocabulary), vectors=target_predict)
-    ret = evaluate((source_web, target_web), merge=merging_method, dataset=benchmark)
+    ret = eval_one_dataset(target_web, dataset=benchmark)
+    #ret = evaluate((source_web, target_web), merge=merging_method, dataset=benchmark)
     return ret
 
 
@@ -52,19 +53,23 @@ def make_index_table(part, vocab):
 
 def find_union(lovvs):
     if os.path.isfile(vocab_union_file):
+        logger.info('loadding the dumped union vocabulary from {}'.format(vocab_union_file))
         with codecs.open(vocab_union_file, 'r', encoding='utf-8') as fdump:
             vocab_union = [word.strip() for word in fdump]
     else:
+        logger.info('calculating union of vocabularies')
         vocab_sets = map(set, [vv[0] for vv in lovvs])
         vocab_union = functools.reduce(lambda a, b: a.union(b), vocab_sets)
         vocab_union = sorted(list(vocab_union))
         with codecs.open(vocab_union_file, 'w+', encoding='utf-8') as fdump:
             for word in vocab_union:
                 fdump.write(word+'\n')
+        logger.info('common vocabulary dumped in {}'.format(vocab_union_file))
     lovvs = [[lovv[0], lovv[1], make_index_table(lovv[0], vocab_union)] for lovv in lovvs]
     vocab_count = np.zeros((len(vocab_union), 1))
     for lovv in lovvs:
         vocab_count[lovv[2]] += 1
+    logger.info('size of union of vocabularies: {}'.format(len(vocab_count)))
     return lovvs, vocab_union, vocab_count
 
 
@@ -241,12 +246,11 @@ if __name__ == '__main__':
                     predict[idx], err = regress(lovv[1], y[lovv[2]])
                     err_total += err
                 y = np.zeros_like(y)
-                for idx, _ in enumerate(lovvs):
+                for idx, lovv in enumerate(lovvs):
                     y[lovv[2]] += predict[idx]
                 y = y / vocab_count  # averaging the sum of vectors
                 y = y / np.linalg.norm(y, axis=0)  # normalization, preventing from getting degenerate results
-                err_total = err_total / np.sqrt(len(vocab_union) * dim_sub)
-                print(abs(err_total-cached_error))
+                err_total = err_total #/ np.sqrt(len(vocab_union) * dim_sub)
                 if abs(err_total-cached_error) < 1e-15:
                     logger.info('error stabilizes, exit iteration.')
                     logger.info('current iteration: #{}, total normalized frobenius error is{}'.format(i, err_total))
